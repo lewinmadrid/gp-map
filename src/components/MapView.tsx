@@ -22,6 +22,7 @@ const MapView = () => {
   const map = useRef<Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentBasemap, setCurrentBasemap] = useState('terrain');
+  const [wmtsLayerVisible, setWmtsLayerVisible] = useState(false);
 
   const basemaps = {
     satellite: {
@@ -95,6 +96,45 @@ const MapView = () => {
       unit: 'metric'
     }), 'bottom-left');
 
+    // Add WMTS source
+    map.current.addSource('wmts-evacuation', {
+      type: 'vector',
+      tiles: ['https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}&cacheVersion=1756466156'],
+      minzoom: 0,
+      maxzoom: 18
+    });
+
+    // Add WMTS layer (initially hidden)
+    map.current.addLayer({
+      id: 'evacuation-zones',
+      type: 'fill',
+      source: 'wmts-evacuation',
+      'source-layer': 'evacuation_zone_details',
+      paint: {
+        'fill-color': 'hsl(var(--map-accent))',
+        'fill-opacity': 0.3
+      },
+      layout: {
+        visibility: 'none'
+      }
+    });
+
+    // Add WMTS layer outline
+    map.current.addLayer({
+      id: 'evacuation-zones-outline',
+      type: 'line',
+      source: 'wmts-evacuation',
+      'source-layer': 'evacuation_zone_details',
+      paint: {
+        'line-color': 'hsl(var(--map-accent))',
+        'line-width': 2,
+        'line-opacity': 0.8
+      },
+      layout: {
+        visibility: 'none'
+      }
+    });
+
     // Set map loaded state
     map.current.on('load', () => {
       setMapLoaded(true);
@@ -122,6 +162,18 @@ const MapView = () => {
     setCurrentBasemap(basemapKey);
   };
 
+  const toggleWmtsLayer = () => {
+    if (!map.current || !mapLoaded) return;
+
+    const newVisibility = !wmtsLayerVisible;
+    const visibility = newVisibility ? 'visible' : 'none';
+    
+    map.current.setLayoutProperty('evacuation-zones', 'visibility', visibility);
+    map.current.setLayoutProperty('evacuation-zones-outline', 'visibility', visibility);
+    
+    setWmtsLayerVisible(newVisibility);
+  };
+
   return (
     <div className="relative w-full h-screen bg-map-surface overflow-hidden">
       {/* Map Container */}
@@ -135,13 +187,13 @@ const MapView = () => {
       
       {/* Right Side Toolbar */}
       <div className="absolute top-4 right-4 z-20 flex flex-col gap-1">
-        {/* Active Layer Panel */}
+        {/* Basemap Panel */}
         <div className="bg-map-overlay/95 backdrop-blur-sm border border-map-border rounded-lg shadow-elegant">
           <div className="p-3 border-b border-map-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapIcon className="h-4 w-4 text-map-accent" />
-                <span className="text-sm font-medium text-map-text">Active Layer</span>
+                <span className="text-sm font-medium text-map-text">Basemap</span>
               </div>
               <ChevronDown className="h-4 w-4 text-map-text-muted" />
             </div>
@@ -157,6 +209,29 @@ const MapView = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        </div>
+
+        {/* WMTS Layers Panel */}
+        <div className="bg-map-overlay/95 backdrop-blur-sm border border-map-border rounded-lg shadow-elegant">
+          <div className="p-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-map-accent" />
+                <span className="text-sm font-medium text-map-text">Data Layers</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={wmtsLayerVisible}
+                  onChange={toggleWmtsLayer}
+                  className="w-3 h-3 rounded border border-map-border bg-map-control checked:bg-map-accent"
+                />
+                <span className="text-xs text-map-text">Evacuation Zones</span>
+              </label>
+            </div>
           </div>
         </div>
 
