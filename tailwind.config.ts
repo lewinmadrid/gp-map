@@ -52,6 +52,16 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				map: {
+					surface: 'hsl(var(--map-surface))',
+					overlay: 'hsl(var(--map-overlay))',
+					control: 'hsl(var(--map-control))',
+					border: 'hsl(var(--map-border))',
+					text: 'hsl(var(--map-text))',
+					'text-muted': 'hsl(var(--map-text-muted))',
+					accent: 'hsl(var(--map-accent))',
+					'accent-glow': 'hsl(var(--map-accent-glow))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
