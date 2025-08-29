@@ -1,10 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Map, NavigationControl, GeolocateControl, ScaleControl } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Layers, Search, Settings } from 'lucide-react';
+import { 
+  MapPin, 
+  Layers, 
+  Search, 
+  Navigation, 
+  Ruler, 
+  Home, 
+  ZoomIn, 
+  ZoomOut, 
+  RotateCcw,
+  ChevronDown,
+  Map as MapIcon
+} from 'lucide-react';
 
 const MapView = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -112,32 +123,33 @@ const MapView = () => {
   };
 
   return (
-    <div className="relative w-full h-screen bg-map-surface">
+    <div className="relative w-full h-screen bg-map-surface overflow-hidden">
       {/* Map Container */}
       <div 
         ref={mapContainer} 
-        className="absolute inset-0 rounded-none"
+        className="absolute inset-0"
         style={{ 
           background: 'hsl(var(--map-surface))'
         }}
       />
       
-      {/* Top Control Panel */}
-      <Card className="absolute top-4 left-4 bg-map-overlay/95 backdrop-blur-sm border-map-border shadow-elegant z-10">
-        <div className="p-4 space-y-4">
-          <div className="flex items-center gap-2 text-map-text">
-            <MapPin className="h-5 w-5 text-map-accent" />
-            <span className="font-semibold">MapLibre GIS</span>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-map-text-muted">Basemap</label>
+      {/* Right Side Toolbar */}
+      <div className="absolute top-4 right-4 z-20 flex flex-col gap-1">
+        {/* Active Layer Panel */}
+        <div className="bg-map-overlay/95 backdrop-blur-sm border border-map-border rounded-lg shadow-elegant">
+          <div className="p-3 border-b border-map-border">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MapIcon className="h-4 w-4 text-map-accent" />
+                <span className="text-sm font-medium text-map-text">Active Layer</span>
+              </div>
+              <ChevronDown className="h-4 w-4 text-map-text-muted" />
+            </div>
             <Select value={currentBasemap} onValueChange={changeBasemap}>
-              <SelectTrigger className="w-[180px] bg-map-control border-map-border text-map-text">
-                <Layers className="h-4 w-4 mr-2" />
+              <SelectTrigger className="w-full mt-2 bg-map-control border-map-border text-map-text text-sm h-8">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-map-overlay border-map-border">
+              <SelectContent className="bg-map-overlay border-map-border z-50">
                 {Object.entries(basemaps).map(([key, basemap]) => (
                   <SelectItem key={key} value={key} className="text-map-text hover:bg-map-control">
                     {basemap.name}
@@ -147,34 +159,87 @@ const MapView = () => {
             </Select>
           </div>
         </div>
-      </Card>
 
-      {/* Search Panel */}
-      <Card className="absolute top-4 right-4 bg-map-overlay/95 backdrop-blur-sm border-map-border shadow-elegant z-10">
-        <div className="p-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full justify-start text-map-text-muted hover:text-map-text hover:bg-map-control"
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Search locations...
-          </Button>
-        </div>
-      </Card>
+        {/* Search Tool */}
+        <Button 
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+        >
+          <Search className="h-4 w-4 text-map-text" />
+        </Button>
 
-      {/* Bottom Status Bar */}
-      <Card className="absolute bottom-4 right-4 bg-map-overlay/95 backdrop-blur-sm border-map-border shadow-elegant z-10">
-        <div className="px-4 py-2 flex items-center gap-4 text-sm text-map-text-muted">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full bg-map-accent animate-pulse" />
-            <span>Connected</span>
-          </div>
-          <div className="text-xs">
-            MapLibre GL JS • Esri Services
-          </div>
-        </div>
-      </Card>
+        {/* Layers Tool */}
+        <Button 
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+        >
+          <Layers className="h-4 w-4 text-map-text" />
+        </Button>
+
+        {/* Measure Tool */}
+        <Button 
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+        >
+          <Ruler className="h-4 w-4 text-map-text" />
+        </Button>
+
+        {/* Navigation Tool */}
+        <Button 
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+        >
+          <Navigation className="h-4 w-4 text-map-text" />
+        </Button>
+
+        {/* Home/Extent Tool */}
+        <Button 
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+        >
+          <Home className="h-4 w-4 text-map-text" />
+        </Button>
+
+        {/* Zoom In */}
+        <Button 
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          onClick={() => map.current?.zoomIn()}
+        >
+          <ZoomIn className="h-4 w-4 text-map-text" />
+        </Button>
+
+        {/* Zoom Out */}
+        <Button 
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          onClick={() => map.current?.zoomOut()}
+        >
+          <ZoomOut className="h-4 w-4 text-map-text" />
+        </Button>
+
+        {/* Reset Rotation */}
+        <Button 
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          onClick={() => map.current?.easeTo({ bearing: 0, pitch: 0 })}
+        >
+          <RotateCcw className="h-4 w-4 text-map-text" />
+        </Button>
+      </div>
+
+      {/* Scale Bar */}
+      <div className="absolute bottom-4 left-4 text-xs text-map-text-muted">
+        MapLibre GL JS • Esri Services
+      </div>
     </div>
   );
 };
