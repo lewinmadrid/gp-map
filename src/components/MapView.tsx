@@ -71,7 +71,7 @@ const MapView = () => {
           }
         ]
       },
-      center: [-74.006, 40.7128], // New York City
+      center: [-116.4, 33.7], // Riverside County, CA
       zoom: 10,
       pitch: 0,
       bearing: 0
