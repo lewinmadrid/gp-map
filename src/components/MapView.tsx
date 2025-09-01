@@ -21,7 +21,7 @@ const MapView = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [currentBasemap, setCurrentBasemap] = useState('terrain');
+  const [currentBasemap, setCurrentBasemap] = useState('streets');
   const [wmtsLayerVisible, setWmtsLayerVisible] = useState(false);
 
   const basemaps = {
