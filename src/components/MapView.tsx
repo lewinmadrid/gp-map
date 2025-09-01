@@ -101,41 +101,24 @@ const MapView = () => {
       if (!map.current) return;
       
       try {
-        // Add WMTS source
+        // Add WMTS source as raster (to avoid CORS issues)
         map.current.addSource('wmts-evacuation', {
-          type: 'vector',
-          tiles: ['https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}&cacheVersion=1756736987'],
+          type: 'raster',
+          tiles: ['https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=image/png&TILECOL={x}&TILEROW={y}&cacheVersion=1756736987'],
+          tileSize: 256,
           minzoom: 0,
           maxzoom: 18
         });
 
-        console.log('WMTS source added successfully');
+        console.log('WMTS raster source added successfully');
 
-        // Add WMTS layer (initially visible for testing)
+        // Add WMTS raster layer
         map.current.addLayer({
           id: 'evacuation-zones',
-          type: 'fill',
+          type: 'raster',
           source: 'wmts-evacuation',
-          'source-layer': 'evacuation_zone_details',
           paint: {
-            'fill-color': '#ff0000',
-            'fill-opacity': 0.3
-          },
-          layout: {
-            visibility: 'visible'
-          }
-        });
-
-        // Add WMTS layer outline
-        map.current.addLayer({
-          id: 'evacuation-zones-outline',
-          type: 'line',
-          source: 'wmts-evacuation',
-          'source-layer': 'evacuation_zone_details',
-          paint: {
-            'line-color': '#ff0000',
-            'line-width': 2,
-            'line-opacity': 0.8
+            'raster-opacity': 0.7
           },
           layout: {
             visibility: 'visible'
@@ -183,7 +166,6 @@ const MapView = () => {
     const visibility = newVisibility ? 'visible' : 'none';
     
     map.current.setLayoutProperty('evacuation-zones', 'visibility', visibility);
-    map.current.setLayoutProperty('evacuation-zones-outline', 'visibility', visibility);
     
     setWmtsLayerVisible(newVisibility);
   };
