@@ -96,47 +96,49 @@ const MapView = () => {
       unit: 'metric'
     }), 'bottom-left');
 
-    // Add WMTS source
-    map.current.addSource('wmts-evacuation', {
-      type: 'vector',
-      tiles: ['https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}&cacheVersion=1756466156'],
-      minzoom: 0,
-      maxzoom: 18
-    });
-
-    // Add WMTS layer (initially hidden)
-    map.current.addLayer({
-      id: 'evacuation-zones',
-      type: 'fill',
-      source: 'wmts-evacuation',
-      'source-layer': 'evacuation_zone_details',
-      paint: {
-        'fill-color': 'hsl(var(--map-accent))',
-        'fill-opacity': 0.3
-      },
-      layout: {
-        visibility: 'none'
-      }
-    });
-
-    // Add WMTS layer outline
-    map.current.addLayer({
-      id: 'evacuation-zones-outline',
-      type: 'line',
-      source: 'wmts-evacuation',
-      'source-layer': 'evacuation_zone_details',
-      paint: {
-        'line-color': 'hsl(var(--map-accent))',
-        'line-width': 2,
-        'line-opacity': 0.8
-      },
-      layout: {
-        visibility: 'none'
-      }
-    });
-
-    // Set map loaded state
+    // Set map loaded state and add layers when style is loaded
     map.current.on('load', () => {
+      if (!map.current) return;
+      
+      // Add WMTS source
+      map.current.addSource('wmts-evacuation', {
+        type: 'vector',
+        tiles: ['https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application/vnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}&cacheVersion=1756466156'],
+        minzoom: 0,
+        maxzoom: 18
+      });
+
+      // Add WMTS layer (initially hidden)
+      map.current.addLayer({
+        id: 'evacuation-zones',
+        type: 'fill',
+        source: 'wmts-evacuation',
+        'source-layer': 'evacuation_zone_details',
+        paint: {
+          'fill-color': 'hsl(var(--map-accent))',
+          'fill-opacity': 0.3
+        },
+        layout: {
+          visibility: 'none'
+        }
+      });
+
+      // Add WMTS layer outline
+      map.current.addLayer({
+        id: 'evacuation-zones-outline',
+        type: 'line',
+        source: 'wmts-evacuation',
+        'source-layer': 'evacuation_zone_details',
+        paint: {
+          'line-color': 'hsl(var(--map-accent))',
+          'line-width': 2,
+          'line-opacity': 0.8
+        },
+        layout: {
+          visibility: 'none'
+        }
+      });
+      
       setMapLoaded(true);
     });
 
