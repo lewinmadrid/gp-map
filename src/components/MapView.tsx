@@ -101,22 +101,22 @@ const MapView = () => {
       if (!map.current) return;
       
       try {
-        // Add WMTS source as raster (to avoid CORS issues)
-        map.current.addSource('wmts-evacuation', {
+        // Add WMS source (alternative to WMTS to avoid fetch issues)
+        map.current.addSource('wms-evacuation', {
           type: 'raster',
-          tiles: ['https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=image/png&TILECOL={x}&TILEROW={y}&cacheVersion=1756736987'],
+          tiles: ['https://geospatialemp.demo.zonehaven.com/geoserver/zonehaven/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image/png&TRANSPARENT=true&LAYERS=zonehaven:evacuation_zone_details&SRS=EPSG:3857&WIDTH=256&HEIGHT=256&BBOX={bbox-epsg-3857}'],
           tileSize: 256,
           minzoom: 0,
           maxzoom: 18
         });
 
-        console.log('WMTS raster source added successfully');
+        console.log('WMS source added successfully');
 
-        // Add WMTS raster layer
+        // Add WMS raster layer
         map.current.addLayer({
           id: 'evacuation-zones',
           type: 'raster',
-          source: 'wmts-evacuation',
+          source: 'wms-evacuation',
           paint: {
             'raster-opacity': 0.7
           },
