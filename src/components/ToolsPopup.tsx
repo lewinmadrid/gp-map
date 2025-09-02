@@ -11,10 +11,11 @@ interface ToolsPopupProps {
   onClose: () => void;
   onMeasure: () => void;
   onGeolocation: () => void;
+  onLegend: () => void;
   measurementMode: boolean;
 }
 
-const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose, onMeasure, onGeolocation, measurementMode }) => {
+const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose, onMeasure, onGeolocation, onLegend, measurementMode }) => {
   if (!isOpen) return null;
 
   const tools = [
@@ -22,7 +23,7 @@ const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose, onMeasure, onG
       icon: Menu, 
       label: 'Display Legend',
       onClick: () => {
-        // TODO: Implement legend display
+        onLegend();
         onClose();
       }
     },

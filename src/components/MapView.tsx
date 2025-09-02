@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/use-toast';
 import LayersPanel from './LayersPanel';
 import BasemapToggle from './BasemapToggle';
 import ToolsPopup from './ToolsPopup';
+import Legend from './Legend';
 
 import { 
   Search, 
@@ -37,6 +38,7 @@ const MapView = () => {
   const [measurementPoints, setMeasurementPoints] = useState<[number, number][]>([]);
   const [distances, setDistances] = useState<number[]>([]);
   const [measurementMarkers, setMeasurementMarkers] = useState<any[]>([]);
+  const [legendOpen, setLegendOpen] = useState(false);
   
   const { toast } = useToast();
 
@@ -106,7 +108,7 @@ const MapView = () => {
       bearing: 0
     });
 
-    // Add controls
+    // Initialize geolocation control but don't add to map (will be triggered programmatically)
     geolocateControlRef.current = new GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true
@@ -114,6 +116,11 @@ const MapView = () => {
       trackUserLocation: true
     });
     map.current.addControl(geolocateControlRef.current, 'top-left');
+    // Hide the geolocation control from view
+    const geolocateButton = document.querySelector('.maplibregl-ctrl-geolocate');
+    if (geolocateButton) {
+      (geolocateButton as HTMLElement).style.display = 'none';
+    }
 
     map.current.addControl(new ScaleControl({
       maxWidth: 100,
@@ -147,30 +154,87 @@ const MapView = () => {
       const newPoints = [...measurementPoints, newPoint];
       setMeasurementPoints(newPoints);
       
+      // Calculate cumulative distance
+      let cumulativeDistance = 0;
       if (newPoints.length > 1) {
-        const lastPoint = newPoints[newPoints.length - 2];
-        const currentPoint = newPoints[newPoints.length - 1];
-        const distance = calculateDistance(lastPoint, currentPoint);
-        setDistances(prev => [...prev, distance]);
-        
-        // Show distance toast
-        toast({
-          title: "Distance Measured",
-          description: `${distance.toFixed(2)} km`,
-        });
+        for (let i = 1; i < newPoints.length; i++) {
+          cumulativeDistance += calculateDistance(newPoints[i-1], newPoints[i]);
+        }
       }
       
-      // Add marker for the point
+      // Create marker with distance label
       if (map.current) {
-        const marker = document.createElement('div');
-        marker.className = 'w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-lg';
+        const markerEl = document.createElement('div');
+        markerEl.className = 'relative flex items-center justify-center';
         
-        const newMarker = new Marker(marker)
+        // Circle marker
+        const circle = document.createElement('div');
+        circle.className = 'w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-lg';
+        markerEl.appendChild(circle);
+        
+        // Distance label
+        if (newPoints.length > 1) {
+          const label = document.createElement('div');
+          label.className = 'absolute -top-8 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow text-xs font-medium whitespace-nowrap border';
+          label.textContent = `${(cumulativeDistance * 0.621371).toFixed(2)} ml`; // Convert km to miles
+          markerEl.appendChild(label);
+        } else {
+          // First point shows 0.00 ml
+          const label = document.createElement('div');
+          label.className = 'absolute -top-8 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow text-xs font-medium whitespace-nowrap border';
+          label.textContent = '0.00 ml';
+          markerEl.appendChild(label);
+        }
+        
+        const newMarker = new Marker(markerEl)
           .setLngLat(newPoint)
           .addTo(map.current);
         
         setMeasurementMarkers(prev => [...prev, newMarker]);
+        
+        // Draw line between points
+        if (newPoints.length > 1) {
+          drawMeasurementLine(newPoints);
+        }
       }
+    };
+
+    // Function to draw measurement lines
+    const drawMeasurementLine = (points: [number, number][]) => {
+      if (!map.current || points.length < 2) return;
+      
+      // Remove existing measurement line
+      if (map.current.getSource('measurement-line')) {
+        map.current.removeLayer('measurement-line');
+        map.current.removeSource('measurement-line');
+      }
+      
+      // Add new line
+      map.current.addSource('measurement-line', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: points
+          }
+        }
+      });
+      
+      map.current.addLayer({
+        id: 'measurement-line',
+        type: 'line',
+        source: 'measurement-line',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#000000',
+          'line-width': 3
+        }
+      });
     };
 
     // Add or remove click listener based on measurement mode
@@ -378,6 +442,11 @@ const MapView = () => {
       // Clear markers from map
       measurementMarkers.forEach(marker => marker.remove());
       setMeasurementMarkers([]);
+      // Remove measurement line
+      if (map.current && map.current.getSource('measurement-line')) {
+        map.current.removeLayer('measurement-line');
+        map.current.removeSource('measurement-line');
+      }
     }
     toast({
       title: measurementMode ? "Measurement Stopped" : "Measurement Started",
@@ -596,7 +665,12 @@ const MapView = () => {
         onClose={() => setToolsPopupOpen(false)}
         onMeasure={toggleMeasurement}
         onGeolocation={triggerGeolocation}
+        onLegend={() => setLegendOpen(true)}
         measurementMode={measurementMode}
+      />
+      <Legend 
+        isOpen={legendOpen}
+        onClose={() => setLegendOpen(false)}
       />
 
       {/* Measurement Status */}
