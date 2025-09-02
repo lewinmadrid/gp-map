@@ -4,6 +4,8 @@ import { Map, NavigationControl, GeolocateControl, ScaleControl } from 'maplibre
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
+import { fetchWithCorsProxy, createVectorTileUrl } from '@/utils/corsProxy';
 import { 
   MapPin, 
   Layers, 
@@ -15,7 +17,8 @@ import {
   ZoomOut, 
   RotateCcw,
   ChevronDown,
-  Map as MapIcon
+  Map as MapIcon,
+  AlertTriangle
 } from 'lucide-react';
 
 const MapView = () => {
@@ -23,7 +26,11 @@ const MapView = () => {
   const map = useRef<Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentBasemap, setCurrentBasemap] = useState('streets');
-  const [wmtsLayerVisible, setWmtsLayerVisible] = useState(false);
+  const [vectorLayerVisible, setVectorLayerVisible] = useState(false);
+  const [layerStatus, setLayerStatus] = useState<'loading' | 'success' | 'error' | 'proxy'>('loading');
+  const [useProxy, setUseProxy] = useState(false);
+  
+  const { toast } = useToast();
 
   const basemaps = {
     satellite: {
@@ -97,44 +104,11 @@ const MapView = () => {
       unit: 'metric'
     }), 'bottom-left');
 
-    // Set map loaded state and add layers when style is loaded
+    // Set map loaded state and add vector layers when style is loaded
     map.current.on('load', () => {
       if (!map.current) return;
       
-      try {
-        // Add WMTS source
-        map.current.addSource('wmts-evacuation', {
-          type: 'raster',
-          tiles: ['https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=image/png&TILECOL={x}&TILEROW={y}&cacheVersion=1756736987'],
-          tileSize: 256,
-          minzoom: 0,
-          maxzoom: 18
-        });
-
-        console.log('WMTS source added successfully');
-
-        // Add WMTS raster layer
-        map.current.addLayer({
-          id: 'evacuation-zones',
-          type: 'raster',
-          source: 'wmts-evacuation',
-          paint: {
-            'raster-opacity': 0.7
-          },
-          layout: {
-            visibility: 'visible'
-          }
-        });
-
-        console.log('WMTS layers added successfully');
-        
-        // Set initial visibility state to match the layers
-        setWmtsLayerVisible(true);
-        
-      } catch (error) {
-        console.error('Error adding WMTS layers:', error);
-      }
-      
+      addVectorLayers();
       setMapLoaded(true);
     });
 
@@ -145,6 +119,140 @@ const MapView = () => {
       }
     };
   }, []);
+
+  // Add vector layers with CORS handling
+  const addVectorLayers = async () => {
+    if (!map.current) return;
+    
+    setLayerStatus('loading');
+    
+    try {
+      console.log('🚀 Adding vector evacuation zones layer...');
+      
+      // Vector tile URL for WMTS
+      const vectorTileUrl = useProxy 
+        ? createVectorTileUrl(
+            'https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application%2Fvnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}',
+            true
+          )
+        : 'https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application%2Fvnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}';
+
+      // Add vector source
+      map.current.addSource('vector-evacuation', {
+        type: 'vector',
+        tiles: [vectorTileUrl],
+        minzoom: 0,
+        maxzoom: 18
+      });
+
+      // Add fill layer for evacuation zones
+      map.current.addLayer({
+        id: 'evacuation-zones-fill',
+        type: 'fill',
+        source: 'vector-evacuation',
+        'source-layer': 'evacuation_zone_details', // This may need adjustment based on actual layer name
+        paint: {
+          'fill-color': [
+            'case',
+            ['has', 'zone_type'],
+            [
+              'match',
+              ['get', 'zone_type'],
+              'immediate', '#ff4444',
+              'warning', '#ff8800',
+              'watch', '#ffdd00',
+              '#6366f1' // default blue
+            ],
+            '#6366f1' // fallback blue
+          ],
+          'fill-opacity': 0.6
+        },
+        layout: {
+          visibility: 'visible'
+        }
+      });
+
+      // Add outline layer for better visibility
+      map.current.addLayer({
+        id: 'evacuation-zones-outline',
+        type: 'line',
+        source: 'vector-evacuation',
+        'source-layer': 'evacuation_zone_details',
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 2,
+          'line-opacity': 0.8
+        },
+        layout: {
+          visibility: 'visible'
+        }
+      });
+
+      // Add hover effects and click handlers for query functionality
+      map.current.on('mouseenter', 'evacuation-zones-fill', () => {
+        if (map.current) {
+          map.current.getCanvas().style.cursor = 'pointer';
+        }
+      });
+
+      map.current.on('mouseleave', 'evacuation-zones-fill', () => {
+        if (map.current) {
+          map.current.getCanvas().style.cursor = '';
+        }
+      });
+
+      // Click handler for feature queries (for future functionality)
+      map.current.on('click', 'evacuation-zones-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          const feature = e.features[0];
+          console.log('🎯 Evacuation zone clicked:', feature.properties);
+          
+          // Future query functionality can be added here
+          toast({
+            title: "Evacuation Zone",
+            description: `Zone ID: ${feature.properties?.id || 'Unknown'}`,
+          });
+        }
+      });
+
+      console.log('✅ Vector evacuation zones added successfully');
+      setLayerStatus('success');
+      setVectorLayerVisible(true);
+      
+      toast({
+        title: "Vector Layer Loaded",
+        description: useProxy ? "Loaded via CORS proxy" : "Loaded directly",
+      });
+      
+    } catch (error) {
+      console.error('❌ Error adding vector layers:', error);
+      
+      if (!useProxy) {
+        console.log('🔄 Retrying with CORS proxy...');
+        setUseProxy(true);
+        setLayerStatus('proxy');
+        // Retry with proxy
+        setTimeout(() => addVectorLayers(), 1000);
+      } else {
+        setLayerStatus('error');
+        toast({
+          variant: "destructive",
+          title: "Layer Load Error",
+          description: "Could not load evacuation zones. Please try again.",
+        });
+      }
+    }
+  };
+
+  // Query features at a point (for future use)
+  const queryFeaturesAtPoint = (lngLat: [number, number]) => {
+    if (!map.current) return [];
+    
+    const point = map.current.project(lngLat);
+    return map.current.queryRenderedFeatures(point, {
+      layers: ['evacuation-zones-fill']
+    });
+  };
 
   const changeBasemap = (basemapKey: string) => {
     if (!map.current || !mapLoaded) return;
@@ -160,15 +268,41 @@ const MapView = () => {
     setCurrentBasemap(basemapKey);
   };
 
-  const toggleWmtsLayer = () => {
+  const toggleVectorLayer = () => {
     if (!map.current || !mapLoaded) return;
 
-    const newVisibility = !wmtsLayerVisible;
+    const newVisibility = !vectorLayerVisible;
     const visibility = newVisibility ? 'visible' : 'none';
     
-    map.current.setLayoutProperty('evacuation-zones', 'visibility', visibility);
+    // Toggle both fill and outline layers
+    map.current.setLayoutProperty('evacuation-zones-fill', 'visibility', visibility);
+    map.current.setLayoutProperty('evacuation-zones-outline', 'visibility', visibility);
     
-    setWmtsLayerVisible(newVisibility);
+    setVectorLayerVisible(newVisibility);
+  };
+
+  const retryVectorLayer = () => {
+    if (!map.current) return;
+    
+    // Remove existing layers if they exist
+    try {
+      if (map.current.getLayer('evacuation-zones-fill')) {
+        map.current.removeLayer('evacuation-zones-fill');
+      }
+      if (map.current.getLayer('evacuation-zones-outline')) {
+        map.current.removeLayer('evacuation-zones-outline');
+      }
+      if (map.current.getSource('vector-evacuation')) {
+        map.current.removeSource('vector-evacuation');
+      }
+    } catch (error) {
+      console.log('No existing layers to remove');
+    }
+    
+    // Reset states and retry
+    setUseProxy(false);
+    setLayerStatus('loading');
+    addVectorLayers();
   };
 
   return (
@@ -219,15 +353,49 @@ const MapView = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={wmtsLayerVisible}
-                  onChange={toggleWmtsLayer}
-                  className="w-3 h-3 rounded border border-map-border bg-map-control checked:bg-map-accent"
-                />
-                <span className="text-xs text-map-text">Evacuation Zones</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={vectorLayerVisible}
+                    onChange={toggleVectorLayer}
+                    disabled={layerStatus === 'loading'}
+                    className="w-3 h-3 rounded border border-map-border bg-map-control checked:bg-map-accent disabled:opacity-50"
+                  />
+                  <span className="text-xs text-map-text">Evacuation Zones</span>
+                </label>
+                
+                {/* Status indicator */}
+                <div className="flex items-center gap-1">
+                  {layerStatus === 'loading' && (
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+                  )}
+                  {layerStatus === 'success' && (
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  )}
+                  {layerStatus === 'proxy' && (
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                  )}
+                  {layerStatus === 'error' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={retryVectorLayer}
+                      className="w-4 h-4 p-0 hover:bg-map-control"
+                    >
+                      <AlertTriangle className="w-3 h-3 text-red-500" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
+              {/* Status text */}
+              <div className="text-xs text-map-text-muted">
+                {layerStatus === 'loading' && 'Loading vector tiles...'}
+                {layerStatus === 'success' && 'Vector tiles loaded'}
+                {layerStatus === 'proxy' && 'Loading via proxy...'}
+                {layerStatus === 'error' && 'Failed to load - click to retry'}
+              </div>
             </div>
           </div>
         </div>
