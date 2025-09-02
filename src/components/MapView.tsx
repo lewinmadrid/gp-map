@@ -320,6 +320,7 @@ const MapView = () => {
           title: "Location Found",
           description: `Navigated to ${result.display_name}`,
         });
+        setSearchOpen(false); // Auto-close search bar
       } else {
         toast({
           variant: "destructive",
@@ -356,10 +357,10 @@ const MapView = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white border-gray-200 z-50">
-              <SelectItem value="Genasys Zones" className="text-xs">Genasys Zones</SelectItem>
-              <SelectItem value="Custom Zone Areas" className="text-xs">Custom Zone Areas</SelectItem>
-              <SelectItem value="Custom Layer 1" className="text-xs">Custom Layer 1</SelectItem>
-              <SelectItem value="Custom Layer 2" className="text-xs">Custom Layer 2</SelectItem>
+              <SelectItem value="Genasys Zones" className="text-xs text-black">Genasys Zones</SelectItem>
+              <SelectItem value="Custom Zone Areas" className="text-xs text-black">Custom Zone Areas</SelectItem>
+              <SelectItem value="Custom Layer 1" className="text-xs text-black">Custom Layer 1</SelectItem>
+              <SelectItem value="Custom Layer 2" className="text-xs text-black">Custom Layer 2</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -380,7 +381,7 @@ const MapView = () => {
                     handleSearch();
                   }
                 }}
-                className="flex-1 px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-200 rounded-md text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <Button
                 variant="ghost"
@@ -403,8 +404,8 @@ const MapView = () => {
         </div>
       )}
 
-      {/* Right Side Toolbar - Top buttons only */}
-      <div className="absolute top-20 right-4 z-20 flex flex-col gap-1">
+      {/* Right Side Toolbar - Top buttons moved down */}
+      <div className="absolute top-28 right-4 z-20 flex flex-col gap-1">
         {/* Search Button */}
         <Button 
           variant="secondary"

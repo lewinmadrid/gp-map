@@ -23,20 +23,18 @@ const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="absolute bottom-16 right-4 bg-background border border-border rounded-lg shadow-lg z-50">
-      <div className="flex flex-col">
-        {tools.map((tool, index) => (
-          <Button
-            key={index}
-            variant="ghost"
-            size="sm"
-            className="w-12 h-12 p-0 rounded-none first:rounded-t-lg last:rounded-b-lg hover:bg-accent"
-            onClick={onClose}
-          >
-            <tool.icon className="h-4 w-4" />
-          </Button>
-        ))}
-      </div>
+    <div className="absolute bottom-14 right-0 z-50 flex flex-col gap-1">
+      {tools.map((tool, index) => (
+        <Button
+          key={index}
+          variant="secondary"
+          size="sm"
+          className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
+          onClick={onClose}
+        >
+          <tool.icon className="h-4 w-4 text-gray-600" />
+        </Button>
+      ))}
     </div>
   );
 };
