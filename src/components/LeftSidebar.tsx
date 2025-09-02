@@ -118,7 +118,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
             <div className="w-12 h-12 bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
               <LogoIcon />
             </div>
-            <h1 className="text-lg font-semibold text-white">Genasys EVAC</h1>
+            <h1 className="text-base font-medium text-gray-300">Genasys EVAC</h1>
           </div>
           <Button
             variant="ghost"
@@ -137,10 +137,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
             return (
               <div
                 key={index}
-                className="flex items-center gap-3 p-3 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+                className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
               >
                 <IconComponent />
-                <span className="text-sm">{item.label}</span>
+                <span className="text-xs">{item.label}</span>
               </div>
             );
           })}
@@ -148,10 +148,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
 
         {/* Help Section */}
         <div className="border-t border-slate-700 p-4">
-          <div className="flex items-center gap-3 p-3 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+          <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
             <HelpIcon />
             <div>
-              <div className="text-sm">Help and Support</div>
+              <div className="text-xs">Help and Support</div>
               <div className="text-xs text-gray-500">For Critical Issues: 1-619-431-3710</div>
             </div>
           </div>
@@ -159,13 +159,13 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
 
         {/* User Profile */}
         <div className="border-t border-slate-700 p-4">
-          <div className="flex items-center gap-3 p-3 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+          <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
             <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
               ZC
             </div>
             <div>
-              <div className="text-sm text-white">Genasys</div>
-              <div className="text-xs text-gray-400">lclark@genasys.com</div>
+              <div className="text-xs">Genasys</div>
+              <div className="text-xs text-gray-500">lclark@genasys.com</div>
             </div>
             <div className="ml-auto">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
