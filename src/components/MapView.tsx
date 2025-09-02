@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { fetchWithCorsProxy, createVectorTileUrl } from '@/utils/corsProxy';
+
 import { 
   MapPin, 
   Layers, 
@@ -27,8 +27,7 @@ const MapView = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentBasemap, setCurrentBasemap] = useState('streets');
   const [vectorLayerVisible, setVectorLayerVisible] = useState(false);
-  const [layerStatus, setLayerStatus] = useState<'loading' | 'success' | 'error' | 'proxy'>('loading');
-  const [useProxy, setUseProxy] = useState(false);
+  const [layerStatus, setLayerStatus] = useState<'loading' | 'success' | 'error'>('loading');
   
   const { toast } = useToast();
 
@@ -120,27 +119,22 @@ const MapView = () => {
     };
   }, []);
 
-  // Add vector layers with CORS handling
+  // Add vector layers using Supabase Edge Function proxy
   const addVectorLayers = async () => {
     if (!map.current) return;
     
     setLayerStatus('loading');
     
     try {
-      console.log('🚀 Adding vector evacuation zones layer...');
+      console.log('🚀 Adding vector evacuation zones layer via Supabase proxy...');
       
-      // Vector tile URL for WMTS
-      const vectorTileUrl = useProxy 
-        ? createVectorTileUrl(
-            'https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application%2Fvnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}',
-            true
-          )
-        : 'https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=zonehaven:evacuation_zone_details&STYLE=&TILEMATRIX=EPSG:900913:{z}&TILEMATRIXSET=EPSG:900913&FORMAT=application%2Fvnd.mapbox-vector-tile&TILECOL={x}&TILEROW={y}';
+      // Use Supabase Edge Function proxy for WMTS tiles
+      const proxyTileUrl = 'https://lwkcovcbhdotptzphevc.supabase.co/functions/v1/wmts-proxy/{z}/{x}/{y}';
 
       // Add vector source
       map.current.addSource('vector-evacuation', {
         type: 'vector',
-        tiles: [vectorTileUrl],
+        tiles: [proxyTileUrl],
         minzoom: 0,
         maxzoom: 18
       });
@@ -215,32 +209,23 @@ const MapView = () => {
         }
       });
 
-      console.log('✅ Vector evacuation zones added successfully');
+      console.log('✅ Vector evacuation zones added successfully via Supabase proxy');
       setLayerStatus('success');
       setVectorLayerVisible(true);
       
       toast({
         title: "Vector Layer Loaded",
-        description: useProxy ? "Loaded via CORS proxy" : "Loaded directly",
+        description: "Loaded via Supabase Edge Function proxy",
       });
       
     } catch (error) {
       console.error('❌ Error adding vector layers:', error);
-      
-      if (!useProxy) {
-        console.log('🔄 Retrying with CORS proxy...');
-        setUseProxy(true);
-        setLayerStatus('proxy');
-        // Retry with proxy
-        setTimeout(() => addVectorLayers(), 1000);
-      } else {
-        setLayerStatus('error');
-        toast({
-          variant: "destructive",
-          title: "Layer Load Error",
-          description: "Could not load evacuation zones. Please try again.",
-        });
-      }
+      setLayerStatus('error');
+      toast({
+        variant: "destructive",
+        title: "Layer Load Error",
+        description: "Could not load evacuation zones. Please try again.",
+      });
     }
   };
 
@@ -300,7 +285,6 @@ const MapView = () => {
     }
     
     // Reset states and retry
-    setUseProxy(false);
     setLayerStatus('loading');
     addVectorLayers();
   };
@@ -373,9 +357,6 @@ const MapView = () => {
                   {layerStatus === 'success' && (
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
                   )}
-                  {layerStatus === 'proxy' && (
-                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                  )}
                   {layerStatus === 'error' && (
                     <Button
                       variant="ghost"
@@ -392,8 +373,7 @@ const MapView = () => {
               {/* Status text */}
               <div className="text-xs text-map-text-muted">
                 {layerStatus === 'loading' && 'Loading vector tiles...'}
-                {layerStatus === 'success' && 'Vector tiles loaded'}
-                {layerStatus === 'proxy' && 'Loading via proxy...'}
+                {layerStatus === 'success' && 'Vector tiles loaded via proxy'}
                 {layerStatus === 'error' && 'Failed to load - click to retry'}
               </div>
             </div>
