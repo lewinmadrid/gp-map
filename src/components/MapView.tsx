@@ -40,6 +40,7 @@ const MapView = () => {
   const [distances, setDistances] = useState<number[]>([]);
   const [measurementMarkers, setMeasurementMarkers] = useState<any[]>([]);
   const [legendOpen, setLegendOpen] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   
   const { toast } = useToast();
 
@@ -516,12 +517,13 @@ const MapView = () => {
   return (
     <div className="relative w-full h-screen bg-background overflow-hidden">
       {/* Left Sidebar */}
-      <LeftSidebar />
+      <LeftSidebar onExpandedChange={setSidebarExpanded} />
       
-      {/* Map Container - adjusted for sidebar */}
+      {/* Map Container - dynamically adjusted for sidebar */}
       <div 
         ref={mapContainer} 
-        className="absolute inset-0 left-16"
+        className="absolute inset-0 transition-all duration-300 ease-in-out"
+        style={{ left: sidebarExpanded ? '320px' : '64px' }}
       />
       
       {/* Active Layer Selector - Top Right Corner */}

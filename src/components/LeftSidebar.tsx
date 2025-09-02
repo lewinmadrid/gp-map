@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 interface LeftSidebarProps {
   className?: string;
+  onExpandedChange?: (expanded: boolean) => void;
 }
 
-const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '' }) => {
+const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedChange }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpanded = () => {
+    const newState = !isExpanded;
+    setIsExpanded(newState);
+    onExpandedChange?.(newState);
+  };
+
   // Custom SVG icons matching the reference image style
   const AnalysisIcon = () => (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -20,31 +29,39 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '' }) => {
     </svg>
   );
 
-  const LocationIcon = () => (
+  const DrawShapeIcon = () => (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-      <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="2" fill="none"/>
-      <path d="M10 7V3M10 17V13M13 10H17M3 10H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M4 4L16 4L12 16Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 
-  const ResetIcon = () => (
+  const HazardIcon = () => (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-      <path d="M3 12A9 9 0 1 0 6 4.64" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      <path d="M3 8V12H7" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="2" fill="none"/>
+      <circle cx="10" cy="10" r="4" stroke="currentColor" strokeWidth="2" fill="none"/>
+    </svg>
+  );
+
+  const FireIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M8.5 17.5C6 17.5 4 15.5 4 13C4 10.5 6 8.5 8.5 8.5C9.5 6.5 11.5 5.5 13.5 6.5C15.5 7.5 16.5 9.5 15.5 11.5C17.5 12.5 17.5 15.5 15.5 16.5C13.5 17.5 11 17.5 8.5 17.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+    </svg>
+  );
+
+  const WeatherIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M6 12C4.5 12 3 10.5 3 9C3 7.5 4.5 6 6 6C7 4 9 3 11 4C13 5 14 7 13 9H15C16.5 9 17.5 10.5 17 12C16.5 13.5 15 14 13.5 13.5H6Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+      <circle cx="6" cy="8" r="1.5" fill="currentColor"/>
     </svg>
   );
 
   const ViewIcon = () => (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-      <path d="M10 3C14.5 3 18 7.5 18 10C18 12.5 14.5 17 10 17C5.5 17 2 12.5 2 10C2 7.5 5.5 3 10 3Z" stroke="currentColor" strokeWidth="2" fill="none"/>
-      <circle cx="10" cy="10" r="2" stroke="currentColor" strokeWidth="2" fill="none"/>
-    </svg>
-  );
-
-  const SettingsIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-      <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="2" fill="none"/>
-      <path d="M12.5 1.5L11.5 4.5L8.5 4.5L7.5 1.5M12.5 18.5L11.5 15.5L8.5 15.5L7.5 18.5M18.5 7.5L15.5 8.5L15.5 11.5L18.5 12.5M1.5 7.5L4.5 8.5L4.5 11.5L1.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <rect x="2" y="4" width="4" height="4" stroke="currentColor" strokeWidth="2" fill="none" rx="1"/>
+      <rect x="8" y="4" width="4" height="4" stroke="currentColor" strokeWidth="2" fill="none" rx="1"/>
+      <rect x="14" y="4" width="4" height="4" stroke="currentColor" strokeWidth="2" fill="none" rx="1"/>
+      <rect x="2" y="10" width="4" height="4" stroke="currentColor" strokeWidth="2" fill="none" rx="1"/>
+      <rect x="8" y="10" width="4" height="4" stroke="currentColor" strokeWidth="2" fill="none" rx="1"/>
     </svg>
   );
 
@@ -56,32 +73,122 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '' }) => {
     </svg>
   );
 
-  const menuItems = [
+  // Correct logo design based on reference image
+  const LogoIcon = () => (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <defs>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FF6B6B" />
+          <stop offset="50%" stopColor="#FF5252" />
+          <stop offset="100%" stopColor="#D32F2F" />
+        </linearGradient>
+      </defs>
+      {/* Stylized A */}
+      <path d="M8 22L14 8L20 22" stroke="url(#logoGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M11 17H17" stroke="url(#logoGradient)" strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Stylized Y */}
+      <path d="M6 6L10 12L6 18" stroke="url(#logoGradient)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M22 6L18 12L22 18" stroke="url(#logoGradient)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+
+  const compactMenuItems = [
     { icon: AnalysisIcon, label: 'Analysis', active: true },
-    { icon: MenuIcon, label: 'Menu' },
-    { icon: LocationIcon, label: 'Location' },
-    { icon: ResetIcon, label: 'Reset' },
-    { icon: ViewIcon, label: 'View' },
-    { icon: SettingsIcon, label: 'Settings' },
-    { icon: HelpIcon, label: 'Help' }
+    { icon: MenuIcon, label: 'Menu', onClick: toggleExpanded },
+    { icon: DrawShapeIcon, label: 'Draw Shape' },
+    { icon: HazardIcon, label: 'Hazard Library' },
+    { icon: FireIcon, label: 'Active Fires' },
+    { icon: WeatherIcon, label: 'Weather' },
+    { icon: ViewIcon, label: 'Current Operational View' }
   ];
 
+  const expandedMenuItems = [
+    { icon: DrawShapeIcon, label: 'Draw Shape' },
+    { icon: HazardIcon, label: 'Hazard Library' },
+    { icon: FireIcon, label: 'Active Fires' },
+    { icon: WeatherIcon, label: 'Weather' },
+    { icon: ViewIcon, label: 'Current Operational View' }
+  ];
+
+  if (isExpanded) {
+    return (
+      <div className={`fixed left-0 top-0 bottom-0 w-80 bg-slate-900 flex flex-col z-40 ${className}`}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-700">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+              <LogoIcon />
+            </div>
+            <h1 className="text-xl font-semibold text-white">Genasys EVAC</h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-10 h-10 p-0 text-gray-400 hover:text-white hover:bg-slate-800"
+            onClick={toggleExpanded}
+          >
+            <MenuIcon />
+          </Button>
+        </div>
+
+        {/* Menu Items */}
+        <div className="flex-1 p-4 space-y-2">
+          {expandedMenuItems.map((item, index) => {
+            const IconComponent = item.icon;
+            return (
+              <div
+                key={index}
+                className="flex items-center gap-3 p-3 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+              >
+                <IconComponent />
+                <span className="text-base">{item.label}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Help Section */}
+        <div className="border-t border-slate-700 p-4">
+          <div className="flex items-center gap-3 p-3 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+            <HelpIcon />
+            <div>
+              <div className="text-base">Help and Support</div>
+              <div className="text-sm text-gray-500">For Critical Issues: 1-619-431-3710</div>
+            </div>
+          </div>
+        </div>
+
+        {/* User Profile */}
+        <div className="border-t border-slate-700 p-4">
+          <div className="flex items-center gap-3 p-3 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+            <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+              ZC
+            </div>
+            <div>
+              <div className="text-base text-white">Genasys</div>
+              <div className="text-sm text-gray-400">lclark@genasys.com</div>
+            </div>
+            <div className="ml-auto">
+              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`fixed left-0 top-0 bottom-0 w-16 bg-gray-900 flex flex-col items-center py-4 z-40 ${className}`}>
-      {/* Logo/Brand area */}
+    <div className={`fixed left-0 top-0 bottom-0 w-16 bg-slate-900 flex flex-col items-center py-4 z-40 ${className}`}>
+      {/* Logo */}
       <div className="mb-6">
-        <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" strokeWidth="2" stroke="white" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M2 17L12 22L22 17" strokeWidth="2" stroke="white" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M2 12L12 17L22 12" strokeWidth="2" stroke="white" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        <div className="w-10 h-10 bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-lg">
+          <LogoIcon />
         </div>
       </div>
 
       {/* Menu items */}
       <div className="flex flex-col gap-2 flex-1">
-        {menuItems.map((item, index) => {
+        {compactMenuItems.map((item, index) => {
           const IconComponent = item.icon;
           return (
             <Button
@@ -90,10 +197,11 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '' }) => {
               size="sm"
               className={`w-10 h-10 p-0 rounded-lg transition-colors ${
                 item.active 
-                  ? 'bg-gray-700 text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-slate-700 text-white' 
+                  : 'text-gray-400 hover:text-white hover:bg-slate-800'
               }`}
               title={item.label}
+              onClick={item.onClick}
             >
               <IconComponent />
             </Button>
@@ -103,8 +211,8 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '' }) => {
 
       {/* Bottom section */}
       <div className="mt-auto">
-        <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-white text-xs font-medium">
-          7C
+        <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-white text-xs font-medium">
+          ZC
         </div>
       </div>
     </div>
