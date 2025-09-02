@@ -21,7 +21,7 @@ const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose }) => {
   ];
 
   return (
-    <div className="absolute bottom-11 right-0 z-50 flex flex-col-reverse gap-1">
+    <div className="absolute bottom-[4.5rem] right-4 z-50 flex flex-col gap-1">
       {tools.map((tool, index) => (
         <Button
           key={index}
