@@ -446,7 +446,11 @@ const MapView = () => {
           className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
           onClick={() => setToolsPopupOpen(!toolsPopupOpen)}
         >
-          <ChevronUp className="h-4 w-4 text-gray-600" />
+          {toolsPopupOpen ? (
+            <ChevronDown className="h-4 w-4 text-gray-600" />
+          ) : (
+            <ChevronUp className="h-4 w-4 text-gray-600" />
+          )}
         </Button>
 
         {/* Reset Map Button */}
