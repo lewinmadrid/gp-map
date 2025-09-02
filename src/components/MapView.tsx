@@ -303,6 +303,9 @@ const MapView = () => {
     });
   };
 
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   return (
     <div className="relative w-full h-screen bg-background overflow-hidden">
       {/* Map Container */}
@@ -311,23 +314,23 @@ const MapView = () => {
         className="absolute inset-0"
       />
       
-      {/* Active Layer Selector */}
-      <div className="absolute top-4 left-4 z-20">
-        <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-3 min-w-64">
+      {/* Active Layer Selector - Top Right */}
+      <div className="absolute top-4 right-16 z-20">
+        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg p-3 min-w-56">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-orange-100 rounded flex items-center justify-center">
                 <div className="w-4 h-4 bg-orange-500 rounded"></div>
               </div>
-              <span className="text-sm font-medium text-muted-foreground">Active Layer</span>
+              <span className="text-sm font-medium text-gray-600">Active Layer</span>
             </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <ChevronDown className="h-4 w-4 text-gray-400" />
           </div>
           <Select value={activeLayer} onValueChange={setActiveLayer}>
-            <SelectTrigger className="w-full bg-background border-border text-foreground">
+            <SelectTrigger className="w-full bg-white border-gray-200 text-gray-900 font-semibold">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-background border-border z-50">
+            <SelectContent className="bg-white border-gray-200 z-50">
               <SelectItem value="Genasys Zones">Genasys Zones</SelectItem>
               <SelectItem value="Custom Zone Areas">Custom Zone Areas</SelectItem>
               <SelectItem value="Custom Layer 1">Custom Layer 1</SelectItem>
@@ -337,76 +340,115 @@ const MapView = () => {
         </div>
       </div>
 
+      {/* Search Bar */}
+      {searchOpen && (
+        <div className="absolute top-20 left-4 right-4 z-30">
+          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg p-4 max-w-lg mx-auto">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Search and Filter Zones"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-8 h-8 p-0"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-8 h-8 p-0"
+                onClick={() => setSearchOpen(false)}
+              >
+                <AlertTriangle className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Right Side Toolbar */}
-      <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
-        {/* Search Button */}
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
-        >
-          <Search className="h-5 w-5" />
-        </Button>
+      <div className="absolute top-4 right-4 z-30 flex flex-col">
+        {/* Top group - Search, Layers, Basemap */}
+        <div className="flex flex-col gap-1 mb-4">
+          {/* Search Button */}
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
+            onClick={() => setSearchOpen(!searchOpen)}
+          >
+            <Search className="h-4 w-4 text-gray-600" />
+          </Button>
 
-        {/* Layers Button */}
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
-          onClick={() => setLayersPanelOpen(!layersPanelOpen)}
-        >
-          <Layers className="h-5 w-5" />
-        </Button>
+          {/* Layers Button */}
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
+            onClick={() => setLayersPanelOpen(!layersPanelOpen)}
+          >
+            <Layers className="h-4 w-4 text-gray-600" />
+          </Button>
 
-        {/* Basemap Toggle Button */}
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
-          onClick={() => setBasemapToggleOpen(!basemapToggleOpen)}
-        >
-          <MapIcon className="h-5 w-5" />
-        </Button>
+          {/* Basemap Toggle Button */}
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
+            onClick={() => setBasemapToggleOpen(!basemapToggleOpen)}
+          >
+            <MapIcon className="h-4 w-4 text-gray-600" />
+          </Button>
+        </div>
 
-        {/* Tools Popup Button */}
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
-          onClick={() => setToolsPopupOpen(!toolsPopupOpen)}
-        >
-          <ChevronUp className="h-5 w-5" />
-        </Button>
+        {/* Bottom group - Tools, Reset, Zoom */}
+        <div className="flex flex-col gap-1">
+          {/* Tools Popup Button */}
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
+            onClick={() => setToolsPopupOpen(!toolsPopupOpen)}
+          >
+            <ChevronUp className="h-4 w-4 text-gray-600" />
+          </Button>
 
-        {/* Reset Map Button */}
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
-          onClick={resetMapView}
-        >
-          <Home className="h-5 w-5" />
-        </Button>
+          {/* Reset Map Button */}
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
+            onClick={resetMapView}
+          >
+            <Home className="h-4 w-4 text-gray-600" />
+          </Button>
 
-        {/* Zoom In */}
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
-          onClick={() => map.current?.zoomIn()}
-        >
-          <ZoomIn className="h-5 w-5" />
-        </Button>
+          {/* Zoom In */}
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
+            onClick={() => map.current?.zoomIn()}
+          >
+            <ZoomIn className="h-4 w-4 text-gray-600" />
+          </Button>
 
-        {/* Zoom Out */}
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
-          onClick={() => map.current?.zoomOut()}
-        >
-          <ZoomOut className="h-5 w-5" />
-        </Button>
+          {/* Zoom Out */}
+          <Button 
+            variant="secondary"
+            size="sm"
+            className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
+            onClick={() => map.current?.zoomOut()}
+          >
+            <ZoomOut className="h-4 w-4 text-gray-600" />
+          </Button>
+        </div>
       </div>
 
       {/* Popups */}
