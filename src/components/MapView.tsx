@@ -529,21 +529,20 @@ const MapView = () => {
       {/* Active Layer Selector - Top Right Corner */}
       <div className="absolute top-4 right-4 z-20">
         <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg p-3 min-w-56">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-600">Active Layer</span>
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-600 whitespace-nowrap">Active Layer</span>
+            <Select value={activeLayer} onValueChange={setActiveLayer}>
+              <SelectTrigger className="flex-1 bg-white border-gray-200 text-gray-900 text-xs [&>svg]:hidden">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-gray-200 z-50">
+                <SelectItem value="Genasys Zones" className="text-xs text-black">Genasys Zones</SelectItem>
+                <SelectItem value="Custom Zone Areas" className="text-xs text-black">Custom Zone Areas</SelectItem>
+                <SelectItem value="Custom Layer 1" className="text-xs text-black">Custom Layer 1</SelectItem>
+                <SelectItem value="Custom Layer 2" className="text-xs text-black">Custom Layer 2</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Select value={activeLayer} onValueChange={setActiveLayer}>
-            <SelectTrigger className="w-full bg-white border-gray-200 text-gray-900 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-200 z-50">
-              <SelectItem value="Genasys Zones" className="text-xs text-black">Genasys Zones</SelectItem>
-              <SelectItem value="Custom Zone Areas" className="text-xs text-black">Custom Zone Areas</SelectItem>
-              <SelectItem value="Custom Layer 1" className="text-xs text-black">Custom Layer 1</SelectItem>
-              <SelectItem value="Custom Layer 2" className="text-xs text-black">Custom Layer 2</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
