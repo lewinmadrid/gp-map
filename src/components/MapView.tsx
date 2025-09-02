@@ -542,7 +542,6 @@ const MapView = () => {
                 <SelectItem value="Custom Layer 2" className="text-xs text-black">Custom Layer 2</SelectItem>
               </SelectContent>
             </Select>
-            <ChevronDown className="h-4 w-4 text-gray-400" />
           </div>
         </div>
       </div>
