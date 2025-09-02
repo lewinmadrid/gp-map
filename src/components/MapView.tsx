@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Map, NavigationControl, GeolocateControl, ScaleControl, Marker } from 'maplibre-gl';
+import { Map, NavigationControl, GeolocateControl, ScaleControl, Marker, Popup } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -164,33 +164,36 @@ const MapView = () => {
       
       // Create marker with distance label
       if (map.current) {
+        // Create simple circle marker without positioning issues
         const markerEl = document.createElement('div');
-        markerEl.className = 'relative flex items-center justify-center';
+        markerEl.className = 'w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-lg';
         
-        // Circle marker
-        const circle = document.createElement('div');
-        circle.className = 'w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-lg';
-        markerEl.appendChild(circle);
-        
-        // Distance label
-        if (newPoints.length > 1) {
-          const label = document.createElement('div');
-          label.className = 'absolute -top-8 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow text-xs font-medium whitespace-nowrap border';
-          label.textContent = `${(cumulativeDistance * 0.621371).toFixed(2)} ml`; // Convert km to miles
-          markerEl.appendChild(label);
-        } else {
-          // First point shows 0.00 ml
-          const label = document.createElement('div');
-          label.className = 'absolute -top-8 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow text-xs font-medium whitespace-nowrap border';
-          label.textContent = '0.00 ml';
-          markerEl.appendChild(label);
-        }
-        
-        const newMarker = new Marker(markerEl)
+        const newMarker = new Marker({
+          element: markerEl,
+          anchor: 'center'
+        })
           .setLngLat(newPoint)
           .addTo(map.current);
         
         setMeasurementMarkers(prev => [...prev, newMarker]);
+        
+        // Create separate popup for distance label
+        const distanceText = newPoints.length === 1 ? 
+          '0.00 ml' : 
+          `${(cumulativeDistance * 0.621371).toFixed(2)} ml`;
+        
+        const popup = new Popup({
+          closeButton: false,
+          closeOnClick: false,
+          anchor: 'bottom',
+          offset: [0, -10]
+        })
+          .setLngLat(newPoint)
+          .setHTML(`<div class="bg-white px-2 py-1 rounded shadow text-xs font-medium border">${distanceText}</div>`)
+          .addTo(map.current);
+        
+        // Store popup reference for cleanup
+        (newMarker as any)._popup = popup;
         
         // Draw line between points
         if (newPoints.length > 1) {
@@ -439,8 +442,14 @@ const MapView = () => {
       // Clear measurements when exiting measurement mode
       setMeasurementPoints([]);
       setDistances([]);
-      // Clear markers from map
-      measurementMarkers.forEach(marker => marker.remove());
+      // Clear markers and popups from map
+      measurementMarkers.forEach(marker => {
+        // Remove popup if it exists
+        if ((marker as any)._popup) {
+          (marker as any)._popup.remove();
+        }
+        marker.remove();
+      });
       setMeasurementMarkers([]);
       // Remove measurement line
       if (map.current && map.current.getSource('measurement-line')) {
