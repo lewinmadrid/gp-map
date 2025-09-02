@@ -532,7 +532,7 @@ const MapView = () => {
           <div className="flex items-center gap-3">
             <span className="text-xs text-gray-600 whitespace-nowrap">Active Layer</span>
             <Select value={activeLayer} onValueChange={setActiveLayer}>
-              <SelectTrigger className="flex-1 bg-white border-gray-200 text-gray-900 text-xs [&>svg]:hidden">
+              <SelectTrigger className="flex-1 bg-white border-gray-200 text-gray-900 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-200 z-50">
@@ -542,6 +542,7 @@ const MapView = () => {
                 <SelectItem value="Custom Layer 2" className="text-xs text-black">Custom Layer 2</SelectItem>
               </SelectContent>
             </Select>
+            <ChevronDown className="h-4 w-4 text-gray-400" />
           </div>
         </div>
       </div>
