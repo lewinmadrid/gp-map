@@ -9,6 +9,7 @@ import LayersPanel from './LayersPanel';
 import BasemapToggle from './BasemapToggle';
 import ToolsPopup from './ToolsPopup';
 import Legend from './Legend';
+import LeftSidebar from './LeftSidebar';
 
 import { 
   Search, 
@@ -514,10 +515,13 @@ const MapView = () => {
 
   return (
     <div className="relative w-full h-screen bg-background overflow-hidden">
-      {/* Map Container */}
+      {/* Left Sidebar */}
+      <LeftSidebar />
+      
+      {/* Map Container - adjusted for sidebar */}
       <div 
         ref={mapContainer} 
-        className="absolute inset-0"
+        className="absolute inset-0 left-16"
       />
       
       {/* Active Layer Selector - Top Right Corner */}
@@ -543,7 +547,7 @@ const MapView = () => {
 
       {/* Search Bar */}
       {searchOpen && (
-        <div className="absolute top-20 left-4 right-4 z-30">
+        <div className="absolute top-20 left-20 right-4 z-30">
           <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg p-4 max-w-lg mx-auto">
             <div className="flex items-center gap-2">
               <input
@@ -685,7 +689,7 @@ const MapView = () => {
 
       {/* Measurement Status */}
       {measurementMode && (
-        <div className="absolute top-20 left-4 z-30">
+        <div className="absolute top-20 left-20 z-30">
           <div className="bg-blue-100/95 backdrop-blur-sm border border-blue-200 rounded-lg shadow-lg p-3">
             <div className="flex items-center gap-2 text-blue-800 text-sm">
               <Ruler className="h-4 w-4" />

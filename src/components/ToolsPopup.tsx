@@ -32,7 +32,7 @@ const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose, onMeasure, onG
       label: 'Measure Distance',
       onClick: () => {
         onMeasure();
-        onClose();
+        // Don't close the popup when measuring
       }
     },
     { 
