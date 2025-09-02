@@ -89,18 +89,12 @@ const MapView = () => {
     });
 
     // Add controls
-    map.current.addControl(new NavigationControl({
-      visualizePitch: true,
-      showZoom: true,
-      showCompass: true
-    }), 'top-right');
-
     map.current.addControl(new GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true
       },
       trackUserLocation: true
-    }), 'top-right');
+    }), 'top-left');
 
     map.current.addControl(new ScaleControl({
       maxWidth: 100,
@@ -314,8 +308,8 @@ const MapView = () => {
         className="absolute inset-0"
       />
       
-      {/* Active Layer Selector - Top Right */}
-      <div className="absolute top-4 right-16 z-20">
+      {/* Active Layer Selector - Top Right Corner */}
+      <div className="absolute top-4 right-4 z-20">
         <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg p-3 min-w-56">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -372,8 +366,8 @@ const MapView = () => {
         </div>
       )}
 
-      {/* Right Side Toolbar */}
-      <div className="absolute top-4 right-4 z-30 flex flex-col">
+      {/* Right Side Toolbar - Below Active Layer */}
+      <div className="absolute top-24 right-4 z-20 flex flex-col">
         {/* Top group - Search, Layers, Basemap */}
         <div className="flex flex-col gap-1 mb-4">
           {/* Search Button */}
