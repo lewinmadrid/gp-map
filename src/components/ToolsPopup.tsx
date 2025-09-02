@@ -1,9 +1,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { 
-  Menu,
+  BarChart3,
   Ruler,
-  Navigation,
   MapPin
 } from 'lucide-react';
 
@@ -16,14 +15,13 @@ const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const tools = [
-    { icon: Menu, label: 'Menu' },
-    { icon: Ruler, label: 'Measure' },
-    { icon: Navigation, label: 'Navigation' },
-    { icon: MapPin, label: 'Pin' }
+    { icon: BarChart3, label: 'Display Legend' },
+    { icon: Ruler, label: 'Measure Distance' },
+    { icon: MapPin, label: 'Move to Current Location' }
   ];
 
   return (
-    <div className="absolute bottom-20 right-0 z-50 flex flex-col gap-1">
+    <div className="absolute bottom-4 right-0 z-50 flex flex-col gap-1">
       {tools.map((tool, index) => (
         <Button
           key={index}
