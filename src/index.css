@@ -126,3 +126,15 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for measurement popups */
+.measurement-popup .maplibregl-popup-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.measurement-popup .maplibregl-popup-tip {
+  display: none !important;
+}

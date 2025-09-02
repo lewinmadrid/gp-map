@@ -186,10 +186,11 @@ const MapView = () => {
           closeButton: false,
           closeOnClick: false,
           anchor: 'bottom',
-          offset: [0, -10]
+          offset: [0, -10],
+          className: 'measurement-popup'
         })
           .setLngLat(newPoint)
-          .setHTML(`<div class="px-2 py-1 text-xs font-medium text-black">${distanceText}</div>`)
+          .setHTML(`<div class="text-xs font-medium text-black" style="background: transparent;">${distanceText}</div>`)
           .addTo(map.current);
         
         // Store popup reference for cleanup
