@@ -532,7 +532,7 @@ const MapView = () => {
           <div className="flex items-center gap-3">
             <span className="text-xs text-gray-600 whitespace-nowrap">Active Layer</span>
             <Select value={activeLayer} onValueChange={setActiveLayer}>
-              <SelectTrigger className="flex-1 bg-white border-gray-200 text-gray-900 text-xs pr-10">
+              <SelectTrigger className="flex-1 bg-white border-gray-200 text-gray-900 text-xs [&>span]:pr-4">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-200 z-50">
