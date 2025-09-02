@@ -93,7 +93,6 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
   );
 
   const compactMenuItems = [
-    { icon: AnalysisIcon, label: 'Analysis', active: true },
     { icon: MenuIcon, label: 'Menu', onClick: toggleExpanded },
     { icon: DrawShapeIcon, label: 'Draw Shape' },
     { icon: HazardIcon, label: 'Hazard Library' },
@@ -195,11 +194,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
               key={index}
               variant="ghost"
               size="sm"
-              className={`w-10 h-10 p-0 rounded-lg transition-colors ${
-                item.active 
-                  ? 'bg-slate-700 text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-slate-800'
-              }`}
+              className="w-10 h-10 p-0 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-slate-800"
               title={item.label}
               onClick={item.onClick}
             >
