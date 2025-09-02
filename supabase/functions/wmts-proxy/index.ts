@@ -30,18 +30,19 @@ serve(async (req) => {
 
     console.log(`Fetching WMTS tile: z=${z}, x=${x}, y=${y}`)
 
-    // Build the WMTS URL
+    // Build the WMTS URL - using GeoWebCache format
     const wmtsUrl = `https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?` +
-      `layer=ZoneHaven%3AEvacuationZones&` +
-      `style=&` +
-      `tilematrixset=EPSG%3A900913&` +
-      `Service=WMTS&` +
-      `Request=GetTile&` +
-      `Version=1.0.0&` +
-      `Format=application%2Fx-protobuf%3Btype%3Dmapbox-vector&` +
-      `TileMatrix=EPSG%3A900913%3A${z}&` +
-      `TileCol=${x}&` +
-      `TileRow=${y}`
+      `REQUEST=GetTile&` +
+      `SERVICE=WMTS&` +
+      `VERSION=1.0.0&` +
+      `LAYER=zonehaven:evacuation_zone_details&` +
+      `STYLE=&` +
+      `TILEMATRIX=EPSG:900913:${z}&` +
+      `TILEMATRIXSET=EPSG:900913&` +
+      `FORMAT=application/vnd.mapbox-vector-tile&` +
+      `TILECOL=${x}&` +
+      `TILEROW=${y}&` +
+      `cacheVersion=${Date.now()}`
 
     console.log(`Requesting: ${wmtsUrl}`)
 
