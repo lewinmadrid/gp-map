@@ -118,7 +118,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
             <div className="w-12 h-12 bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
               <LogoIcon />
             </div>
-            <h1 className="text-xl font-semibold text-white">Genasys EVAC</h1>
+            <h1 className="text-lg font-semibold text-white">Genasys EVAC</h1>
           </div>
           <Button
             variant="ghost"
@@ -140,7 +140,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
                 className="flex items-center gap-3 p-3 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
               >
                 <IconComponent />
-                <span className="text-base">{item.label}</span>
+                <span className="text-sm">{item.label}</span>
               </div>
             );
           })}
@@ -151,8 +151,8 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
           <div className="flex items-center gap-3 p-3 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
             <HelpIcon />
             <div>
-              <div className="text-base">Help and Support</div>
-              <div className="text-sm text-gray-500">For Critical Issues: 1-619-431-3710</div>
+              <div className="text-sm">Help and Support</div>
+              <div className="text-xs text-gray-500">For Critical Issues: 1-619-431-3710</div>
             </div>
           </div>
         </div>
@@ -164,8 +164,8 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
               ZC
             </div>
             <div>
-              <div className="text-base text-white">Genasys</div>
-              <div className="text-sm text-gray-400">lclark@genasys.com</div>
+              <div className="text-sm text-white">Genasys</div>
+              <div className="text-xs text-gray-400">lclark@genasys.com</div>
             </div>
             <div className="ml-auto">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
