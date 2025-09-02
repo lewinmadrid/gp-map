@@ -189,7 +189,7 @@ const MapView = () => {
           offset: [0, -10]
         })
           .setLngLat(newPoint)
-          .setHTML(`<div class="bg-white px-2 py-1 rounded shadow text-xs font-medium border">${distanceText}</div>`)
+          .setHTML(`<div class="px-2 py-1 text-xs font-medium text-black">${distanceText}</div>`)
           .addTo(map.current);
         
         // Store popup reference for cleanup
