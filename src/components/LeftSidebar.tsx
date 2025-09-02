@@ -73,22 +73,14 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
     </svg>
   );
 
-  // Correct logo design based on reference image
+  // Logo design
   const LogoIcon = () => (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-      <defs>
-        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FF6B6B" />
-          <stop offset="50%" stopColor="#FF5252" />
-          <stop offset="100%" stopColor="#D32F2F" />
-        </linearGradient>
-      </defs>
-      {/* Stylized A */}
-      <path d="M8 22L14 8L20 22" stroke="url(#logoGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M11 17H17" stroke="url(#logoGradient)" strokeWidth="2.5" strokeLinecap="round"/>
-      {/* Stylized Y */}
-      <path d="M6 6L10 12L6 18" stroke="url(#logoGradient)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M22 6L18 12L22 18" stroke="url(#logoGradient)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg width="28" height="28" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="47.9961" height="48.0002" rx="12.8" fill="#533546"/>
+      <path fillRule="evenodd" clipRule="evenodd" d="M19.2826 6.93752L30.3232 28.4771L28.8333 31.3977L19.2826 12.6029L10.9605 28.8747L8.06274 28.875L19.2826 6.93752Z" fill="#FF3464"/>
+      <path fillRule="evenodd" clipRule="evenodd" d="M28.728 41.1615L17.6775 19.57L19.1661 16.7014L28.728 35.4957L37.0428 19.2226L39.938 19.2223L28.728 41.1615Z" fill="#FF3464"/>
+      <path fillRule="evenodd" clipRule="evenodd" d="M16.775 21.7373L20.394 28.9315H13.0784L16.775 21.7373Z" fill="#FF3464"/>
+      <path fillRule="evenodd" clipRule="evenodd" d="M31.226 26.465L27.607 19.2709L34.9226 19.2709L31.226 26.465Z" fill="#FF3464"/>
     </svg>
   );
 
@@ -115,7 +107,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center">
               <LogoIcon />
             </div>
             <h1 className="text-base font-medium text-gray-300">Genasys EVAC</h1>
@@ -180,7 +172,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
     <div className={`fixed left-0 top-0 bottom-0 w-16 bg-slate-900 flex flex-col items-center py-4 z-40 ${className}`}>
       {/* Logo */}
       <div className="mb-6">
-        <div className="w-10 h-10 bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-lg">
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center">
           <LogoIcon />
         </div>
       </div>
