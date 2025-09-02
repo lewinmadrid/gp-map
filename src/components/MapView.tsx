@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Map, NavigationControl, GeolocateControl, ScaleControl } from 'maplibre-gl';
+import { Map, NavigationControl, GeolocateControl, ScaleControl, Marker } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,7 +18,8 @@ import {
   ZoomIn, 
   ZoomOut,
   ChevronDown,
-  AlertTriangle
+  AlertTriangle,
+  Ruler
 } from 'lucide-react';
 
 const MapView = () => {
@@ -32,8 +33,25 @@ const MapView = () => {
   const [layersPanelOpen, setLayersPanelOpen] = useState(false);
   const [basemapToggleOpen, setBasemapToggleOpen] = useState(false);
   const [toolsPopupOpen, setToolsPopupOpen] = useState(false);
+  const [measurementMode, setMeasurementMode] = useState(false);
+  const [measurementPoints, setMeasurementPoints] = useState<[number, number][]>([]);
+  const [distances, setDistances] = useState<number[]>([]);
+  const [measurementMarkers, setMeasurementMarkers] = useState<any[]>([]);
   
   const { toast } = useToast();
+
+  // Calculate distance between two points using Haversine formula
+  const calculateDistance = (point1: [number, number], point2: [number, number]): number => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (point2[1] - point1[1]) * Math.PI / 180;
+    const dLon = (point2[0] - point1[0]) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(point1[1] * Math.PI / 180) * Math.cos(point2[1] * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
 
   const basemaps = {
     satellite: {
@@ -89,12 +107,13 @@ const MapView = () => {
     });
 
     // Add controls
-    map.current.addControl(new GeolocateControl({
+    geolocateControlRef.current = new GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true
       },
       trackUserLocation: true
-    }), 'top-left');
+    });
+    map.current.addControl(geolocateControlRef.current, 'top-left');
 
     map.current.addControl(new ScaleControl({
       maxWidth: 100,
@@ -116,6 +135,58 @@ const MapView = () => {
       }
     };
   }, []);
+
+  // Separate useEffect for measurement click handler
+  useEffect(() => {
+    if (!map.current) return;
+
+    const handleMapClick = (e: any) => {
+      if (!measurementMode) return;
+      
+      const newPoint: [number, number] = [e.lngLat.lng, e.lngLat.lat];
+      const newPoints = [...measurementPoints, newPoint];
+      setMeasurementPoints(newPoints);
+      
+      if (newPoints.length > 1) {
+        const lastPoint = newPoints[newPoints.length - 2];
+        const currentPoint = newPoints[newPoints.length - 1];
+        const distance = calculateDistance(lastPoint, currentPoint);
+        setDistances(prev => [...prev, distance]);
+        
+        // Show distance toast
+        toast({
+          title: "Distance Measured",
+          description: `${distance.toFixed(2)} km`,
+        });
+      }
+      
+      // Add marker for the point
+      if (map.current) {
+        const marker = document.createElement('div');
+        marker.className = 'w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-lg';
+        
+        const newMarker = new Marker(marker)
+          .setLngLat(newPoint)
+          .addTo(map.current);
+        
+        setMeasurementMarkers(prev => [...prev, newMarker]);
+      }
+    };
+
+    // Add or remove click listener based on measurement mode
+    if (measurementMode) {
+      map.current.on('click', handleMapClick);
+    } else {
+      map.current.off('click', handleMapClick);
+    }
+
+    // Cleanup function
+    return () => {
+      if (map.current) {
+        map.current.off('click', handleMapClick);
+      }
+    };
+  }, [measurementMode, measurementPoints, toast]);
 
   // Add vector layers using Supabase Edge Function proxy
   const addVectorLayers = async () => {
@@ -297,8 +368,33 @@ const MapView = () => {
     });
   };
 
+  // Toggle measurement mode
+  const toggleMeasurement = () => {
+    setMeasurementMode(!measurementMode);
+    if (measurementMode) {
+      // Clear measurements when exiting measurement mode
+      setMeasurementPoints([]);
+      setDistances([]);
+      // Clear markers from map
+      measurementMarkers.forEach(marker => marker.remove());
+      setMeasurementMarkers([]);
+    }
+    toast({
+      title: measurementMode ? "Measurement Stopped" : "Measurement Started",
+      description: measurementMode ? "Click to stop measuring" : "Click on the map to start measuring distances",
+    });
+  };
+
+  // Trigger geolocation
+  const triggerGeolocation = () => {
+    if (geolocateControlRef.current) {
+      geolocateControlRef.current.trigger();
+    }
+  };
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const geolocateControlRef = useRef<any>(null);
 
   // Handle geographic search
   const handleSearch = async () => {
@@ -498,7 +594,31 @@ const MapView = () => {
       <ToolsPopup 
         isOpen={toolsPopupOpen}
         onClose={() => setToolsPopupOpen(false)}
+        onMeasure={toggleMeasurement}
+        onGeolocation={triggerGeolocation}
+        measurementMode={measurementMode}
       />
+
+      {/* Measurement Status */}
+      {measurementMode && (
+        <div className="absolute top-20 left-4 z-30">
+          <div className="bg-blue-100/95 backdrop-blur-sm border border-blue-200 rounded-lg shadow-lg p-3">
+            <div className="flex items-center gap-2 text-blue-800 text-sm">
+              <Ruler className="h-4 w-4" />
+              <span>Measurement Mode Active</span>
+            </div>
+            <div className="text-xs text-blue-600 mt-1">
+              Click on the map to measure distances
+            </div>
+            {distances.length > 0 && (
+              <div className="mt-2 text-xs text-blue-700">
+                <div>Total segments: {distances.length}</div>
+                <div>Total distance: {distances.reduce((sum, d) => sum + d, 0).toFixed(2)} km</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Hidden layer status for debugging */}
       <div className="absolute bottom-4 right-4 text-xs text-muted-foreground">
