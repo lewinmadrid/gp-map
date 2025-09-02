@@ -5,19 +5,19 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
+import LayersPanel from './LayersPanel';
+import BasemapToggle from './BasemapToggle';
+import ToolsPopup from './ToolsPopup';
 
 import { 
-  MapPin, 
-  Layers, 
   Search, 
-  Navigation, 
-  Ruler, 
+  Layers, 
+  Map as MapIcon, 
+  ChevronUp, 
   Home, 
   ZoomIn, 
-  ZoomOut, 
-  RotateCcw,
+  ZoomOut,
   ChevronDown,
-  Map as MapIcon,
   AlertTriangle
 } from 'lucide-react';
 
@@ -28,6 +28,10 @@ const MapView = () => {
   const [currentBasemap, setCurrentBasemap] = useState('streets');
   const [vectorLayerVisible, setVectorLayerVisible] = useState(false);
   const [layerStatus, setLayerStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [activeLayer, setActiveLayer] = useState('Genasys Zones');
+  const [layersPanelOpen, setLayersPanelOpen] = useState(false);
+  const [basemapToggleOpen, setBasemapToggleOpen] = useState(false);
+  const [toolsPopupOpen, setToolsPopupOpen] = useState(false);
   
   const { toast } = useToast();
 
@@ -100,7 +104,7 @@ const MapView = () => {
 
     map.current.addControl(new ScaleControl({
       maxWidth: 100,
-      unit: 'metric'
+      unit: 'imperial'
     }), 'bottom-left');
 
     // Set map loaded state and add vector layers when style is loaded
@@ -289,176 +293,152 @@ const MapView = () => {
     addVectorLayers();
   };
 
+  const resetMapView = () => {
+    if (!map.current) return;
+    map.current.easeTo({
+      center: [-116.4, 33.7],
+      zoom: 10,
+      bearing: 0,
+      pitch: 0
+    });
+  };
+
   return (
-    <div className="relative w-full h-screen bg-map-surface overflow-hidden">
+    <div className="relative w-full h-screen bg-background overflow-hidden">
       {/* Map Container */}
       <div 
         ref={mapContainer} 
         className="absolute inset-0"
-        style={{ 
-          background: 'hsl(var(--map-surface))'
-        }}
       />
       
+      {/* Active Layer Selector */}
+      <div className="absolute top-4 left-4 z-20">
+        <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-3 min-w-64">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-orange-100 rounded flex items-center justify-center">
+                <div className="w-4 h-4 bg-orange-500 rounded"></div>
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">Active Layer</span>
+            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <Select value={activeLayer} onValueChange={setActiveLayer}>
+            <SelectTrigger className="w-full bg-background border-border text-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-border z-50">
+              <SelectItem value="Genasys Zones">Genasys Zones</SelectItem>
+              <SelectItem value="Custom Zone Areas">Custom Zone Areas</SelectItem>
+              <SelectItem value="Custom Layer 1">Custom Layer 1</SelectItem>
+              <SelectItem value="Custom Layer 2">Custom Layer 2</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* Right Side Toolbar */}
-      <div className="absolute top-4 right-4 z-20 flex flex-col gap-1">
-        {/* Basemap Panel */}
-        <div className="bg-map-overlay/95 backdrop-blur-sm border border-map-border rounded-lg shadow-elegant">
-          <div className="p-3 border-b border-map-border">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MapIcon className="h-4 w-4 text-map-accent" />
-                <span className="text-sm font-medium text-map-text">Basemap</span>
-              </div>
-              <ChevronDown className="h-4 w-4 text-map-text-muted" />
-            </div>
-            <Select value={currentBasemap} onValueChange={changeBasemap}>
-              <SelectTrigger className="w-full mt-2 bg-map-control border-map-border text-map-text text-sm h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-map-overlay border-map-border z-50">
-                {Object.entries(basemaps).map(([key, basemap]) => (
-                  <SelectItem key={key} value={key} className="text-map-text hover:bg-map-control">
-                    {basemap.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* WMTS Layers Panel */}
-        <div className="bg-map-overlay/95 backdrop-blur-sm border border-map-border rounded-lg shadow-elegant">
-          <div className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Layers className="h-4 w-4 text-map-accent" />
-                <span className="text-sm font-medium text-map-text">Data Layers</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={vectorLayerVisible}
-                    onChange={toggleVectorLayer}
-                    disabled={layerStatus === 'loading'}
-                    className="w-3 h-3 rounded border border-map-border bg-map-control checked:bg-map-accent disabled:opacity-50"
-                  />
-                  <span className="text-xs text-map-text">Evacuation Zones</span>
-                </label>
-                
-                {/* Status indicator */}
-                <div className="flex items-center gap-1">
-                  {layerStatus === 'loading' && (
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
-                  )}
-                  {layerStatus === 'success' && (
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  )}
-                  {layerStatus === 'error' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={retryVectorLayer}
-                      className="w-4 h-4 p-0 hover:bg-map-control"
-                    >
-                      <AlertTriangle className="w-3 h-3 text-red-500" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-              
-              {/* Status text */}
-              <div className="text-xs text-map-text-muted">
-                {layerStatus === 'loading' && 'Loading vector tiles...'}
-                {layerStatus === 'success' && 'Vector tiles loaded via proxy'}
-                {layerStatus === 'error' && 'Failed to load - click to retry'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Search Tool */}
+      <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+        {/* Search Button */}
         <Button 
           variant="secondary"
           size="sm"
-          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
         >
-          <Search className="h-4 w-4 text-map-text" />
+          <Search className="h-5 w-5" />
         </Button>
 
-        {/* Layers Tool */}
+        {/* Layers Button */}
         <Button 
           variant="secondary"
           size="sm"
-          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
+          onClick={() => setLayersPanelOpen(!layersPanelOpen)}
         >
-          <Layers className="h-4 w-4 text-map-text" />
+          <Layers className="h-5 w-5" />
         </Button>
 
-        {/* Measure Tool */}
+        {/* Basemap Toggle Button */}
         <Button 
           variant="secondary"
           size="sm"
-          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
+          onClick={() => setBasemapToggleOpen(!basemapToggleOpen)}
         >
-          <Ruler className="h-4 w-4 text-map-text" />
+          <MapIcon className="h-5 w-5" />
         </Button>
 
-        {/* Navigation Tool */}
+        {/* Tools Popup Button */}
         <Button 
           variant="secondary"
           size="sm"
-          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
+          onClick={() => setToolsPopupOpen(!toolsPopupOpen)}
         >
-          <Navigation className="h-4 w-4 text-map-text" />
+          <ChevronUp className="h-5 w-5" />
         </Button>
 
-        {/* Home/Extent Tool */}
+        {/* Reset Map Button */}
         <Button 
           variant="secondary"
           size="sm"
-          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
+          onClick={resetMapView}
         >
-          <Home className="h-4 w-4 text-map-text" />
+          <Home className="h-5 w-5" />
         </Button>
 
         {/* Zoom In */}
         <Button 
           variant="secondary"
           size="sm"
-          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
           onClick={() => map.current?.zoomIn()}
         >
-          <ZoomIn className="h-4 w-4 text-map-text" />
+          <ZoomIn className="h-5 w-5" />
         </Button>
 
         {/* Zoom Out */}
         <Button 
           variant="secondary"
           size="sm"
-          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
+          className="w-12 h-12 p-0 bg-background/95 hover:bg-accent border border-border shadow-lg"
           onClick={() => map.current?.zoomOut()}
         >
-          <ZoomOut className="h-4 w-4 text-map-text" />
-        </Button>
-
-        {/* Reset Rotation */}
-        <Button 
-          variant="secondary"
-          size="sm"
-          className="w-10 h-10 p-0 bg-map-overlay/95 hover:bg-map-control border-map-border shadow-elegant"
-          onClick={() => map.current?.easeTo({ bearing: 0, pitch: 0 })}
-        >
-          <RotateCcw className="h-4 w-4 text-map-text" />
+          <ZoomOut className="h-5 w-5" />
         </Button>
       </div>
 
-      {/* Scale Bar */}
-      <div className="absolute bottom-4 left-4 text-xs text-map-text-muted">
-        MapLibre GL JS • Esri Services
+      {/* Popups */}
+      <LayersPanel 
+        isOpen={layersPanelOpen} 
+        onClose={() => setLayersPanelOpen(false)} 
+      />
+      <BasemapToggle 
+        isOpen={basemapToggleOpen}
+        currentBasemap={currentBasemap}
+        onBasemapChange={changeBasemap}
+        onClose={() => setBasemapToggleOpen(false)}
+      />
+      <ToolsPopup 
+        isOpen={toolsPopupOpen}
+        onClose={() => setToolsPopupOpen(false)}
+      />
+
+      {/* Hidden layer status for debugging */}
+      <div className="absolute bottom-4 right-4 text-xs text-muted-foreground">
+        {layerStatus === 'loading' && 'Loading layers...'}
+        {layerStatus === 'success' && vectorLayerVisible && 'Layers loaded'}
+        {layerStatus === 'error' && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={retryVectorLayer}
+            className="text-xs text-red-500 hover:text-red-600"
+          >
+            Retry layer load
+          </Button>
+        )}
       </div>
     </div>
   );
