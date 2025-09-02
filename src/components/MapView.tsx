@@ -439,12 +439,6 @@ const MapView = () => {
 
       {/* Bottom Right Toolbar - Bottom 4 buttons */}
       <div className="absolute bottom-4 right-4 z-20 flex flex-col gap-1">
-        {/* Tools Popup */}
-        <ToolsPopup 
-          isOpen={toolsPopupOpen}
-          onClose={() => setToolsPopupOpen(false)}
-        />
-        
         {/* Tools Popup Button */}
         <Button 
           variant="secondary"
@@ -452,11 +446,7 @@ const MapView = () => {
           className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
           onClick={() => setToolsPopupOpen(!toolsPopupOpen)}
         >
-          {toolsPopupOpen ? (
-            <ChevronDown className="h-4 w-4 text-gray-600" />
-          ) : (
-            <ChevronUp className="h-4 w-4 text-gray-600" />
-          )}
+          <ChevronUp className="h-4 w-4 text-gray-600" />
         </Button>
 
         {/* Reset Map Button */}
@@ -500,6 +490,10 @@ const MapView = () => {
         currentBasemap={currentBasemap}
         onBasemapChange={changeBasemap}
         onClose={() => setBasemapToggleOpen(false)}
+      />
+      <ToolsPopup 
+        isOpen={toolsPopupOpen}
+        onClose={() => setToolsPopupOpen(false)}
       />
 
       {/* Hidden layer status for debugging */}
