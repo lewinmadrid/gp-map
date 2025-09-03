@@ -298,7 +298,7 @@ const MapView = () => {
             ],
             '#6366f1' // fallback blue
           ],
-          'fill-opacity': 0.6
+          'fill-opacity': 0
         },
         layout: {
           visibility: 'visible'
@@ -312,7 +312,7 @@ const MapView = () => {
         source: 'vector-evacuation',
         'source-layer': 'evacuation_zone_details',
         paint: {
-          'line-color': '#ffffff',
+          'line-color': '#000000',
           'line-width': 2,
           'line-opacity': 0.8
         },
