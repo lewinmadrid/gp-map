@@ -281,12 +281,27 @@ const MapView = () => {
         maxzoom: 18
       });
 
-      // Add vector source for labels
+      // Add vector source for labels with debugging
+      console.log('🏷️ Adding vector labels source with URL:', labelsProxyTileUrl);
       map.current.addSource('vector-labels', {
         type: 'vector',
         tiles: [labelsProxyTileUrl],
         minzoom: 0,
         maxzoom: 18
+      });
+
+      // Add debugging for source addition
+      map.current.on('sourcedata', (e) => {
+        if ((e as any).sourceId === 'vector-labels') {
+          console.log('🏷️ Labels source event:', (e as any).dataType, 'isSourceLoaded:', (e as any).isSourceLoaded);
+        }
+      });
+
+      // Add debugging for data loading events
+      map.current.on('data', (e) => {
+        if ((e as any).sourceId === 'vector-labels') {
+          console.log('🏷️ Labels data event:', e.type, e);
+        }
       });
 
       // Add fill layer for evacuation zones
@@ -341,7 +356,7 @@ const MapView = () => {
         type: 'symbol',
         source: 'vector-labels',
         'source-layer': 'evacuation_zone_ids',
-        minzoom: 8, // Only show labels at higher zoom levels
+        minzoom: 0, // Remove minzoom restriction to allow loading at any zoom
         layout: {
           'text-field': ['coalesce', ['get', 'zone_name'], ['get', 'id'], ['get', 'zone_id'], ['get', 'name'], ''],
           'text-font': ['Arial Regular', 'sans-serif'], // Use system fonts only
@@ -370,17 +385,29 @@ const MapView = () => {
       // Force immediate tile loading for labels source
       console.log('🏷️ Labels layer added, tiles should load from:', labelsProxyTileUrl);
       
-      // Force map to request labels tiles by zooming to trigger tile loading
+      // Remove minzoom restriction to force immediate loading
+      map.current.setLayoutProperty('evacuation-zone-labels', 'visibility', 'visible');
+      
+      // Force map to request labels tiles immediately
       setTimeout(() => {
         if (map.current) {
           const zoom = map.current.getZoom();
-          if (zoom >= 8) {
-            console.log('🏷️ Current zoom level supports labels:', zoom);
-            // Force a repaint to trigger tile requests
-            map.current.triggerRepaint();
-          } else {
-            console.log('🏷️ Zoom level too low for labels:', zoom, 'minimum: 8');
-          }
+          console.log('🏷️ Current zoom level:', zoom);
+          console.log('🏷️ Forcing zoom to 10 to trigger label tile requests...');
+          map.current.setZoom(10);
+          
+          // Also try to query the source directly to force loading
+          setTimeout(() => {
+            if (map.current) {
+              try {
+                console.log('🏷️ Attempting to query labels source features...');
+                const features = map.current.querySourceFeatures('vector-labels');
+                console.log('🏷️ Queried labels features result:', features);
+              } catch (e) {
+                console.log('🏷️ Error querying labels features:', e);
+              }
+            }
+          }, 1000);
         }
       }, 1000);
 
