@@ -89,7 +89,7 @@ const MapView = () => {
       container: mapContainer.current,
       style: {
         version: 8,
-        glyphs: 'mapbox://fonts/mapbox/{fontstack}/{range}.pbf',
+        // Remove glyphs to avoid font loading issues - use system fonts only
         sources: {
           'esri-source': {
             type: 'raster',
@@ -332,8 +332,50 @@ const MapView = () => {
         }
       });
 
-      // Don't add symbol layer with text since fonts are problematic
-      // Instead we'll use HTML markers for labels later if needed
+      // Add labels layer with web-safe system fonts
+      console.log('🏷️ Adding labels layer with system fonts...');
+      map.current.addLayer({
+        id: 'evacuation-zone-labels',
+        type: 'symbol',
+        source: 'vector-labels',
+        'source-layer': 'evacuation_zone_ids',
+        layout: {
+          'text-field': ['coalesce', ['get', 'zone_name'], ['get', 'id'], ['get', 'zone_id'], ['get', 'name'], ''],
+          'text-font': ['Arial Regular', 'sans-serif'], // Use system fonts only
+          'text-offset': [0, 0],
+          'text-anchor': 'center',
+          'text-size': 14,
+          'text-allow-overlap': true,
+          visibility: 'visible'
+        },
+        paint: {
+          'text-color': '#000000',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2,
+          'text-opacity': 1
+        }
+      });
+
+      // Add debugging for labels layer
+      map.current.on('sourcedata', (e) => {
+        if (e.sourceId === 'vector-labels' && e.isSourceLoaded) {
+          console.log('🏷️ Labels source loaded successfully');
+          
+          // Query features to see what data is available
+          setTimeout(() => {
+            if (map.current) {
+              const features = map.current.querySourceFeatures('vector-labels', {
+                sourceLayer: 'evacuation_zone_ids'
+              });
+              console.log('🏷️ Label features found:', features.length);
+              if (features.length > 0) {
+                console.log('🏷️ First label feature properties:', features[0].properties);
+                console.log('🏷️ All property keys:', Object.keys(features[0].properties || {}));
+              }
+            }
+          }, 1000);
+        }
+      });
 
       // Add hover effects and click handlers for query functionality
       map.current.on('mouseenter', 'evacuation-zones-fill', () => {
