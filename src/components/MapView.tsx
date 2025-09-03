@@ -88,7 +88,7 @@ const MapView = () => {
       container: mapContainer.current,
       style: {
         version: 8,
-        glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        glyphs: 'mapbox://fonts/mapbox/{fontstack}/{range}.pbf',
         sources: {
           'esri-source': {
             type: 'raster',
@@ -340,7 +340,7 @@ const MapView = () => {
         'source-layer': 'evacuation_zone_ids',
         layout: {
           'text-field': ['coalesce', ['get', 'zone_name'], ['get', 'id'], ['get', 'zone_id'], ['get', 'name'], 'TEST'],
-          'text-font': ['Open Sans Bold', 'Noto Sans Bold'],
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Regular'],
           'text-offset': [0, 0],
           'text-anchor': 'center',
           'text-size': 16,
