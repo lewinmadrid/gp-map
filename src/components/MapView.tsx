@@ -334,18 +334,29 @@ const MapView = () => {
 
       // Add labels layer with web-safe system fonts
       console.log('🏷️ Adding labels layer with system fonts...');
+      
+      // Force the map to load tiles from labels source by adding the layer
       map.current.addLayer({
         id: 'evacuation-zone-labels',
         type: 'symbol',
         source: 'vector-labels',
         'source-layer': 'evacuation_zone_ids',
+        minzoom: 8, // Only show labels at higher zoom levels
         layout: {
           'text-field': ['coalesce', ['get', 'zone_name'], ['get', 'id'], ['get', 'zone_id'], ['get', 'name'], ''],
           'text-font': ['Arial Regular', 'sans-serif'], // Use system fonts only
           'text-offset': [0, 0],
           'text-anchor': 'center',
-          'text-size': 14,
-          'text-allow-overlap': true,
+          'text-size': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            8, 10,
+            12, 14,
+            16, 18
+          ],
+          'text-allow-overlap': false,
+          'text-ignore-placement': false,
           visibility: 'visible'
         },
         paint: {
@@ -355,6 +366,23 @@ const MapView = () => {
           'text-opacity': 1
         }
       });
+
+      // Force immediate tile loading for labels source
+      console.log('🏷️ Labels layer added, tiles should load from:', labelsProxyTileUrl);
+      
+      // Force map to request labels tiles by zooming to trigger tile loading
+      setTimeout(() => {
+        if (map.current) {
+          const zoom = map.current.getZoom();
+          if (zoom >= 8) {
+            console.log('🏷️ Current zoom level supports labels:', zoom);
+            // Force a repaint to trigger tile requests
+            map.current.triggerRepaint();
+          } else {
+            console.log('🏷️ Zoom level too low for labels:', zoom, 'minimum: 8');
+          }
+        }
+      }, 1000);
 
       // Add debugging for labels layer
       map.current.on('sourcedata', (e) => {
