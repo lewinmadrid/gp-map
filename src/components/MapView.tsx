@@ -89,7 +89,6 @@ const MapView = () => {
       container: mapContainer.current,
       style: {
         version: 8,
-        // Remove glyphs to avoid font loading issues - use system fonts only
         sources: {
           'esri-source': {
             type: 'raster',
@@ -98,7 +97,8 @@ const MapView = () => {
             attribution: basemaps[currentBasemap as keyof typeof basemaps].attribution
           }
         },
-        "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+        // "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+        "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
         layers: [
           {
             id: 'esri-layer',
