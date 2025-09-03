@@ -110,6 +110,30 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose }) => {
               </div>
               <MoreHorizontal className="h-4 w-4 text-gray-500" />
             </div>
+            
+            {evacuationExpanded && (
+              <div className="px-3 pb-3 space-y-2">
+                <div className="flex items-center justify-between p-2 rounded border-l-4 border-l-blue-400">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+                    </div>
+                    <span className="text-sm text-black">Genasys Zones</span>
+                  </div>
+                  <Eye className="h-4 w-4 text-gray-500" />
+                </div>
+                
+                <div className="flex items-center justify-between p-2 rounded border-l-4 border-l-orange-400">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-semibold text-orange-600">Z</span>
+                    </div>
+                    <span className="text-sm text-black">Zone Labels</span>
+                  </div>
+                  <Eye className="h-4 w-4 text-gray-500" />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Fire */}

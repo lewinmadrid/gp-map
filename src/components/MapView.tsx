@@ -269,11 +269,20 @@ const MapView = () => {
       
       // Use Supabase Edge Function proxy for WMTS tiles
       const proxyTileUrl = 'https://lwkcovcbhdotptzphevc.supabase.co/functions/v1/wmts-proxy/{z}/{x}/{y}';
+      const labelsProxyTileUrl = 'https://lwkcovcbhdotptzphevc.supabase.co/functions/v1/wmts-labels-proxy/{z}/{x}/{y}';
 
-      // Add vector source
+      // Add vector source for zones
       map.current.addSource('vector-evacuation', {
         type: 'vector',
         tiles: [proxyTileUrl],
+        minzoom: 0,
+        maxzoom: 18
+      });
+
+      // Add vector source for labels
+      map.current.addSource('vector-labels', {
+        type: 'vector',
+        tiles: [labelsProxyTileUrl],
         minzoom: 0,
         maxzoom: 18
       });
@@ -318,6 +327,27 @@ const MapView = () => {
         },
         layout: {
           visibility: 'visible'
+        }
+      });
+
+      // Add labels layer
+      map.current.addLayer({
+        id: 'evacuation-zone-labels',
+        type: 'symbol',
+        source: 'vector-labels',
+        'source-layer': 'evacuation_zone_labels',
+        layout: {
+          'text-field': ['get', 'zone_name'],
+          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+          'text-offset': [0, 0.6],
+          'text-anchor': 'top',
+          'text-size': 12,
+          visibility: 'visible'
+        },
+        paint: {
+          'text-color': '#000000',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2
         }
       });
 
@@ -398,9 +428,10 @@ const MapView = () => {
     const newVisibility = !vectorLayerVisible;
     const visibility = newVisibility ? 'visible' : 'none';
     
-    // Toggle both fill and outline layers
+    // Toggle zones, outline, and labels layers
     map.current.setLayoutProperty('evacuation-zones-fill', 'visibility', visibility);
     map.current.setLayoutProperty('evacuation-zones-outline', 'visibility', visibility);
+    map.current.setLayoutProperty('evacuation-zone-labels', 'visibility', visibility);
     
     setVectorLayerVisible(newVisibility);
   };
@@ -416,8 +447,14 @@ const MapView = () => {
       if (map.current.getLayer('evacuation-zones-outline')) {
         map.current.removeLayer('evacuation-zones-outline');
       }
+      if (map.current.getLayer('evacuation-zone-labels')) {
+        map.current.removeLayer('evacuation-zone-labels');
+      }
       if (map.current.getSource('vector-evacuation')) {
         map.current.removeSource('vector-evacuation');
+      }
+      if (map.current.getSource('vector-labels')) {
+        map.current.removeSource('vector-labels');
       }
     } catch (error) {
       console.log('No existing layers to remove');
@@ -537,6 +574,7 @@ const MapView = () => {
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-200 z-50">
                 <SelectItem value="Genasys Zones" className="text-xs text-black">Genasys Zones</SelectItem>
+                <SelectItem value="Zone Labels" className="text-xs text-black">Zone Labels</SelectItem>
                 <SelectItem value="Custom Zone Areas" className="text-xs text-black">Custom Zone Areas</SelectItem>
                 <SelectItem value="Custom Layer 1" className="text-xs text-black">Custom Layer 1</SelectItem>
                 <SelectItem value="Custom Layer 2" className="text-xs text-black">Custom Layer 2</SelectItem>

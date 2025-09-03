@@ -2,3 +2,6 @@ project_id = "lwkcovcbhdotptzphevc"
 
 [functions.wmts-proxy]
 verify_jwt = false
+
+[functions.wmts-labels-proxy]
+verify_jwt = false
