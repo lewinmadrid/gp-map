@@ -27,6 +27,7 @@ import {
 const MapView = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
+  const geolocateControlRef = useRef<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentBasemap, setCurrentBasemap] = useState('streets');
   const [vectorLayerVisible, setVectorLayerVisible] = useState(false);
@@ -536,7 +537,6 @@ const MapView = () => {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const geolocateControlRef = useRef<any>(null);
 
   // Handle geographic search
   const handleSearch = async () => {
