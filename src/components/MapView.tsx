@@ -313,7 +313,7 @@ const MapView = () => {
         'source-layer': 'evacuation_zone_details',
         paint: {
           'line-color': '#000000',
-          'line-width': 2,
+          'line-width': 1,
           'line-opacity': 0.8
         },
         layout: {
