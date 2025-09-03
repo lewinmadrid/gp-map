@@ -15,18 +15,18 @@ serve(async (req) => {
     const url = new URL(req.url)
     const pathParts = url.pathname.split('/').filter(Boolean)
     
-    // Expect path format: /functions/v1/wmts-proxy/{z}/{x}/{y}
-    if (pathParts.length < 7 || pathParts[3] !== 'wmts-proxy') {
+    // Expect path format: /wmts-proxy/{z}/{x}/{y}
+    if (pathParts.length < 4 || pathParts[0] !== 'wmts-proxy') {
       console.log('Path parsing debug:', { pathParts, length: pathParts.length })
-      return new Response('Invalid path format. Expected: /functions/v1/wmts-proxy/{z}/{x}/{y}', { 
+      return new Response('Invalid path format. Expected: /wmts-proxy/{z}/{x}/{y}', { 
         status: 400,
         headers: corsHeaders
       })
     }
 
-    const z = pathParts[4]
-    const x = pathParts[5]  
-    const y = pathParts[6]
+    const z = pathParts[1]
+    const x = pathParts[2]  
+    const y = pathParts[3]
 
     console.log(`Fetching WMTS tile: z=${z}, x=${x}, y=${y}`)
 
