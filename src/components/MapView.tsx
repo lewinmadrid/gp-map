@@ -335,19 +335,20 @@ const MapView = () => {
         id: 'evacuation-zone-labels',
         type: 'symbol',
         source: 'vector-labels',
-        'source-layer': 'evacuation_zone_labels',
+        'source-layer': 'evacuation_zone_ids',
         layout: {
-          'text-field': ['get', 'zone_name'],
+          'text-field': ['coalesce', ['get', 'zone_name'], ['get', 'id'], ['get', 'zone_id'], ''],
           'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
           'text-offset': [0, 0.6],
           'text-anchor': 'top',
-          'text-size': 12,
+          'text-size': 14,
           visibility: 'visible'
         },
         paint: {
           'text-color': '#000000',
           'text-halo-color': '#ffffff',
-          'text-halo-width': 2
+          'text-halo-width': 3,
+          'text-opacity': 1
         }
       });
 
