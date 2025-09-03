@@ -51,6 +51,7 @@ serve(async (req) => {
       method: 'GET',
       headers: {
         'User-Agent': 'Supabase-Edge-Function/1.0',
+        'Authorization': 'Basic dWktY2xpZW50Omo4dlltdDdIZGhoUGM5VnE=',
       },
     })
 
