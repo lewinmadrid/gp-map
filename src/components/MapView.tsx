@@ -98,6 +98,7 @@ const MapView = () => {
             attribution: basemaps[currentBasemap as keyof typeof basemaps].attribution
           }
         },
+        "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
         layers: [
           {
             id: 'esri-layer',
