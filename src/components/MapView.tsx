@@ -330,25 +330,47 @@ const MapView = () => {
         }
       });
 
-      // Add labels layer
+      // Add labels layer with debugging
+      console.log('🏷️ Adding labels layer...');
       map.current.addLayer({
         id: 'evacuation-zone-labels',
         type: 'symbol',
         source: 'vector-labels',
         'source-layer': 'evacuation_zone_ids',
         layout: {
-          'text-field': ['coalesce', ['get', 'zone_name'], ['get', 'id'], ['get', 'zone_id'], ''],
+          'text-field': ['coalesce', ['get', 'zone_name'], ['get', 'id'], ['get', 'zone_id'], ['get', 'name'], 'TEST'],
           'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-          'text-offset': [0, 0.6],
-          'text-anchor': 'top',
-          'text-size': 14,
+          'text-offset': [0, 0],
+          'text-anchor': 'center',
+          'text-size': 16,
           visibility: 'visible'
         },
         paint: {
           'text-color': '#000000',
           'text-halo-color': '#ffffff',
-          'text-halo-width': 3,
+          'text-halo-width': 4,
           'text-opacity': 1
+        }
+      });
+
+      // Add debugging for labels layer
+      map.current.on('sourcedata', (e) => {
+        if (e.sourceId === 'vector-labels' && e.isSourceLoaded) {
+          console.log('🏷️ Labels source loaded successfully');
+          
+          // Query features to see what data is available
+          setTimeout(() => {
+            if (map.current) {
+              const features = map.current.querySourceFeatures('vector-labels', {
+                sourceLayer: 'evacuation_zone_ids'
+              });
+              console.log('🏷️ Label features found:', features.length);
+              if (features.length > 0) {
+                console.log('🏷️ First label feature properties:', features[0].properties);
+                console.log('🏷️ All property keys:', Object.keys(features[0].properties || {}));
+              }
+            }
+          }, 1000);
         }
       });
 
