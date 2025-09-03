@@ -31,7 +31,7 @@ serve(async (req) => {
     console.log(`Fetching WMTS tile: z=${z}, x=${x}, y=${y}`)
 
     // Build the WMTS URL - using GeoWebCache format
-    const wmtsUrl = `https://geospatialemp.demo.zonehaven.com/geoserver/gwc/service/wmts?` +
+    const wmtsUrl = `https://geospatialemp.beta.zonehaven.com/geoserver/gwc/service/wmts?` +
       `REQUEST=GetTile&` +
       `SERVICE=WMTS&` +
       `VERSION=1.0.0&` +
