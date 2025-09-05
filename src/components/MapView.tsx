@@ -393,7 +393,7 @@ const MapView = () => {
           'text-size': 16, // Fixed size for now
           'text-allow-overlap': true, // Allow overlap for debugging
           'text-ignore-placement': true, // Ignore placement for debugging
-          'text-font': ['Open Sans'],
+        //  'text-font': ['Open Sans'],
           visibility: 'visible'
         },
         paint: {
