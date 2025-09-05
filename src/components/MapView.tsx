@@ -97,8 +97,7 @@ const MapView = () => {
             attribution: basemaps[currentBasemap as keyof typeof basemaps].attribution
           }
         },
-        // "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
-        "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+        // Remove glyphs entirely - use system fonts only
         layers: [
           {
             id: 'esri-layer',
@@ -348,37 +347,54 @@ const MapView = () => {
         }
       });
 
-      // Add labels layer with web-safe system fonts
+      // Add visual debugging layer first to verify geometry is loading
+      console.log('🏷️ Adding visual debugging fill layer for labels...');
+      map.current.addLayer({
+        id: 'labels-debug-fill',
+        type: 'fill',
+        source: 'vector-labels',
+        'source-layer': 'evacuation_zone_ids',
+        paint: {
+          'fill-color': '#ff0000',
+          'fill-opacity': 0.3
+        },
+        layout: {
+          visibility: 'visible'
+        }
+      });
+
+      // Add labels layer with system fonts (no external font server needed)
       console.log('🏷️ Adding labels layer with system fonts...');
-      
-      // Force the map to load tiles from labels source by adding the layer
       map.current.addLayer({
         id: 'evacuation-zone-labels',
         type: 'symbol',
         source: 'vector-labels',
         'source-layer': 'evacuation_zone_ids',
-        minzoom: 0, // Remove minzoom restriction to allow loading at any zoom
+        minzoom: 0,
         layout: {
-          'text-field': ['coalesce', ['get', 'zone_name'], ['get', 'id'], ['get', 'zone_id'], ['get', 'name'], ''],
-          'text-font': ['Arial Regular', 'sans-serif'], // Use system fonts only
+          // Try multiple possible text field names
+          'text-field': [
+            'case',
+            ['has', 'zone_name'], ['get', 'zone_name'],
+            ['has', 'id'], ['concat', 'Zone ', ['get', 'id']],
+            ['has', 'zone_id'], ['concat', 'Zone ', ['get', 'zone_id']],
+            ['has', 'name'], ['get', 'name'],
+            ['has', 'ZONE_NAME'], ['get', 'ZONE_NAME'],
+            ['has', 'ID'], ['concat', 'Zone ', ['get', 'ID']],
+            'Test Label' // Fallback for debugging
+          ],
+          // No text-font needed - MapLibre will use browser default
           'text-offset': [0, 0],
           'text-anchor': 'center',
-          'text-size': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            8, 10,
-            12, 14,
-            16, 18
-          ],
-          'text-allow-overlap': false,
-          'text-ignore-placement': false,
+          'text-size': 16, // Fixed size for now
+          'text-allow-overlap': true, // Allow overlap for debugging
+          'text-ignore-placement': true, // Ignore placement for debugging
           visibility: 'visible'
         },
         paint: {
           'text-color': '#000000',
           'text-halo-color': '#ffffff',
-          'text-halo-width': 2,
+          'text-halo-width': 3,
           'text-opacity': 1
         }
       });
@@ -412,7 +428,7 @@ const MapView = () => {
         }
       }, 1000);
 
-      // Add debugging for labels layer
+      // Enhanced debugging for labels layer
       map.current.on('sourcedata', (e) => {
         if (e.sourceId === 'vector-labels' && e.isSourceLoaded) {
           console.log('🏷️ Labels source loaded successfully');
@@ -420,16 +436,64 @@ const MapView = () => {
           // Query features to see what data is available
           setTimeout(() => {
             if (map.current) {
-              const features = map.current.querySourceFeatures('vector-labels', {
-                sourceLayer: 'evacuation_zone_ids'
-              });
-              console.log('🏷️ Label features found:', features.length);
-              if (features.length > 0) {
-                console.log('🏷️ First label feature properties:', features[0].properties);
-                console.log('🏷️ All property keys:', Object.keys(features[0].properties || {}));
+              try {
+                // Try different source layer names
+                const possibleSourceLayers = ['evacuation_zone_ids', 'zones', 'labels', 'default'];
+                
+                for (const sourceLayer of possibleSourceLayers) {
+                  const features = map.current.querySourceFeatures('vector-labels', {
+                    sourceLayer: sourceLayer
+                  });
+                  console.log(`🏷️ Features in '${sourceLayer}':`, features.length);
+                  
+                  if (features.length > 0) {
+                    console.log(`🏷️ First feature in '${sourceLayer}':`, features[0]);
+                    console.log(`🏷️ Properties:`, features[0].properties);
+                    console.log(`🏷️ Geometry type:`, features[0].geometry?.type);
+                    console.log(`🏷️ All property keys:`, Object.keys(features[0].properties || {}));
+                    
+                    // Update the source-layer if we found features in a different layer
+                    if (sourceLayer !== 'evacuation_zone_ids') {
+                      console.log(`🏷️ Updating labels layer to use source-layer: ${sourceLayer}`);
+                      map.current.setLayoutProperty('evacuation-zone-labels', 'source-layer', sourceLayer);
+                      map.current.setLayoutProperty('labels-debug-fill', 'source-layer', sourceLayer);
+                    }
+                    break;
+                  }
+                }
+                
+                // Also try querying without specifying source layer
+                const allFeatures = map.current.querySourceFeatures('vector-labels');
+                console.log('🏷️ All features (no source layer specified):', allFeatures.length);
+                if (allFeatures.length > 0) {
+                  console.log('🏷️ First feature (no source layer):', allFeatures[0]);
+                }
+                
+              } catch (e) {
+                console.log('🏷️ Error during feature query:', e);
               }
             }
-          }, 1000);
+          }, 2000);
+        }
+      });
+
+      // Add debugging for tile loading
+      map.current.on('dataloading', (e) => {
+        if ((e as any).sourceId === 'vector-labels') {
+          console.log('🏷️ Labels tiles loading...', e);
+        }
+      });
+
+      // Add debugging for render events
+      map.current.on('render', () => {
+        // Only log once every few seconds to avoid spam
+        if (Date.now() % 5000 < 100) {
+          const featuresInView = map.current?.queryRenderedFeatures(undefined, {
+            layers: ['evacuation-zone-labels', 'labels-debug-fill']
+          });
+          if (featuresInView && featuresInView.length > 0) {
+            console.log('🏷️ Labels rendered in view:', featuresInView.length);
+          }
         }
       });
 
