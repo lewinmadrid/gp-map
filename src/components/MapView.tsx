@@ -89,6 +89,7 @@ const MapView = () => {
       container: mapContainer.current,
       style: {
         version: 8,
+        glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
         sources: {
           'esri-source': {
             type: 'raster',
