@@ -89,7 +89,7 @@ const MapView = () => {
       container: mapContainer.current,
       style: {
         version: 8,
-        glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+//        glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
         sources: {
           'esri-source': {
             type: 'raster',
@@ -98,7 +98,7 @@ const MapView = () => {
             attribution: basemaps[currentBasemap as keyof typeof basemaps].attribution
           }
         },
-        // Remove glyphs entirely - use system fonts only
+
         layers: [
           {
             id: 'esri-layer',
