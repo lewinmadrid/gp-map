@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Map, NavigationControl, GeolocateControl, ScaleControl, Marker, Popup } from 'maplibre-gl';
+import { Map, NavigationControl, GeolocateControl, ScaleControl, Marker, Popup, MapStyle } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -95,8 +95,8 @@ const MapView = () => {
           'esri-source': {
             type: 'raster',
             tiles: [basemaps[currentBasemap as keyof typeof basemaps].url],
-            tileSize: 256
-      //      attribution: basemaps[currentBasemap as keyof typeof basemaps].attribution
+            tileSize: 256,
+            attribution: basemaps[currentBasemap as keyof typeof basemaps].attribution
           }
         },
      //   glyphs : 'mapbox://fonts/mapbox/{fontstack}/{range}.pbf',
@@ -374,45 +374,24 @@ const MapView = () => {
         source: 'vector-labels',
         'source-layer': 'evacuation_zone_ids',
         minzoom: 0,
-//        layout: {
-          // Try multiple possible text field names
-//          'text-field': [
-//            'case',
-//            ['has', 'zone_name'], ['get', 'zone_name'],
-//            ['has', 'id'], ['concat', 'Zone ', ['get', 'id']],
-//            ['has', 'zone_id'], ['concat', 'Zone ', ['get', 'zone_id']],
-//            ['has', 'name'], ['get', 'name'],
-//            ['has', 'ZONE_NAME'], ['get', 'ZONE_NAME'],
-//            ['has', 'ID'], ['concat', 'Zone ', ['get', 'ID']],
-//            'Test Label' // Fallback for debugging
-//          ],
-
-
-          
+        layout: {
+ 
           // No text-font needed - MapLibre will use browser default
-  //        'text-offset': [0, 0],
-  //        'text-anchor': 'center',
-  //        'text-size': 16, // Fixed size for now
-  //        'text-allow-overlap': true, // Allow overlap for debugging
-  //        'text-ignore-placement': true, // Ignore placement for debugging
-  //        'text-font': ['Open Sans'],
-  //        visibility: 'visible'
-  //      },
-
-        'layout': {
-                'text-field': ['get', 'zone_name'],
-                'text-font': ['Noto Sans Regular'],
-                'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-                'text-radial-offset': 0.5,
-                'text-justify': 'auto',
-                'icon-image': ['get', 'icon']
-         }
-  //      paint: {
-  //        'text-color': '#000000',
-  //        'text-halo-color': '#ffffff',
-  //        'text-halo-width': 3,
-  //        'text-opacity': 1
-  //      }
+          'text-field': ['get', 'zone_id'],
+          'text-offset': [0, 0],
+          'text-anchor': 'center',
+          'text-size': 16, // Fixed size for now
+          'text-allow-overlap': true, // Allow overlap for debugging
+          'text-ignore-placement': true, // Ignore placement for debugging
+        //  'text-font': ['Open Sans'],
+          visibility: 'visible'
+        },
+        paint: {
+          'text-color': '#000000',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 3,
+          'text-opacity': 1
+        }
       });
 
       // Force immediate tile loading for labels source
