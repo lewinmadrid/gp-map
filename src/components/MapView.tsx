@@ -384,12 +384,14 @@ const MapView = () => {
             ['has', 'ID'], ['concat', 'Zone ', ['get', 'ID']],
             'Test Label' // Fallback for debugging
           ],
+          
           // No text-font needed - MapLibre will use browser default
           'text-offset': [0, 0],
           'text-anchor': 'center',
           'text-size': 16, // Fixed size for now
           'text-allow-overlap': true, // Allow overlap for debugging
           'text-ignore-placement': true, // Ignore placement for debugging
+          'text-font': ['Open Sans Bold'],
           visibility: 'visible'
         },
         paint: {
