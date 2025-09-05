@@ -90,6 +90,7 @@ const MapView = () => {
       style: {
         version: 8,
 //        glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
         sources: {
           'esri-source': {
             type: 'raster',
