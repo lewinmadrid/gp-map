@@ -365,7 +365,7 @@ const MapView = () => {
           visibility: 'visible'
         }
       });
-
+ 
       // Add labels layer with system fonts (no external font server needed)
       console.log('🏷️ Adding labels layer with system fonts...');
       map.current.addLayer({
