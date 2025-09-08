@@ -876,15 +876,13 @@ const MapView = () => {
             // Update the source
             (map.current.getSource(targetSourceId) as any).setData(updatedPolygon);
             
+            // Stay in exclude mode for more holes, just reset drawing state
             setDrawingPoints([]);
             setIsDrawing(false);
-            setExcludeMode(false);
-            setDrawingMode(null);
-            setSelectMode(true);
             
             toast({ 
               title: "Hole Created", 
-              description: `Exclusion area with ${drawingPoints.length} vertices added as hole.` 
+              description: `Hole with ${drawingPoints.length} vertices added. Draw another hole or switch modes.` 
             });
             return;
           }
