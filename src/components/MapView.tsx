@@ -45,6 +45,7 @@ const MapView = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
   const [drawingMode, setDrawingMode] = useState<'polygon' | 'circle' | 'radius' | null>(null);
+  const [selectMode, setSelectMode] = useState(true); // Default to select mode
   const [drawingPoints, setDrawingPoints] = useState<[number, number][]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [tempCircleCenter, setTempCircleCenter] = useState<[number, number] | null>(null);
@@ -180,8 +181,8 @@ const MapView = () => {
         return;
       }
       
-      // Don't add area selection when in any active mode
-      if (!measurementMode && !drawingMode) {
+      // Only allow area selection when in select mode
+      if (selectMode && !measurementMode && !drawingMode) {
         // Handle area selection
         const features = map.current.queryRenderedFeatures(e.point, {
           layers: ['evacuation-zones-fill']
@@ -382,7 +383,7 @@ const MapView = () => {
         map.current.off('click', handleMapClick);
       }
     };
-  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, toast]);
+  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, selectMode, toast]);
 
   // Drawing helper functions
   const addDrawingMarker = (point: [number, number]) => {
@@ -887,6 +888,35 @@ const MapView = () => {
     setSelectedFeature(null);
   };
 
+  // Clear all drawn shapes
+  const clearDrawnShapes = () => {
+    if (!map.current) return;
+    
+    // Find and remove all drawn polygons and circles
+    const layers = map.current.getStyle().layers || [];
+    layers.forEach(layer => {
+      if (layer.id.includes('drawn-polygon') || layer.id.includes('drawn-circle')) {
+        try {
+          map.current?.removeLayer(layer.id);
+        } catch (e) {
+          // Layer might not exist
+        }
+      }
+    });
+    
+    // Remove sources
+    const sources = map.current.getStyle().sources || {};
+    Object.keys(sources).forEach(sourceId => {
+      if (sourceId.includes('drawn-polygon') || sourceId.includes('drawn-circle')) {
+        try {
+          map.current?.removeSource(sourceId);
+        } catch (e) {
+          // Source might not exist
+        }
+      }
+    });
+  };
+
   // Query features at a point (for future use)
   const queryFeaturesAtPoint = (lngLat: [number, number]) => {
     if (!map.current) return [];
@@ -1046,13 +1076,19 @@ const MapView = () => {
       
       {/* Top Toolbar */}
       <TopToolbar 
+        currentMode={selectMode ? 'select' : drawingMode || 'select'}
         onDrawTool={(tool) => {
+          // Clear existing selections and drawings
+          clearSelection();
+          clearDrawnShapes();
+          
           // Cancel any existing drawing
           if (drawingMode) {
             cancelDrawing();
           }
           
-          // Start new drawing mode
+          // Switch to drawing mode
+          setSelectMode(false);
           setDrawingMode(tool);
           
           // Show appropriate instructions
@@ -1068,8 +1104,22 @@ const MapView = () => {
           });
         }}
         onSelectArea={() => {
-          console.log('Select area activated');
-          clearSelection(); // Clear any existing selection
+          // Clear any existing drawings
+          clearDrawnShapes();
+          
+          // Cancel any active drawing
+          if (drawingMode) {
+            cancelDrawing();
+          }
+          
+          // Switch to select mode
+          setSelectMode(true);
+          setDrawingMode(null);
+          
+          toast({ 
+            title: "Select Mode", 
+            description: "Click on zones to select and highlight them." 
+          });
         }}
         onUploadShapeFile={() => {
           console.log('Shape file upload requested');

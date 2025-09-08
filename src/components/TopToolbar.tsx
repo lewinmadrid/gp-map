@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 
 interface TopToolbarProps {
+  currentMode: 'select' | 'polygon' | 'circle' | 'radius';
   onDrawTool: (tool: 'polygon' | 'circle' | 'radius') => void;
   onSelectArea: () => void;
   onUploadShapeFile: () => void;
@@ -33,6 +34,7 @@ interface TopToolbarProps {
 }
 
 const TopToolbar: React.FC<TopToolbarProps> = ({
+  currentMode,
   onDrawTool,
   onSelectArea,
   onUploadShapeFile,
@@ -61,7 +63,11 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
           <Button
             variant="secondary"
             size="sm"
-            className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+            className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${
+              ['polygon', 'circle', 'radius'].includes(currentMode)
+                ? 'bg-blue-100 border-blue-300 text-blue-700'
+                : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
           >
             <Square className="h-4 w-4" />
             <span className="text-sm">Draw</span>
@@ -135,7 +141,11 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
       <Button
         variant="secondary"
         size="sm"
-        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+        className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${
+          currentMode === 'select'
+            ? 'bg-blue-100 border-blue-300 text-blue-700'
+            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+        }`}
         onClick={onSelectArea}
       >
         <MapPin className="h-4 w-4" />
