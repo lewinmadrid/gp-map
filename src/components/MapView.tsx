@@ -10,6 +10,7 @@ import BasemapToggle from './BasemapToggle';
 import ToolsPopup from './ToolsPopup';
 import Legend from './Legend';
 import LeftSidebar from './LeftSidebar';
+import TopToolbar from './TopToolbar';
 
 import { 
   Search, 
@@ -695,6 +696,30 @@ const MapView = () => {
     <div className="relative w-full h-screen bg-background overflow-hidden">
       {/* Left Sidebar */}
       <LeftSidebar onExpandedChange={setSidebarExpanded} />
+      
+      {/* Top Toolbar */}
+      <TopToolbar 
+        onDrawTool={(tool) => {
+          console.log('Draw tool selected:', tool);
+          // Add draw tool functionality here
+        }}
+        onSelectArea={() => {
+          console.log('Select area activated');
+          // Add select area functionality here
+        }}
+        onUploadShapeFile={() => {
+          console.log('Shape file upload requested');
+          // Add shape file upload functionality here
+        }}
+        onEditTool={(tool) => {
+          console.log('Edit tool selected:', tool);
+          // Add edit tool functionality here
+        }}
+        onSnapshot={() => {
+          console.log('Snapshot requested');
+          // Add snapshot functionality here
+        }}
+      />
       
       {/* Map Container - dynamically adjusted for sidebar */}
       <div 

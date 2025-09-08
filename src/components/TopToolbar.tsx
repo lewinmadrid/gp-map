@@ -1,0 +1,170 @@
+import React, { useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { 
+  Camera,
+  Circle,
+  Square,
+  MapPin,
+  Edit,
+  Upload,
+  ChevronDown,
+  Trash2,
+  Minus
+} from 'lucide-react';
+
+interface TopToolbarProps {
+  onDrawTool: (tool: 'polygon' | 'circle' | 'radius') => void;
+  onSelectArea: () => void;
+  onUploadShapeFile: () => void;
+  onEditTool: (tool: 'edit' | 'exclude' | 'delete') => void;
+  onSnapshot: () => void;
+}
+
+const TopToolbar: React.FC<TopToolbarProps> = ({
+  onDrawTool,
+  onSelectArea,
+  onUploadShapeFile,
+  onEditTool,
+  onSnapshot
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onUploadShapeFile();
+    }
+  };
+
+  return (
+    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-2">
+      {/* Draw Tool Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+          >
+            <Square className="h-4 w-4" />
+            <span className="text-sm">Draw</span>
+            <ChevronDown className="h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
+          <DropdownMenuItem 
+            onClick={() => onDrawTool('polygon')}
+            className="flex items-center gap-2 hover:bg-gray-50"
+          >
+            <Square className="h-4 w-4" />
+            Polygon
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onDrawTool('circle')}
+            className="flex items-center gap-2 hover:bg-gray-50"
+          >
+            <Circle className="h-4 w-4" />
+            Circle
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onDrawTool('radius')}
+            className="flex items-center gap-2 hover:bg-gray-50"
+          >
+            <MapPin className="h-4 w-4" />
+            Radius
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Select Area */}
+      <Button
+        variant="secondary"
+        size="sm"
+        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+        onClick={onSelectArea}
+      >
+        <MapPin className="h-4 w-4" />
+        <span className="text-sm">Select Area</span>
+      </Button>
+
+      {/* Upload Shape File */}
+      <Button
+        variant="secondary"
+        size="sm"
+        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+        onClick={handleUploadClick}
+      >
+        <Upload className="h-4 w-4" />
+        <span className="text-sm">Upload</span>
+      </Button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".shp,.zip,.kml,.kmz,.geojson"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
+      {/* Edit Options Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+          >
+            <Edit className="h-4 w-4" />
+            <span className="text-sm">Edit</span>
+            <ChevronDown className="h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
+          <DropdownMenuItem 
+            onClick={() => onEditTool('edit')}
+            className="flex items-center gap-2 hover:bg-gray-50"
+          >
+            <Edit className="h-4 w-4" />
+            Edit Geometry
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onEditTool('exclude')}
+            className="flex items-center gap-2 hover:bg-gray-50"
+          >
+            <Minus className="h-4 w-4" />
+            Exclude Area
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onEditTool('delete')}
+            className="flex items-center gap-2 hover:bg-gray-50"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Snapshot */}
+      <Button
+        variant="secondary"
+        size="sm"
+        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+        onClick={onSnapshot}
+      >
+        <Camera className="h-4 w-4" />
+        <span className="text-sm">Snapshot</span>
+      </Button>
+    </div>
+  );
+};
+
+export default TopToolbar;
