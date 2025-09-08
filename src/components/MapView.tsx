@@ -11,6 +11,7 @@ import ToolsPopup from './ToolsPopup';
 import Legend from './Legend';
 import LeftSidebar from './LeftSidebar';
 import TopToolbar from './TopToolbar';
+import * as shp from 'shpjs';
 
 import { 
   Search, 
@@ -43,7 +44,7 @@ const MapView = () => {
   const [measurementMarkers, setMeasurementMarkers] = useState<any[]>([]);
   const [legendOpen, setLegendOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
-  const [selectedFeature, setSelectedFeature] = useState<any>(null);
+  const [selectedFeatures, setSelectedFeatures] = useState<any[]>([]);
   const [drawingMode, setDrawingMode] = useState<'polygon' | 'circle' | 'radius' | null>(null);
   const [selectMode, setSelectMode] = useState(true); // Default to select mode
   const [drawingPoints, setDrawingPoints] = useState<[number, number][]>([]);
@@ -54,6 +55,103 @@ const MapView = () => {
   const [currentPolygonHoles, setCurrentPolygonHoles] = useState<[number, number][][]>([]);
   
   const { toast } = useToast();
+
+  // Handle shapefile upload
+  const handleShapeFileUpload = async (file: File) => {
+    if (!map.current) return;
+    
+    try {
+      toast({
+        title: "Processing Shapefile",
+        description: "Converting shapefile to polygon..."
+      });
+
+      // Read file as array buffer
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Parse shapefile using shpjs
+      const geojson = await shp.parseZip(arrayBuffer);
+      
+      if (!geojson || !geojson.features || geojson.features.length === 0) {
+        throw new Error('No features found in shapefile');
+      }
+
+      // Create polygons for each feature
+      geojson.features.forEach((feature: any, index: number) => {
+        if (feature.geometry && (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon')) {
+          const polygonId = `uploaded-polygon-${Date.now()}-${index}`;
+          
+          map.current?.addSource(polygonId, {
+            type: 'geojson',
+            data: feature
+          });
+          
+          map.current?.addLayer({
+            id: `${polygonId}-fill`,
+            type: 'fill',
+            source: polygonId,
+            paint: {
+              'fill-color': '#10b981',
+              'fill-opacity': 0.2
+            }
+          });
+          
+          map.current?.addLayer({
+            id: `${polygonId}-outline`,
+            type: 'line',
+            source: polygonId,
+            paint: {
+              'line-color': '#10b981',
+              'line-width': 2
+            }
+          });
+        }
+      });
+
+      // Fit map to uploaded features
+      if (geojson.features.length > 0) {
+        // Calculate bounds of all features
+        let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
+        
+        geojson.features.forEach((feature: any) => {
+          if (feature.geometry && feature.geometry.coordinates) {
+            const flattenCoordinates = (coords: any[]): void => {
+              coords.forEach(coord => {
+                if (Array.isArray(coord[0])) {
+                  flattenCoordinates(coord);
+                } else {
+                  minLng = Math.min(minLng, coord[0]);
+                  maxLng = Math.max(maxLng, coord[0]);
+                  minLat = Math.min(minLat, coord[1]);
+                  maxLat = Math.max(maxLat, coord[1]);
+                }
+              });
+            };
+            
+            flattenCoordinates(feature.geometry.coordinates);
+          }
+        });
+        
+        map.current.fitBounds([
+          [minLng, minLat],
+          [maxLng, maxLat]
+        ], { padding: 50 });
+      }
+
+      toast({
+        title: "Shapefile Uploaded",
+        description: `Successfully created ${geojson.features.length} polygon(s) from shapefile`
+      });
+      
+    } catch (error) {
+      console.error('Error processing shapefile:', error);
+      toast({
+        title: "Upload Error",
+        description: "Failed to process shapefile. Please ensure it's a valid .zip or .gz file containing a shapefile.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Calculate distance between two points using Haversine formula
   const calculateDistance = (point1: [number, number], point2: [number, number]): number => {
@@ -195,15 +293,22 @@ const MapView = () => {
           const feature = features[0];
           console.log('🎯 Evacuation zone selected:', feature.properties);
           
-          // Update selected feature state
-          setSelectedFeature(feature);
+          // Add to selected features array (allow multiple selections)
+          setSelectedFeatures(prev => {
+            const exists = prev.some(f => 
+              f.properties?.id === feature.properties?.id || 
+              f.properties?.zone_id === feature.properties?.zone_id
+            );
+            if (exists) return prev;
+            return [...prev, feature];
+          });
           
           // Add or update selection highlight layer
-          updateSelectionHighlight(feature);
+          updateSelectionHighlight(feature, selectedFeatures.length);
           
           toast({
             title: "Area Selected", 
-            description: `Zone ID: ${feature.properties?.id || feature.properties?.zone_id || 'Unknown'}`,
+            description: `Zone ID: ${feature.properties?.id || feature.properties?.zone_id || 'Unknown'}. Total selected: ${selectedFeatures.length + 1}`,
           });
           return;
         }
@@ -461,7 +566,7 @@ const MapView = () => {
     }
 
     // Reset all states
-    setSelectedFeature(null);
+    setSelectedFeatures([]);
     setDrawingPoints([]);
     setCurrentPolygonHoles([]);
     setIsDrawing(false);
@@ -941,31 +1046,35 @@ const MapView = () => {
   };
 
   // Update selection highlight with symbology matching the user's image
-  const updateSelectionHighlight = (feature: any) => {
+  const updateSelectionHighlight = (feature: any, index: number = 0) => {
     if (!map.current || !feature) return;
     
-    // Remove existing selection layer if it exists
-    if (map.current.getLayer('selected-area-highlight')) {
-      map.current.removeLayer('selected-area-highlight');
+    // Create unique layer IDs for multiple selections
+    const layerId = `selected-area-${index}`;
+    const sourceId = `selected-source-${index}`;
+    
+    // Remove existing selection layer with this ID if it exists
+    if (map.current.getLayer(`${layerId}-highlight`)) {
+      map.current.removeLayer(`${layerId}-highlight`);
     }
-    if (map.current.getLayer('selected-area-outline')) {
-      map.current.removeLayer('selected-area-outline');
+    if (map.current.getLayer(`${layerId}-outline`)) {
+      map.current.removeLayer(`${layerId}-outline`);
     }
-    if (map.current.getSource('selected-area')) {
-      map.current.removeSource('selected-area');
+    if (map.current.getSource(sourceId)) {
+      map.current.removeSource(sourceId);
     }
     
     // Add source for selected feature
-    map.current.addSource('selected-area', {
+    map.current.addSource(sourceId, {
       type: 'geojson',
       data: feature
     });
     
     // Add semi-transparent fill layer (90% transparent)
     map.current.addLayer({
-      id: 'selected-area-highlight',
+      id: `${layerId}-highlight`,
       type: 'fill',
-      source: 'selected-area',
+      source: sourceId,
       paint: {
         'fill-color': '#1e3a8a', // Dark blue color
         'fill-opacity': 0.1 // 90% transparent (10% opacity)
@@ -974,9 +1083,9 @@ const MapView = () => {
     
     // Add thick dark grey outline
     map.current.addLayer({
-      id: 'selected-area-outline',
+      id: `${layerId}-outline`,
       type: 'line',
-      source: 'selected-area',
+      source: sourceId,
       paint: {
         'line-color': '#374151', // Dark grey color
         'line-width': 4, // Thick outline as shown in image
@@ -989,18 +1098,23 @@ const MapView = () => {
   const clearSelection = () => {
     if (!map.current) return;
     
-    // Remove selection layers
-    if (map.current.getLayer('selected-area-highlight')) {
-      map.current.removeLayer('selected-area-highlight');
-    }
-    if (map.current.getLayer('selected-area-outline')) {
-      map.current.removeLayer('selected-area-outline');
-    }
-    if (map.current.getSource('selected-area')) {
-      map.current.removeSource('selected-area');
-    }
+    // Remove all selection layers and sources
+    selectedFeatures.forEach((_, index) => {
+      const layerId = `selected-area-${index}`;
+      const sourceId = `selected-source-${index}`;
+      
+      if (map.current?.getLayer(`${layerId}-highlight`)) {
+        map.current.removeLayer(`${layerId}-highlight`);
+      }
+      if (map.current?.getLayer(`${layerId}-outline`)) {
+        map.current.removeLayer(`${layerId}-outline`);
+      }
+      if (map.current?.getSource(sourceId)) {
+        map.current.removeSource(sourceId);
+      }
+    });
     
-    setSelectedFeature(null);
+    setSelectedFeatures([]);
   };
 
   // Clear all drawn shapes
@@ -1222,6 +1336,12 @@ const MapView = () => {
           // Clear any existing drawings
           clearDrawnShapes();
           
+          // Clear drawing markers (blue vertices)
+          drawingMarkers.forEach(marker => {
+            marker.remove();
+          });
+          setDrawingMarkers([]);
+          
           // Cancel any active drawing
           if (drawingMode) {
             cancelDrawing();
@@ -1236,10 +1356,7 @@ const MapView = () => {
             description: "Click on zones to select and highlight them." 
           });
         }}
-        onUploadShapeFile={() => {
-          console.log('Shape file upload requested');
-          // Add shape file upload functionality here
-        }}
+        onUploadShapeFile={handleShapeFileUpload}
         onEditTool={(tool) => {
           console.log('Edit tool selected:', tool);
           if (tool === 'exclude') {

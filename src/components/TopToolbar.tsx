@@ -28,7 +28,7 @@ interface TopToolbarProps {
   currentMode: 'select' | 'polygon' | 'circle' | 'radius';
   onDrawTool: (tool: 'polygon' | 'circle' | 'radius') => void;
   onSelectArea: () => void;
-  onUploadShapeFile: () => void;
+  onUploadShapeFile: (file: File) => void;
   onEditTool: (tool: 'edit' | 'exclude' | 'delete') => void;
   onSnapshot: () => void;
 }
@@ -50,8 +50,16 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      onUploadShapeFile();
+      // Validate file type
+      const fileName = file.name.toLowerCase();
+      if (!fileName.endsWith('.zip') && !fileName.endsWith('.gz')) {
+        alert('Please upload a .zip or .gz file containing a shapefile.');
+        return;
+      }
+      onUploadShapeFile(file);
     }
+    // Reset input to allow re-upload of same file
+    event.target.value = '';
   };
 
   return (
@@ -172,7 +180,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept=".shp,.zip,.kml,.kmz,.geojson"
+        accept=".zip,.gz"
         onChange={handleFileChange}
         className="hidden"
       />
