@@ -786,7 +786,7 @@ const MapView = () => {
 
       // Click handler for area selection and highlighting
       map.current.on('click', 'evacuation-zones-fill', (e) => {
-        if (measurementMode) return; // Don't select areas when in measurement mode
+        if (measurementMode || drawingMode) return; // Don't select areas when in measurement or drawing mode
         
         if (e.features && e.features.length > 0) {
           const feature = e.features[0];
