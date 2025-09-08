@@ -43,6 +43,7 @@ const MapView = () => {
   const [measurementMarkers, setMeasurementMarkers] = useState<any[]>([]);
   const [legendOpen, setLegendOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState<any>(null);
   
   const { toast } = useToast();
 
@@ -506,16 +507,23 @@ const MapView = () => {
         }
       });
 
-      // Click handler for feature queries (for future functionality)
+      // Click handler for area selection and highlighting
       map.current.on('click', 'evacuation-zones-fill', (e) => {
+        if (measurementMode) return; // Don't select areas when in measurement mode
+        
         if (e.features && e.features.length > 0) {
           const feature = e.features[0];
           console.log('🎯 Evacuation zone clicked:', feature.properties);
           
-          // Future query functionality can be added here
+          // Update selected feature state
+          setSelectedFeature(feature);
+          
+          // Add or update selection highlight layer
+          updateSelectionHighlight(feature);
+          
           toast({
-            title: "Evacuation Zone",
-            description: `Zone ID: ${feature.properties?.id || 'Unknown'}`,
+            title: "Area Selected",
+            description: `Zone ID: ${feature.properties?.id || feature.properties?.zone_id || 'Unknown'}`,
           });
         }
       });
@@ -538,6 +546,69 @@ const MapView = () => {
         description: "Could not load evacuation zones. Please try again.",
       });
     }
+  };
+
+  // Update selection highlight with symbology matching the user's image
+  const updateSelectionHighlight = (feature: any) => {
+    if (!map.current || !feature) return;
+    
+    // Remove existing selection layer if it exists
+    if (map.current.getLayer('selected-area-highlight')) {
+      map.current.removeLayer('selected-area-highlight');
+    }
+    if (map.current.getLayer('selected-area-outline')) {
+      map.current.removeLayer('selected-area-outline');
+    }
+    if (map.current.getSource('selected-area')) {
+      map.current.removeSource('selected-area');
+    }
+    
+    // Add source for selected feature
+    map.current.addSource('selected-area', {
+      type: 'geojson',
+      data: feature
+    });
+    
+    // Add semi-transparent fill layer (matching image style)
+    map.current.addLayer({
+      id: 'selected-area-highlight',
+      type: 'fill',
+      source: 'selected-area',
+      paint: {
+        'fill-color': '#1e3a8a', // Dark blue color
+        'fill-opacity': 0.3 // Semi-transparent
+      }
+    });
+    
+    // Add thick dark blue outline (matching image style)
+    map.current.addLayer({
+      id: 'selected-area-outline',
+      type: 'line',
+      source: 'selected-area',
+      paint: {
+        'line-color': '#1e3a8a', // Dark blue color matching the image
+        'line-width': 4, // Thick outline as shown in image
+        'line-opacity': 1
+      }
+    });
+  };
+
+  // Clear area selection
+  const clearSelection = () => {
+    if (!map.current) return;
+    
+    // Remove selection layers
+    if (map.current.getLayer('selected-area-highlight')) {
+      map.current.removeLayer('selected-area-highlight');
+    }
+    if (map.current.getLayer('selected-area-outline')) {
+      map.current.removeLayer('selected-area-outline');
+    }
+    if (map.current.getSource('selected-area')) {
+      map.current.removeSource('selected-area');
+    }
+    
+    setSelectedFeature(null);
   };
 
   // Query features at a point (for future use)
@@ -705,7 +776,7 @@ const MapView = () => {
         }}
         onSelectArea={() => {
           console.log('Select area activated');
-          // Add select area functionality here
+          clearSelection(); // Clear any existing selection
         }}
         onUploadShapeFile={() => {
           console.log('Shape file upload requested');
