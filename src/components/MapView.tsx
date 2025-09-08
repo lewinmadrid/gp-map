@@ -352,8 +352,8 @@ const MapView = () => {
       });
     };
 
-    // Add click listener for measurement mode or drawing modes
-    if (measurementMode || drawingMode) {
+    // Add click listener for measurement mode, drawing modes, or select mode
+    if (measurementMode || drawingMode || selectMode) {
       map.current.on('click', handleMapClick);
       
       // Add double-click handler for polygon completion
