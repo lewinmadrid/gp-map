@@ -86,35 +86,6 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Select Area */}
-      <Button
-        variant="secondary"
-        size="sm"
-        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
-        onClick={onSelectArea}
-      >
-        <MapPin className="h-4 w-4" />
-        <span className="text-sm">Select Area</span>
-      </Button>
-
-      {/* Upload Shape File */}
-      <Button
-        variant="secondary"
-        size="sm"
-        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
-        onClick={handleUploadClick}
-      >
-        <Upload className="h-4 w-4" />
-        <span className="text-sm">Upload</span>
-      </Button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".shp,.zip,.kml,.kmz,.geojson"
-        onChange={handleFileChange}
-        className="hidden"
-      />
-
       {/* Edit Options Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -152,6 +123,35 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Select Area */}
+      <Button
+        variant="secondary"
+        size="sm"
+        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+        onClick={onSelectArea}
+      >
+        <MapPin className="h-4 w-4" />
+        <span className="text-sm">Select Area</span>
+      </Button>
+
+      {/* Upload Shape File */}
+      <Button
+        variant="secondary"
+        size="sm"
+        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+        onClick={handleUploadClick}
+      >
+        <Upload className="h-4 w-4" />
+        <span className="text-sm">Upload</span>
+      </Button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".shp,.zip,.kml,.kmz,.geojson"
+        onChange={handleFileChange}
+        className="hidden"
+      />
 
       {/* Snapshot */}
       <Button
