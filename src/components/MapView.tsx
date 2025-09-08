@@ -53,6 +53,10 @@ const MapView = () => {
   const [drawingMarkers, setDrawingMarkers] = useState<any[]>([]);
   const [excludeMode, setExcludeMode] = useState(false);
   const [currentPolygonHoles, setCurrentPolygonHoles] = useState<[number, number][][]>([]);
+  const [editMode, setEditMode] = useState(false);
+  const [editingPolygonId, setEditingPolygonId] = useState<string | null>(null);
+  const [selectedPolygons, setSelectedPolygons] = useState<any[]>([]);
+  const [polygonVertexCounts, setPolygonVertexCounts] = useState<{[key: string]: number}>({});
   
   const { toast } = useToast();
 
@@ -289,6 +293,12 @@ const MapView = () => {
           layers: ['evacuation-zones-fill']
         });
         
+        // Also check for drawn polygons
+        const drawnFeatures = map.current.queryRenderedFeatures(e.point);
+        const drawnPolygons = drawnFeatures.filter(f => 
+          f.source && (f.source.includes('drawn-polygon') || f.source.includes('uploaded-polygon'))
+        );
+        
         if (features && features.length > 0) {
           const feature = features[0];
           console.log('🎯 Evacuation zone selected:', feature.properties);
@@ -309,6 +319,35 @@ const MapView = () => {
           toast({
             title: "Area Selected", 
             description: `Zone ID: ${feature.properties?.id || feature.properties?.zone_id || 'Unknown'}. Total selected: ${selectedFeatures.length + 1}`,
+          });
+          return;
+        } else if (drawnPolygons.length > 0) {
+          const polygon = drawnPolygons[0];
+          console.log('🎯 Drawn polygon selected:', polygon.properties);
+          
+          // Count vertices for drawn polygons
+          const vertexCount = countPolygonVertices(polygon);
+          setPolygonVertexCounts(prev => ({
+            ...prev,
+            [polygon.properties?.id || polygon.source]: vertexCount
+          }));
+          
+          // Add to selected polygons
+          setSelectedPolygons(prev => {
+            const exists = prev.some(p => 
+              p.properties?.id === polygon.properties?.id || 
+              p.source === polygon.source
+            );
+            if (exists) return prev;
+            return [...prev, polygon];
+          });
+          
+          // Highlight the selected polygon
+          updatePolygonHighlight(polygon, selectedPolygons.length);
+          
+          toast({
+            title: "Polygon Selected", 
+            description: `Polygon with ${vertexCount} vertices selected. Total selected: ${selectedPolygons.length + 1}`,
           });
           return;
         }
@@ -495,12 +534,126 @@ const MapView = () => {
 
   // Handle exclude area functionality
   const handleExcludeArea = () => {
+    if (selectedPolygons.length === 0) {
+      toast({
+        title: "No Polygon Selected",
+        description: "Please select a polygon first to create a hole in it.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setExcludeMode(true);
     setDrawingMode('polygon');
     setSelectMode(false);
     toast({
       title: "Exclude Area Mode",
-      description: "Draw a polygon to create a hole in the existing area."
+      description: "Draw a polygon to create a hole in the selected polygon."
+    });
+  };
+
+  // Handle edit polygon functionality
+  const handleEditPolygon = () => {
+    if (selectedPolygons.length === 0) {
+      toast({
+        title: "No Polygon Selected",
+        description: "Please select a polygon first to edit it.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (selectedPolygons.length > 1) {
+      toast({
+        title: "Multiple Polygons Selected",
+        description: "Please select only one polygon to edit.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const polygonToEdit = selectedPolygons[0];
+    setEditMode(true);
+    setEditingPolygonId(polygonToEdit.properties?.id || polygonToEdit.source);
+    setSelectMode(false);
+    
+    // Extract coordinates from the polygon for editing
+    if (polygonToEdit.geometry && polygonToEdit.geometry.coordinates) {
+      const coords = polygonToEdit.geometry.coordinates[0];
+      // Remove the last coordinate (which closes the polygon)
+      const editableCoords = coords.slice(0, -1);
+      setDrawingPoints(editableCoords);
+      
+      // Add markers for each vertex
+      editableCoords.forEach(coord => {
+        addDrawingMarker(coord);
+      });
+    }
+    
+    toast({
+      title: "Edit Mode",
+      description: "Click on vertices to move them, or double-click to finish editing."
+    });
+  };
+
+  // Count vertices in a polygon
+  const countPolygonVertices = (feature: any): number => {
+    if (!feature.geometry || !feature.geometry.coordinates) return 0;
+    
+    if (feature.geometry.type === 'Polygon') {
+      // For polygon, return the number of vertices in the outer ring (minus 1 for the closing vertex)
+      return Math.max(0, feature.geometry.coordinates[0].length - 1);
+    }
+    
+    return 0;
+  };
+
+  // Update polygon highlight for drawn polygons
+  const updatePolygonHighlight = (polygon: any, index: number = 0) => {
+    if (!map.current || !polygon) return;
+    
+    // Create unique layer IDs for multiple selections
+    const layerId = `selected-polygon-${index}`;
+    const sourceId = `selected-polygon-source-${index}`;
+    
+    // Remove existing selection layer with this ID if it exists
+    if (map.current.getLayer(`${layerId}-highlight`)) {
+      map.current.removeLayer(`${layerId}-highlight`);
+    }
+    if (map.current.getLayer(`${layerId}-outline`)) {
+      map.current.removeLayer(`${layerId}-outline`);
+    }
+    if (map.current.getSource(sourceId)) {
+      map.current.removeSource(sourceId);
+    }
+    
+    // Add source for selected polygon
+    map.current.addSource(sourceId, {
+      type: 'geojson',
+      data: polygon
+    });
+    
+    // Add semi-transparent fill layer (90% transparent)
+    map.current.addLayer({
+      id: `${layerId}-highlight`,
+      type: 'fill',
+      source: sourceId,
+      paint: {
+        'fill-color': '#1e3a8a', // Dark blue color
+        'fill-opacity': 0.1 // 90% transparent (10% opacity)
+      }
+    });
+    
+    // Add thick dark grey outline
+    map.current.addLayer({
+      id: `${layerId}-outline`,
+      type: 'line',
+      source: sourceId,
+      paint: {
+        'line-color': '#374151', // Dark grey color
+        'line-width': 4, // Thick outline
+        'line-opacity': 1
+      }
     });
   };
 
@@ -519,12 +672,15 @@ const MapView = () => {
       map.current.removeSource('selected-feature');
     }
 
+    // Clear all selection highlights
+    clearSelection();
+
     // Remove all drawn polygons and circles
     const style = map.current.getStyle();
     if (style && style.layers) {
       const layersToRemove = style.layers
         .map(layer => layer.id)
-        .filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle'));
+        .filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle') || id.includes('uploaded-polygon'));
       
       layersToRemove.forEach(layerId => {
         if (map.current?.getLayer(layerId)) {
@@ -536,7 +692,7 @@ const MapView = () => {
     // Remove all drawn sources
     if (style && style.sources) {
       const sourcesToRemove = Object.keys(style.sources)
-        .filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle'));
+        .filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle') || id.includes('uploaded-polygon'));
       
       sourcesToRemove.forEach(sourceId => {
         if (map.current?.getSource(sourceId)) {
@@ -567,11 +723,15 @@ const MapView = () => {
 
     // Reset all states
     setSelectedFeatures([]);
+    setSelectedPolygons([]);
+    setPolygonVertexCounts({});
     setDrawingPoints([]);
     setCurrentPolygonHoles([]);
     setIsDrawing(false);
     setDrawingMode(null);
     setExcludeMode(false);
+    setEditMode(false);
+    setEditingPolygonId(null);
     setMeasurementPoints([]);
     setDistances([]);
     setTempCircleCenter(null);
@@ -642,29 +802,103 @@ const MapView = () => {
     
     // Remove temporary polygon
     if (map.current.getSource('temp-polygon')) {
-      map.current.removeLayer('temp-polygon-fill');
-      map.current.removeLayer('temp-polygon-outline');
+      if (map.current.getLayer('temp-polygon-fill')) {
+        map.current.removeLayer('temp-polygon-fill');
+      }
+      if (map.current.getLayer('temp-polygon-outline')) {
+        map.current.removeLayer('temp-polygon-outline');
+      }
       map.current.removeSource('temp-polygon');
     }
     
-    // Create final polygon (closed)
+    // Create final polygon coordinates (closed)
     const coordinates = [...drawingPoints, drawingPoints[0]]; // Close the polygon
     
-    // If in exclude mode, add as a hole to existing polygon
-    if (excludeMode) {
-      setCurrentPolygonHoles(prev => [...prev, coordinates]);
-      setDrawingPoints([]);
-      setIsDrawing(false);
-      toast({ title: "Hole Added", description: `Exclusion area with ${drawingPoints.length} points added.` });
+    // If in exclude mode, add as a hole to the selected polygon
+    if (excludeMode && selectedPolygons.length > 0) {
+      const targetPolygon = selectedPolygons[0];
+      const targetSourceId = targetPolygon.properties?.id || targetPolygon.source;
+      
+      if (map.current.getSource(targetSourceId)) {
+        // Get the existing polygon data
+        const existingSource = map.current.getSource(targetSourceId) as any;
+        if (existingSource._data) {
+          const existingData = existingSource._data;
+          
+          // Add the hole to the existing polygon
+          if (existingData.geometry && existingData.geometry.coordinates) {
+            const newCoordinates = [...existingData.geometry.coordinates, coordinates];
+            
+            // Update the source with the new polygon that includes the hole
+            const updatedPolygon = {
+              ...existingData,
+              geometry: {
+                ...existingData.geometry,
+                coordinates: newCoordinates
+              }
+            };
+            
+            // Update the source
+            (map.current.getSource(targetSourceId) as any).setData(updatedPolygon);
+            
+            setDrawingPoints([]);
+            setIsDrawing(false);
+            setExcludeMode(false);
+            setDrawingMode(null);
+            setSelectMode(true);
+            
+            toast({ 
+              title: "Hole Created", 
+              description: `Exclusion area with ${drawingPoints.length} vertices added as hole.` 
+            });
+            return;
+          }
+        }
+      }
+      
+      // Fallback: couldn't modify existing polygon
+      toast({
+        title: "Error",
+        description: "Could not add hole to selected polygon.",
+        variant: "destructive"
+      });
       return;
     }
     
-    // Include holes if any exist
-    const polygonCoordinates = currentPolygonHoles.length > 0 
-      ? [coordinates, ...currentPolygonHoles]
-      : [coordinates];
+    // If in edit mode, update the existing polygon
+    if (editMode && editingPolygonId) {
+      if (map.current.getSource(editingPolygonId)) {
+        const updatedPolygon = {
+          type: 'Feature',
+          properties: { id: editingPolygonId, type: 'drawn-polygon' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [coordinates]
+          }
+        };
+        
+        // Update the source
+        (map.current.getSource(editingPolygonId) as any).setData(updatedPolygon);
+        
+        setDrawingPoints([]);
+        setIsDrawing(false);
+        setEditMode(false);
+        setEditingPolygonId(null);
+        setDrawingMode(null);
+        setSelectMode(true);
+        
+        toast({ 
+          title: "Polygon Updated", 
+          description: `Polygon with ${drawingPoints.length} vertices updated.` 
+        });
+        return;
+      }
+    }
     
+    // Regular polygon creation
+    const polygonCoordinates = [coordinates];
     const polygonId = `drawn-polygon-${Date.now()}`;
+    
     map.current.addSource(polygonId, {
       type: 'geojson',
       data: {
@@ -682,7 +916,7 @@ const MapView = () => {
       type: 'fill',
       source: polygonId,
       paint: {
-        'fill-color': excludeMode ? '#ef4444' : '#3b82f6',
+        'fill-color': '#3b82f6',
         'fill-opacity': 0.2
       }
     });
@@ -692,14 +926,13 @@ const MapView = () => {
       type: 'line',
       source: polygonId,
       paint: {
-        'line-color': excludeMode ? '#ef4444' : '#3b82f6',
+        'line-color': '#3b82f6',
         'line-width': 2
       }
     });
     
     finishDrawing();
-    const holeText = currentPolygonHoles.length > 0 ? ` with ${currentPolygonHoles.length} holes` : '';
-    toast({ title: "Polygon Created", description: `Polygon with ${drawingPoints.length} points${holeText} created.` });
+    toast({ title: "Polygon Created", description: `Polygon with ${drawingPoints.length} vertices created.` });
   };
 
   const drawCircle = (center: [number, number], radiusMeters: number) => {
@@ -766,6 +999,8 @@ const MapView = () => {
     setIsDrawing(false);
     setTempCircleCenter(null);
     setExcludeMode(false);
+    setEditMode(false);
+    setEditingPolygonId(null);
     setCurrentPolygonHoles([]);
   };
 
@@ -1098,7 +1333,7 @@ const MapView = () => {
   const clearSelection = () => {
     if (!map.current) return;
     
-    // Remove all selection layers and sources
+    // Remove all selection layers and sources for regular features
     selectedFeatures.forEach((_, index) => {
       const layerId = `selected-area-${index}`;
       const sourceId = `selected-source-${index}`;
@@ -1114,7 +1349,25 @@ const MapView = () => {
       }
     });
     
+    // Remove all polygon selection layers and sources
+    selectedPolygons.forEach((_, index) => {
+      const layerId = `selected-polygon-${index}`;
+      const sourceId = `selected-polygon-source-${index}`;
+      
+      if (map.current?.getLayer(`${layerId}-highlight`)) {
+        map.current.removeLayer(`${layerId}-highlight`);
+      }
+      if (map.current?.getLayer(`${layerId}-outline`)) {
+        map.current.removeLayer(`${layerId}-outline`);
+      }
+      if (map.current?.getSource(sourceId)) {
+        map.current.removeSource(sourceId);
+      }
+    });
+    
     setSelectedFeatures([]);
+    setSelectedPolygons([]);
+    setPolygonVertexCounts({});
   };
 
   // Clear all drawn shapes
@@ -1361,6 +1614,8 @@ const MapView = () => {
           console.log('Edit tool selected:', tool);
           if (tool === 'exclude') {
             handleExcludeArea();
+          } else if (tool === 'edit') {
+            handleEditPolygon();
           } else if (tool === 'delete') {
             handleDeleteAll();
           }
@@ -1398,6 +1653,25 @@ const MapView = () => {
           </div>
         </div>
       </div>
+
+      {/* Polygon Vertex Count Display */}
+      {selectedPolygons.length > 0 && (
+        <div className="absolute top-20 right-4 z-20">
+          <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg px-3 py-2">
+            <div className="text-xs text-gray-600">
+              {selectedPolygons.length === 1 ? (
+                <span>
+                  Selected Polygon: {Object.values(polygonVertexCounts)[0] || 0} vertices
+                </span>
+              ) : (
+                <span>
+                  {selectedPolygons.length} Polygons Selected
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Search Bar */}
       {searchOpen && (
