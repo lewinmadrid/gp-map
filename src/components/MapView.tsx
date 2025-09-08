@@ -308,26 +308,25 @@ const MapView = () => {
           const feature = features[0];
           console.log('🎯 Evacuation zone selected:', feature.properties);
           
-          // Keep track of the current count before adding
+          // Check if already selected
+          const isAlreadySelected = selectedFeatures.some(f => 
+            (f.properties?.id && f.properties.id === feature.properties?.id) ||
+            (f.properties?.zone_id && f.properties.zone_id === feature.properties?.zone_id)
+          );
+          
+          if (isAlreadySelected) {
+            toast({
+              title: "Already Selected", 
+              description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} is already selected`,
+            });
+            return;
+          }
+          
+          // Add to selected features array
           const currentCount = selectedFeatures.length;
+          setSelectedFeatures(prev => [...prev, feature]);
           
-          // Add to selected features array (allow multiple selections)
-          setSelectedFeatures(prev => {
-            const exists = prev.some(f => 
-              (f.properties?.id && f.properties.id === feature.properties?.id) ||
-              (f.properties?.zone_id && f.properties.zone_id === feature.properties?.zone_id)
-            );
-            if (exists) {
-              toast({
-                title: "Already Selected", 
-                description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} is already selected`,
-              });
-              return prev;
-            }
-            return [...prev, feature];
-          });
-          
-          // Add selection highlight layer
+          // Add selection highlight layer with unique index
           updateSelectionHighlight(feature, currentCount);
           
           toast({
@@ -335,7 +334,7 @@ const MapView = () => {
             description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} selected. Total: ${currentCount + 1}`,
           });
           return;
-        } 
+        }
         
         // Handle drawn polygon selection
         if (drawnPolygons.length > 0) {
@@ -647,9 +646,10 @@ const MapView = () => {
   const updatePolygonHighlight = (polygon: any, index: number = 0) => {
     if (!map.current || !polygon) return;
     
-    // Create unique layer IDs for multiple selections
-    const layerId = `selected-polygon-${index}`;
-    const sourceId = `selected-polygon-source-${index}`;
+    // Create unique layer IDs based on polygon properties
+    const polygonId = polygon.properties?.id || polygon.source || `polygon-${Date.now()}-${index}`;
+    const layerId = `selected-polygon-${polygonId}`;
+    const sourceId = `selected-polygon-source-${polygonId}`;
     
     // Remove existing selection layer with this ID if it exists
     if (map.current.getLayer(`${layerId}-highlight`)) {
@@ -1319,9 +1319,10 @@ const MapView = () => {
   const updateSelectionHighlight = (feature: any, index: number = 0) => {
     if (!map.current || !feature) return;
     
-    // Create unique layer IDs for multiple selections
-    const layerId = `selected-area-${index}`;
-    const sourceId = `selected-source-${index}`;
+    // Create unique layer IDs based on feature properties, not just index
+    const featureId = feature.properties?.id || feature.properties?.zone_id || `feature-${Date.now()}-${index}`;
+    const layerId = `selected-area-${featureId}`;
+    const sourceId = `selected-source-${featureId}`;
     
     // Remove existing selection layer with this ID if it exists
     if (map.current.getLayer(`${layerId}-highlight`)) {
@@ -1368,10 +1369,11 @@ const MapView = () => {
   const clearSelection = () => {
     if (!map.current) return;
     
-    // Remove all selection layers and sources for regular features
-    selectedFeatures.forEach((_, index) => {
-      const layerId = `selected-area-${index}`;
-      const sourceId = `selected-source-${index}`;
+    // Remove all selection layers and sources for regular features using unique IDs
+    selectedFeatures.forEach((feature) => {
+      const featureId = feature.properties?.id || feature.properties?.zone_id || 'unknown';
+      const layerId = `selected-area-${featureId}`;
+      const sourceId = `selected-source-${featureId}`;
       
       if (map.current?.getLayer(`${layerId}-highlight`)) {
         map.current.removeLayer(`${layerId}-highlight`);
@@ -1385,9 +1387,10 @@ const MapView = () => {
     });
     
     // Remove all polygon selection layers and sources
-    selectedPolygons.forEach((_, index) => {
-      const layerId = `selected-polygon-${index}`;
-      const sourceId = `selected-polygon-source-${index}`;
+    selectedPolygons.forEach((polygon, index) => {
+      const polygonId = polygon.properties?.id || polygon.source || `polygon-${index}`;
+      const layerId = `selected-polygon-${polygonId}`;
+      const sourceId = `selected-polygon-source-${polygonId}`;
       
       if (map.current?.getLayer(`${layerId}-highlight`)) {
         map.current.removeLayer(`${layerId}-highlight`);
@@ -1595,9 +1598,14 @@ const MapView = () => {
       <TopToolbar 
         currentMode={selectMode ? 'select' : drawingMode || 'select'}
         onDrawTool={(tool) => {
-          // Clear existing selections and drawings
-          clearSelection();
+          // Clear any existing drawings but KEEP selections
           clearDrawnShapes();
+          
+          // Clear drawing markers (blue vertices)
+          drawingMarkers.forEach(marker => {
+            marker.remove();
+          });
+          setDrawingMarkers([]);
           
           // Cancel any existing drawing
           if (drawingMode) {
