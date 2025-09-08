@@ -1749,7 +1749,7 @@ const MapView = () => {
         </div>}
 
       {/* Right Side Toolbar - Top buttons moved down */}
-      <div className="absolute top-28 right-4 z-20 flex flex-col gap-1">
+      <div className="absolute top-36 right-4 z-20 flex flex-col gap-1">
         {/* Search Button */}
         <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={() => setSearchOpen(!searchOpen)}>
           <Search className="h-4 w-4 text-gray-600" />
