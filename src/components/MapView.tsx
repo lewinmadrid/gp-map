@@ -744,7 +744,12 @@ const MapView = () => {
     // Remove all drawn polygons and circles
     const style = map.current.getStyle();
     if (style && style.layers) {
-      const layersToRemove = style.layers.map(layer => layer.id).filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle') || id.includes('uploaded-polygon'));
+      const layersToRemove = style.layers.map(layer => layer.id).filter(id => 
+        id.includes('drawn-polygon') || 
+        id.includes('drawn-circle') || 
+        id.includes('uploaded-polygon') || 
+        id.includes('location-polygon')
+      );
       layersToRemove.forEach(layerId => {
         if (map.current?.getLayer(layerId)) {
           map.current.removeLayer(layerId);
@@ -754,7 +759,12 @@ const MapView = () => {
 
     // Remove all drawn sources
     if (style && style.sources) {
-      const sourcesToRemove = Object.keys(style.sources).filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle') || id.includes('uploaded-polygon'));
+      const sourcesToRemove = Object.keys(style.sources).filter(id => 
+        id.includes('drawn-polygon') || 
+        id.includes('drawn-circle') || 
+        id.includes('uploaded-polygon') || 
+        id.includes('location-polygon')
+      );
       sourcesToRemove.forEach(sourceId => {
         if (map.current?.getSource(sourceId)) {
           map.current.removeSource(sourceId);
