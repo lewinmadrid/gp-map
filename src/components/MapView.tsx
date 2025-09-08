@@ -569,24 +569,24 @@ const MapView = () => {
       data: feature
     });
     
-    // Add semi-transparent fill layer (matching image style)
+    // Add semi-transparent fill layer (90% transparent)
     map.current.addLayer({
       id: 'selected-area-highlight',
       type: 'fill',
       source: 'selected-area',
       paint: {
         'fill-color': '#1e3a8a', // Dark blue color
-        'fill-opacity': 0.3 // Semi-transparent
+        'fill-opacity': 0.1 // 90% transparent (10% opacity)
       }
     });
     
-    // Add thick dark blue outline (matching image style)
+    // Add thick dark grey outline
     map.current.addLayer({
       id: 'selected-area-outline',
       type: 'line',
       source: 'selected-area',
       paint: {
-        'line-color': '#1e3a8a', // Dark blue color matching the image
+        'line-color': '#374151', // Dark grey color
         'line-width': 4, // Thick outline as shown in image
         'line-opacity': 1
       }
