@@ -297,25 +297,75 @@ const MapView = () => {
           const feature = features[0];
           console.log('🎯 Evacuation zone selected:', feature.properties);
 
-          // Check if already selected
-          const isAlreadySelected = selectedFeatures.some(f => f.properties?.id && f.properties.id === feature.properties?.id || f.properties?.zone_id && f.properties.zone_id === feature.properties?.zone_id);
+          // Use more specific feature identification to prevent false matches
+          const featureIdentifier = feature.properties?.zone_id || 
+                                    feature.properties?.id || 
+                                    feature.properties?.zone_identifier || 
+                                    (feature.geometry && 'coordinates' in feature.geometry ? 
+                                     `${feature.geometry.coordinates?.[0]?.[0]?.[0]}-${feature.geometry.coordinates?.[0]?.[0]?.[1]}` : 
+                                     `feature-${Date.now()}`);
+
+          // Check if already selected using more specific matching
+          const isAlreadySelected = selectedFeatures.some(f => {
+            const selectedIdentifier = f.properties?.zone_id || 
+                                      f.properties?.id || 
+                                      f.properties?.zone_identifier || 
+                                      (f.geometry && 'coordinates' in f.geometry ? 
+                                       `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : 
+                                       `feature-${Date.now()}`);
+            return selectedIdentifier === featureIdentifier;
+          });
+          
           if (isAlreadySelected) {
+            // Instead of showing toast, deselect the zone
+            setSelectedFeatures(prev => prev.filter(f => {
+              const selectedIdentifier = f.properties?.zone_id || 
+                                        f.properties?.id || 
+                                        f.properties?.zone_identifier || 
+                                        (f.geometry && 'coordinates' in f.geometry ? 
+                                         `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : 
+                                         `feature-${Date.now()}`);
+              return selectedIdentifier !== featureIdentifier;
+            }));
+            
+            // Remove highlight
+            clearSingleFeatureHighlight(feature);
+            
+            // Calculate remaining total vertices
+            const remainingFeatures = selectedFeatures.filter(f => {
+              const selectedIdentifier = f.properties?.zone_id || 
+                                        f.properties?.id || 
+                                        f.properties?.zone_identifier || 
+                                        (f.geometry && 'coordinates' in f.geometry ? 
+                                         `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : 
+                                         `feature-${Date.now()}`);
+              return selectedIdentifier !== featureIdentifier;
+            });
+            
+            const totalVertices = remainingFeatures.reduce((sum, f) => sum + countPolygonVertices(f), 0);
+            
             toast({
-              title: "Already Selected",
-              description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} is already selected`
+              title: "Zone Deselected",
+              description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} deselected. Remaining: ${remainingFeatures.length} zones, ${totalVertices} vertices total`
             });
             return;
           }
 
+          // Count vertices for this zone
+          const vertexCount = countPolygonVertices(feature);
+          
           // Add to selected features array
           const currentCount = selectedFeatures.length;
           setSelectedFeatures(prev => [...prev, feature]);
+
+          // Calculate total vertices from all selected zones including this new one
+          const totalVertices = selectedFeatures.reduce((sum, f) => sum + countPolygonVertices(f), 0) + vertexCount;
 
           // Add selection highlight layer with unique index
           updateSelectionHighlight(feature, currentCount);
           toast({
             title: "Zone Selected",
-            description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} selected. Total: ${currentCount + 1}`
+            description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} selected (${vertexCount} vertices). Total: ${currentCount + 1} zones, ${totalVertices} vertices`
           });
           return;
         }
@@ -355,9 +405,14 @@ const MapView = () => {
 
           // Highlight the selected polygon
           updatePolygonHighlight(polygon, currentCount);
+          
+          // Calculate total vertices from all selected polygons including this new one
+          const allVertexCounts = Object.values(polygonVertexCounts);
+          const totalVertices = allVertexCounts.reduce((sum, count) => sum + count, 0) + vertexCount;
+          
           toast({
             title: "Polygon Selected",
-            description: `Polygon with ${vertexCount} vertices selected. Total: ${currentCount + 1}`
+            description: `Polygon with ${vertexCount} vertices selected. Total: ${currentCount + 1} polygons, ${totalVertices} vertices`
           });
           return;
         }
@@ -1330,24 +1385,32 @@ const MapView = () => {
     });
   };
 
+  // Clear single feature highlight (for deselection)
+  const clearSingleFeatureHighlight = (feature: any) => {
+    if (!map.current) return;
+    
+    const featureId = feature.properties?.id || feature.properties?.zone_id || `feature-${Date.now()}`;
+    const layerId = `selected-area-${featureId}`;
+    const sourceId = `selected-source-${featureId}`;
+    
+    if (map.current?.getLayer(`${layerId}-highlight`)) {
+      map.current.removeLayer(`${layerId}-highlight`);
+    }
+    if (map.current?.getLayer(`${layerId}-outline`)) {
+      map.current.removeLayer(`${layerId}-outline`);
+    }
+    if (map.current?.getSource(sourceId)) {
+      map.current.removeSource(sourceId);
+    }
+  };
+
   // Clear area selection
   const clearSelection = () => {
     if (!map.current) return;
 
     // Remove all selection layers and sources for regular features using unique IDs
     selectedFeatures.forEach(feature => {
-      const featureId = feature.properties?.id || feature.properties?.zone_id || 'unknown';
-      const layerId = `selected-area-${featureId}`;
-      const sourceId = `selected-source-${featureId}`;
-      if (map.current?.getLayer(`${layerId}-highlight`)) {
-        map.current.removeLayer(`${layerId}-highlight`);
-      }
-      if (map.current?.getLayer(`${layerId}-outline`)) {
-        map.current.removeLayer(`${layerId}-outline`);
-      }
-      if (map.current?.getSource(sourceId)) {
-        map.current.removeSource(sourceId);
-      }
+      clearSingleFeatureHighlight(feature);
     });
 
     // Remove all polygon selection layers and sources
@@ -1640,14 +1703,14 @@ const MapView = () => {
                   {selectedPolygons.length === 1 ? <span>
                       Selected Polygon: {Object.values(polygonVertexCounts)[0] || 0} vertices
                     </span> : <span>
-                      {selectedPolygons.length} Polygons Selected
+                      {selectedPolygons.length} Polygons: {Object.values(polygonVertexCounts).reduce((sum, count) => sum + count, 0)} vertices total
                     </span>}
                 </div>}
               {selectedFeatures.length > 0 && <div>
                   {selectedFeatures.length === 1 ? <span>
-                      1 Zone Selected: {selectedFeatures[0].properties?.zone_identifier || selectedFeatures[0].properties?.id || 'Unknown'}
+                      1 Zone Selected: {selectedFeatures[0].properties?.zone_identifier || selectedFeatures[0].properties?.id || 'Unknown'} ({countPolygonVertices(selectedFeatures[0])} vertices)
                     </span> : <span>
-                      {selectedFeatures.length} Zones Selected
+                      {selectedFeatures.length} Zones: {selectedFeatures.reduce((sum, f) => sum + countPolygonVertices(f), 0)} vertices total
                     </span>}
                 </div>}
             </div>
