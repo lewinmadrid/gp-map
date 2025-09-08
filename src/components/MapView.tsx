@@ -1689,7 +1689,7 @@ const MapView = () => {
       {/* Active Layer Selector - Top Right Corner */}
       <div className="absolute top-4 right-4 z-20">
         <div className="bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg px-3 min-w-56 rounded-none py-0">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <span className="text-xs text-gray-600 whitespace-nowrap">Active Layer</span>
             <Select value={activeLayer} onValueChange={setActiveLayer}>
               <SelectTrigger className="flex-1 bg-white border-gray-200 text-gray-900 text-xs [&>span]:pr-4">
