@@ -31,7 +31,7 @@ const MapView = () => {
   const map = useRef<Map | null>(null);
   const geolocateControlRef = useRef<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [currentBasemap, setCurrentBasemap] = useState('streets');
+  const [currentBasemap, setCurrentBasemap] = useState('topographic');
   const [vectorLayerVisible, setVectorLayerVisible] = useState(false);
   const [layerStatus, setLayerStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [activeLayer, setActiveLayer] = useState('Genasys Zones');
