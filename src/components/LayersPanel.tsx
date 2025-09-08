@@ -50,7 +50,7 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose }) => {
           {/* Traffic */}
           <div className="border border-gray-200 rounded-lg bg-white">
             <div 
-              className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted"
+              className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100"
               onClick={() => setTrafficExpanded(!trafficExpanded)}
             >
               <div className="flex items-center gap-2">
@@ -101,7 +101,7 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose }) => {
           {/* Evacuation */}
           <div className="border border-gray-200 rounded-lg bg-white">
             <div 
-              className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted"
+              className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100"
               onClick={() => setEvacuationExpanded(!evacuationExpanded)}
             >
               <div className="flex items-center gap-2">
@@ -139,7 +139,7 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose }) => {
           {/* Fire */}
           <div className="border border-gray-200 rounded-lg bg-white">
             <div 
-              className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted"
+              className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100"
               onClick={() => setFireExpanded(!fireExpanded)}
             >
               <div className="flex items-center gap-2">
@@ -153,7 +153,7 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose }) => {
           {/* Custom Layers */}
           <div className="border border-gray-200 rounded-lg bg-white">
             <div 
-              className="flex items-center justify-between p-3 cursor-pointer hover:bg-muted"
+              className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100"
               onClick={() => setCustomExpanded(!customExpanded)}
             >
               <div className="flex items-center gap-2">
