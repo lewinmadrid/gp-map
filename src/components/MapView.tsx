@@ -190,6 +190,26 @@ const MapView = () => {
       name: 'Terrain',
       url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
       attribution: '© Esri'
+    },
+    google_roads: {
+      name: 'Google Roads',
+      url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+      attribution: '© Google'
+    },
+    google_satellite: {
+      name: 'Google Satellite',
+      url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+      attribution: '© Google'
+    },
+    google_hybrid: {
+      name: 'Google Hybrid',
+      url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+      attribution: '© Google'
+    },
+    google_terrain: {
+      name: 'Google Terrain',
+      url: 'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+      attribution: '© Google'
     }
   };
 
@@ -283,6 +303,11 @@ const MapView = () => {
       
       if (drawingMode === 'circle') {
         handleCircleClick(clickPoint);
+        return;
+      }
+      
+      if (drawingMode === 'radius') {
+        handleRadiusClick(clickPoint);
         return;
       }
       
