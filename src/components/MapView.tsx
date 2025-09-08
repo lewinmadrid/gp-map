@@ -49,6 +49,9 @@ const MapView = () => {
   const [drawingPoints, setDrawingPoints] = useState<[number, number][]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [tempCircleCenter, setTempCircleCenter] = useState<[number, number] | null>(null);
+  const [drawingMarkers, setDrawingMarkers] = useState<any[]>([]);
+  const [excludeMode, setExcludeMode] = useState(false);
+  const [currentPolygonHoles, setCurrentPolygonHoles] = useState<[number, number][][]>([]);
   
   const { toast } = useToast();
 
@@ -383,7 +386,97 @@ const MapView = () => {
         map.current.off('click', handleMapClick);
       }
     };
-  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, selectMode, toast]);
+  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, selectMode, excludeMode, toast]);
+
+  // Handle exclude area functionality
+  const handleExcludeArea = () => {
+    setExcludeMode(true);
+    setDrawingMode('polygon');
+    setSelectMode(false);
+    toast({
+      title: "Exclude Area Mode",
+      description: "Draw a polygon to create a hole in the existing area."
+    });
+  };
+
+  // Handle delete all functionality
+  const handleDeleteAll = () => {
+    if (!map.current) return;
+
+    // Clear selection highlight
+    if (map.current.getSource('selected-feature')) {
+      if (map.current.getLayer('selected-feature-fill')) {
+        map.current.removeLayer('selected-feature-fill');
+      }
+      if (map.current.getLayer('selected-feature-outline')) {
+        map.current.removeLayer('selected-feature-outline');
+      }
+      map.current.removeSource('selected-feature');
+    }
+
+    // Remove all drawn polygons and circles
+    const style = map.current.getStyle();
+    if (style && style.layers) {
+      const layersToRemove = style.layers
+        .map(layer => layer.id)
+        .filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle'));
+      
+      layersToRemove.forEach(layerId => {
+        if (map.current?.getLayer(layerId)) {
+          map.current.removeLayer(layerId);
+        }
+      });
+    }
+
+    // Remove all drawn sources
+    if (style && style.sources) {
+      const sourcesToRemove = Object.keys(style.sources)
+        .filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle'));
+      
+      sourcesToRemove.forEach(sourceId => {
+        if (map.current?.getSource(sourceId)) {
+          map.current.removeSource(sourceId);
+        }
+      });
+    }
+
+    // Remove all drawing markers (blue circles)
+    drawingMarkers.forEach(marker => {
+      marker.remove();
+    });
+    setDrawingMarkers([]);
+
+    // Remove measurement markers and lines
+    measurementMarkers.forEach(marker => {
+      if ((marker as any)._popup) {
+        (marker as any)._popup.remove();
+      }
+      marker.remove();
+    });
+    setMeasurementMarkers([]);
+
+    if (map.current.getSource('measurement-line')) {
+      map.current.removeLayer('measurement-line');
+      map.current.removeSource('measurement-line');
+    }
+
+    // Reset all states
+    setSelectedFeature(null);
+    setDrawingPoints([]);
+    setCurrentPolygonHoles([]);
+    setIsDrawing(false);
+    setDrawingMode(null);
+    setExcludeMode(false);
+    setMeasurementPoints([]);
+    setDistances([]);
+    setTempCircleCenter(null);
+    setSelectMode(true); // Return to select mode
+
+    toast({
+      title: "All Cleared",
+      description: "All drawn shapes, selections, and markers have been removed."
+    });
+  };
 
   // Drawing helper functions
   const addDrawingMarker = (point: [number, number]) => {
@@ -392,9 +485,14 @@ const MapView = () => {
     const markerEl = document.createElement('div');
     markerEl.className = 'w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-lg';
     
-    new Marker({ element: markerEl, anchor: 'center' })
+    const marker = new Marker({ element: markerEl, anchor: 'center' })
       .setLngLat(point)
       .addTo(map.current);
+    
+    // Store marker reference for cleanup
+    setDrawingMarkers(prev => [...prev, marker]);
+    
+    return marker;
   };
 
   const drawTemporaryPolygon = (points: [number, number][]) => {
@@ -447,6 +545,20 @@ const MapView = () => {
     // Create final polygon (closed)
     const coordinates = [...drawingPoints, drawingPoints[0]]; // Close the polygon
     
+    // If in exclude mode, add as a hole to existing polygon
+    if (excludeMode) {
+      setCurrentPolygonHoles(prev => [...prev, coordinates]);
+      setDrawingPoints([]);
+      setIsDrawing(false);
+      toast({ title: "Hole Added", description: `Exclusion area with ${drawingPoints.length} points added.` });
+      return;
+    }
+    
+    // Include holes if any exist
+    const polygonCoordinates = currentPolygonHoles.length > 0 
+      ? [coordinates, ...currentPolygonHoles]
+      : [coordinates];
+    
     const polygonId = `drawn-polygon-${Date.now()}`;
     map.current.addSource(polygonId, {
       type: 'geojson',
@@ -455,7 +567,7 @@ const MapView = () => {
         properties: { id: polygonId, type: 'drawn-polygon' },
         geometry: {
           type: 'Polygon',
-          coordinates: [coordinates]
+          coordinates: polygonCoordinates
         }
       }
     });
@@ -465,7 +577,7 @@ const MapView = () => {
       type: 'fill',
       source: polygonId,
       paint: {
-        'fill-color': '#3b82f6',
+        'fill-color': excludeMode ? '#ef4444' : '#3b82f6',
         'fill-opacity': 0.2
       }
     });
@@ -475,13 +587,14 @@ const MapView = () => {
       type: 'line',
       source: polygonId,
       paint: {
-        'line-color': '#3b82f6',
+        'line-color': excludeMode ? '#ef4444' : '#3b82f6',
         'line-width': 2
       }
     });
     
     finishDrawing();
-    toast({ title: "Polygon Created", description: `Polygon with ${drawingPoints.length} points created.` });
+    const holeText = currentPolygonHoles.length > 0 ? ` with ${currentPolygonHoles.length} holes` : '';
+    toast({ title: "Polygon Created", description: `Polygon with ${drawingPoints.length} points${holeText} created.` });
   };
 
   const drawCircle = (center: [number, number], radiusMeters: number) => {
@@ -547,6 +660,8 @@ const MapView = () => {
     setDrawingPoints([]);
     setIsDrawing(false);
     setTempCircleCenter(null);
+    setExcludeMode(false);
+    setCurrentPolygonHoles([]);
   };
 
   const cancelDrawing = () => {
@@ -1127,7 +1242,11 @@ const MapView = () => {
         }}
         onEditTool={(tool) => {
           console.log('Edit tool selected:', tool);
-          // Add edit tool functionality here
+          if (tool === 'exclude') {
+            handleExcludeArea();
+          } else if (tool === 'delete') {
+            handleDeleteAll();
+          }
         }}
         onSnapshot={() => {
           console.log('Snapshot requested');
@@ -1329,15 +1448,28 @@ const MapView = () => {
       {/* Drawing Status */}
       {drawingMode && (
         <div className="absolute top-20 left-20 z-30">
-          <div className="bg-green-100/95 backdrop-blur-sm border border-green-200 rounded-lg shadow-lg p-3">
-            <div className="flex items-center gap-2 text-green-800 text-sm">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>{drawingMode.charAt(0).toUpperCase() + drawingMode.slice(1)} Drawing Mode</span>
+          <div className={`backdrop-blur-sm border rounded-lg shadow-lg p-3 ${
+            excludeMode 
+              ? 'bg-red-100/95 border-red-200' 
+              : 'bg-green-100/95 border-green-200'
+          }`}>
+            <div className={`flex items-center gap-2 text-sm ${
+              excludeMode ? 'text-red-800' : 'text-green-800'
+            }`}>
+              <div className={`w-3 h-3 rounded-full ${
+                excludeMode ? 'bg-red-500' : 'bg-green-500'
+              }`}></div>
+              <span>
+                {excludeMode ? 'Exclude Area' : drawingMode.charAt(0).toUpperCase() + drawingMode.slice(1)} Drawing Mode
+              </span>
             </div>
-            <div className="text-xs text-green-600 mt-1">
-              {drawingMode === 'polygon' && `Points: ${drawingPoints.length}${isDrawing ? ' (click to add, double-click to finish)' : ''}`}
-              {drawingMode === 'circle' && (tempCircleCenter ? 'Click to set radius' : 'Click to set center')}
-              {drawingMode === 'radius' && 'Click to set center (radius will be prompted)'}
+            <div className={`text-xs mt-1 ${
+              excludeMode ? 'text-red-600' : 'text-green-600'
+            }`}>
+              {excludeMode && 'Drawing hole in existing polygon'}
+              {!excludeMode && drawingMode === 'polygon' && `Points: ${drawingPoints.length}${isDrawing ? ' (click to add, double-click to finish)' : ''}`}
+              {!excludeMode && drawingMode === 'circle' && (tempCircleCenter ? 'Click to set radius' : 'Click to set center')}
+              {!excludeMode && drawingMode === 'radius' && 'Click to set center (radius will be prompted)'}
             </div>
             <Button
               variant="outline"
