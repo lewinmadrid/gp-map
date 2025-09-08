@@ -979,10 +979,18 @@ const MapView = () => {
     // Highlight the newly drawn polygon
     updatePolygonHighlight(newPolygon, 0);
     
-    finishDrawing();
+    // Stay in drawing mode, just reset drawing state for next polygon
+    setDrawingPoints([]);
+    setIsDrawing(false);
+    setTempCircleCenter(null);
+    setExcludeMode(false);
+    setEditMode(false);
+    setEditingPolygonId(null);
+    setCurrentPolygonHoles([]);
+    
     toast({ 
       title: "Polygon Created & Selected", 
-      description: `Polygon with ${drawingPoints.length} vertices created and selected. Use 'Edit > Exclude Area' to add holes.` 
+      description: `Polygon with ${drawingPoints.length} vertices created. Draw another or switch modes.` 
     });
   };
 
