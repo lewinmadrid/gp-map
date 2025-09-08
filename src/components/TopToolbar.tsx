@@ -61,24 +61,24 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
             <ChevronDown className="h-3 w-3" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
+        <DropdownMenuContent className="w-40 bg-popover border border-border shadow-lg">
           <DropdownMenuItem 
             onClick={() => onDrawTool('polygon')}
-            className="flex items-center gap-2 hover:bg-gray-50"
+            className="flex items-center gap-2 hover:bg-muted"
           >
             <Square className="h-4 w-4" />
             Polygon
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => onDrawTool('circle')}
-            className="flex items-center gap-2 hover:bg-gray-50"
+            className="flex items-center gap-2 hover:bg-muted"
           >
             <Circle className="h-4 w-4" />
             Circle
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => onDrawTool('radius')}
-            className="flex items-center gap-2 hover:bg-gray-50"
+            className="flex items-center gap-2 hover:bg-muted"
           >
             <MapPin className="h-4 w-4" />
             Radius
@@ -128,24 +128,24 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
             <ChevronDown className="h-3 w-3" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
+        <DropdownMenuContent className="w-40 bg-popover border border-border shadow-lg">
           <DropdownMenuItem 
             onClick={() => onEditTool('edit')}
-            className="flex items-center gap-2 hover:bg-gray-50"
+            className="flex items-center gap-2 hover:bg-muted"
           >
             <Edit className="h-4 w-4" />
             Edit Geometry
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => onEditTool('exclude')}
-            className="flex items-center gap-2 hover:bg-gray-50"
+            className="flex items-center gap-2 hover:bg-muted"
           >
             <Minus className="h-4 w-4" />
             Exclude Area
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => onEditTool('delete')}
-            className="flex items-center gap-2 hover:bg-gray-50"
+            className="flex items-center gap-2 hover:bg-muted"
           >
             <Trash2 className="h-4 w-4" />
             Delete
