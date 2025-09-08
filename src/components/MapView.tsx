@@ -44,6 +44,10 @@ const MapView = () => {
   const [legendOpen, setLegendOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
+  const [drawingMode, setDrawingMode] = useState<'polygon' | 'circle' | 'radius' | null>(null);
+  const [drawingPoints, setDrawingPoints] = useState<[number, number][]>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [tempCircleCenter, setTempCircleCenter] = useState<[number, number] | null>(null);
   
   const { toast } = useToast();
 
@@ -152,15 +156,39 @@ const MapView = () => {
     };
   }, []);
 
-  // Separate useEffect for measurement click handler
+  // Separate useEffect for measurement and drawing click handlers
   useEffect(() => {
     if (!map.current) return;
 
     const handleMapClick = (e: any) => {
-      if (!measurementMode) return;
+      const clickPoint: [number, number] = [e.lngLat.lng, e.lngLat.lat];
       
-      const newPoint: [number, number] = [e.lngLat.lng, e.lngLat.lat];
-      const newPoints = [...measurementPoints, newPoint];
+      // Handle measurement mode
+      if (measurementMode) {
+        handleMeasurementClick(clickPoint);
+        return;
+      }
+      
+      // Handle drawing modes
+      if (drawingMode === 'polygon') {
+        handlePolygonClick(clickPoint);
+        return;
+      }
+      
+      if (drawingMode === 'circle') {
+        handleCircleClick(clickPoint);
+        return;
+      }
+      
+      if (drawingMode === 'radius') {
+        handleRadiusClick(clickPoint);
+        return;
+      }
+    };
+
+    const handleMeasurementClick = (point: [number, number]) => {
+      
+      const newPoints = [...measurementPoints, point];
       setMeasurementPoints(newPoints);
       
       // Calculate cumulative distance
@@ -181,7 +209,7 @@ const MapView = () => {
           element: markerEl,
           anchor: 'center'
         })
-          .setLngLat(newPoint)
+          .setLngLat(point)
           .addTo(map.current);
         
         setMeasurementMarkers(prev => [...prev, newMarker]);
@@ -198,7 +226,7 @@ const MapView = () => {
           offset: [0, -10],
           className: 'measurement-popup'
         })
-          .setLngLat(newPoint)
+          .setLngLat(point)
           .setHTML(`<div class="text-xs font-medium text-black" style="background: transparent;">${distanceText}</div>`)
           .addTo(map.current);
         
@@ -210,6 +238,59 @@ const MapView = () => {
           drawMeasurementLine(newPoints);
         }
       }
+    };
+
+    // Drawing mode handlers
+    const handlePolygonClick = (point: [number, number]) => {
+      if (!isDrawing) {
+        // Start new polygon
+        setIsDrawing(true);
+        setDrawingPoints([point]);
+        addDrawingMarker(point);
+        toast({ title: "Polygon Drawing", description: "Click to add points. Double-click to finish." });
+      } else {
+        // Add point to polygon
+        const newPoints = [...drawingPoints, point];
+        setDrawingPoints(newPoints);
+        addDrawingMarker(point);
+        
+        if (newPoints.length >= 2) {
+          drawTemporaryPolygon(newPoints);
+        }
+      }
+    };
+
+    const handleCircleClick = (point: [number, number]) => {
+      if (!tempCircleCenter) {
+        // Set circle center
+        setTempCircleCenter(point);
+        addDrawingMarker(point);
+        toast({ title: "Circle Drawing", description: "Click another point to set the radius." });
+      } else {
+        // Calculate radius and draw circle
+        const radius = calculateDistance(tempCircleCenter, point);
+        drawCircle(tempCircleCenter, radius * 1000); // Convert km to meters
+        finishDrawing();
+        toast({ title: "Circle Created", description: `Radius: ${(radius * 0.621371).toFixed(2)} miles` });
+      }
+    };
+
+    const handleRadiusClick = (point: [number, number]) => {
+      // Prompt for radius distance
+      const radiusStr = prompt("Enter radius in miles:");
+      if (!radiusStr) return;
+      
+      const radiusMiles = parseFloat(radiusStr);
+      if (isNaN(radiusMiles) || radiusMiles <= 0) {
+        toast({ title: "Invalid Input", description: "Please enter a valid positive number for radius.", variant: "destructive" });
+        return;
+      }
+      
+      // Convert miles to meters (1 mile = 1609.34 meters)
+      const radiusMeters = radiusMiles * 1609.34;
+      drawCircle(point, radiusMeters);
+      finishDrawing();
+      toast({ title: "Circle Created", description: `Radius: ${radiusMiles} miles` });
     };
 
     // Function to draw measurement lines
@@ -250,9 +331,27 @@ const MapView = () => {
       });
     };
 
-    // Add or remove click listener based on measurement mode
-    if (measurementMode) {
+    // Add click listener for measurement mode or drawing modes
+    if (measurementMode || drawingMode) {
       map.current.on('click', handleMapClick);
+      
+      // Add double-click handler for polygon completion
+      if (drawingMode === 'polygon') {
+        const handleDoubleClick = () => {
+          if (isDrawing && drawingPoints.length >= 3) {
+            finishPolygon();
+          }
+        };
+        
+        map.current.on('dblclick', handleDoubleClick);
+        
+        return () => {
+          if (map.current) {
+            map.current.off('click', handleMapClick);
+            map.current.off('dblclick', handleDoubleClick);
+          }
+        };
+      }
     } else {
       map.current.off('click', handleMapClick);
     }
@@ -263,7 +362,185 @@ const MapView = () => {
         map.current.off('click', handleMapClick);
       }
     };
-  }, [measurementMode, measurementPoints, toast]);
+  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, toast]);
+
+  // Drawing helper functions
+  const addDrawingMarker = (point: [number, number]) => {
+    if (!map.current) return;
+    
+    const markerEl = document.createElement('div');
+    markerEl.className = 'w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-lg';
+    
+    new Marker({ element: markerEl, anchor: 'center' })
+      .setLngLat(point)
+      .addTo(map.current);
+  };
+
+  const drawTemporaryPolygon = (points: [number, number][]) => {
+    if (!map.current) return;
+    
+    // Remove existing temporary polygon
+    if (map.current.getSource('temp-polygon')) {
+      map.current.removeLayer('temp-polygon-fill');
+      map.current.removeLayer('temp-polygon-outline');
+      map.current.removeSource('temp-polygon');
+    }
+    
+    // Create temporary polygon (not closed yet)
+    const coordinates = [...points];
+    
+    map.current.addSource('temp-polygon', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: coordinates
+        }
+      }
+    });
+    
+    map.current.addLayer({
+      id: 'temp-polygon-outline',
+      type: 'line',
+      source: 'temp-polygon',
+      paint: {
+        'line-color': '#3b82f6',
+        'line-width': 2,
+        'line-dasharray': [5, 5]
+      }
+    });
+  };
+
+  const finishPolygon = () => {
+    if (!map.current || drawingPoints.length < 3) return;
+    
+    // Remove temporary polygon
+    if (map.current.getSource('temp-polygon')) {
+      map.current.removeLayer('temp-polygon-fill');
+      map.current.removeLayer('temp-polygon-outline');
+      map.current.removeSource('temp-polygon');
+    }
+    
+    // Create final polygon (closed)
+    const coordinates = [...drawingPoints, drawingPoints[0]]; // Close the polygon
+    
+    const polygonId = `drawn-polygon-${Date.now()}`;
+    map.current.addSource(polygonId, {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: { id: polygonId, type: 'drawn-polygon' },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [coordinates]
+        }
+      }
+    });
+    
+    map.current.addLayer({
+      id: `${polygonId}-fill`,
+      type: 'fill',
+      source: polygonId,
+      paint: {
+        'fill-color': '#3b82f6',
+        'fill-opacity': 0.2
+      }
+    });
+    
+    map.current.addLayer({
+      id: `${polygonId}-outline`,
+      type: 'line',
+      source: polygonId,
+      paint: {
+        'line-color': '#3b82f6',
+        'line-width': 2
+      }
+    });
+    
+    finishDrawing();
+    toast({ title: "Polygon Created", description: `Polygon with ${drawingPoints.length} points created.` });
+  };
+
+  const drawCircle = (center: [number, number], radiusMeters: number) => {
+    if (!map.current) return;
+    
+    // Create circle coordinates using turf-like calculation
+    const coordinates: [number, number][] = [];
+    const points = 64; // Number of points to create smooth circle
+    
+    for (let i = 0; i < points; i++) {
+      const angle = (i * 360) / points;
+      const angleRad = (angle * Math.PI) / 180;
+      
+      // Calculate offset in degrees (approximate, good enough for visualization)
+      const latOffset = (radiusMeters / 111320) * Math.cos(angleRad);
+      const lonOffset = (radiusMeters / 111320) * Math.sin(angleRad) / Math.cos((center[1] * Math.PI) / 180);
+      
+      coordinates.push([
+        center[0] + lonOffset,
+        center[1] + latOffset
+      ]);
+    }
+    
+    // Close the circle
+    coordinates.push(coordinates[0]);
+    
+    const circleId = `drawn-circle-${Date.now()}`;
+    map.current.addSource(circleId, {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: { id: circleId, type: 'drawn-circle' },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [coordinates]
+        }
+      }
+    });
+    
+    map.current.addLayer({
+      id: `${circleId}-fill`,
+      type: 'fill',
+      source: circleId,
+      paint: {
+        'fill-color': '#10b981',
+        'fill-opacity': 0.2
+      }
+    });
+    
+    map.current.addLayer({
+      id: `${circleId}-outline`,
+      type: 'line',
+      source: circleId,
+      paint: {
+        'line-color': '#10b981',
+        'line-width': 2
+      }
+    });
+  };
+
+  const finishDrawing = () => {
+    setDrawingMode(null);
+    setDrawingPoints([]);
+    setIsDrawing(false);
+    setTempCircleCenter(null);
+  };
+
+  const cancelDrawing = () => {
+    if (!map.current) return;
+    
+    // Remove temporary polygon if exists
+    if (map.current.getSource('temp-polygon')) {
+      map.current.removeLayer('temp-polygon-fill');
+      map.current.removeLayer('temp-polygon-outline');
+      map.current.removeSource('temp-polygon');
+    }
+    
+    finishDrawing();
+    toast({ title: "Drawing Cancelled", description: "Drawing mode has been cancelled." });
+  };
 
   // Add vector layers using Supabase Edge Function proxy
   const addVectorLayers = async () => {
@@ -771,8 +1048,25 @@ const MapView = () => {
       {/* Top Toolbar */}
       <TopToolbar 
         onDrawTool={(tool) => {
-          console.log('Draw tool selected:', tool);
-          // Add draw tool functionality here
+          // Cancel any existing drawing
+          if (drawingMode) {
+            cancelDrawing();
+          }
+          
+          // Start new drawing mode
+          setDrawingMode(tool);
+          
+          // Show appropriate instructions
+          const instructions = {
+            polygon: "Click to add points. Double-click to finish polygon.",
+            circle: "Click to set center, then click to set radius.",
+            radius: "Click to set center. You'll be prompted for radius distance."
+          };
+          
+          toast({ 
+            title: `${tool.charAt(0).toUpperCase() + tool.slice(1)} Drawing Mode`, 
+            description: instructions[tool] 
+          });
         }}
         onSelectArea={() => {
           console.log('Select area activated');
@@ -979,6 +1273,31 @@ const MapView = () => {
                 <div>Total distance: {distances.reduce((sum, d) => sum + d, 0).toFixed(2)} km</div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Drawing Status */}
+      {drawingMode && (
+        <div className="absolute top-20 left-20 z-30">
+          <div className="bg-green-100/95 backdrop-blur-sm border border-green-200 rounded-lg shadow-lg p-3">
+            <div className="flex items-center gap-2 text-green-800 text-sm">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span>{drawingMode.charAt(0).toUpperCase() + drawingMode.slice(1)} Drawing Mode</span>
+            </div>
+            <div className="text-xs text-green-600 mt-1">
+              {drawingMode === 'polygon' && `Points: ${drawingPoints.length}${isDrawing ? ' (click to add, double-click to finish)' : ''}`}
+              {drawingMode === 'circle' && (tempCircleCenter ? 'Click to set radius' : 'Click to set center')}
+              {drawingMode === 'radius' && 'Click to set center (radius will be prompted)'}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={cancelDrawing}
+              className="mt-2 text-xs h-6"
+            >
+              Cancel Drawing
+            </Button>
           </div>
         </div>
       )}
