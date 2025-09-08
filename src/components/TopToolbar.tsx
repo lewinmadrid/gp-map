@@ -6,6 +6,12 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { 
   Camera,
   Circle,
@@ -47,7 +53,8 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
   };
 
   return (
-    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-2">
+    <TooltipProvider>
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-2">
       {/* Draw Tool Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -136,15 +143,22 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
       </Button>
 
       {/* Upload Shape File */}
-      <Button
-        variant="secondary"
-        size="sm"
-        className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
-        onClick={handleUploadClick}
-      >
-        <Upload className="h-4 w-4" />
-        <span className="text-sm">Upload</span>
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+            onClick={handleUploadClick}
+          >
+            <Upload className="h-4 w-4" />
+            <span className="text-sm">Upload</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Upload a zipped shape file to create the alert area</p>
+        </TooltipContent>
+      </Tooltip>
       <input
         ref={fileInputRef}
         type="file"
@@ -164,6 +178,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         <span className="text-sm">Snapshot</span>
       </Button>
     </div>
+    </TooltipProvider>
   );
 };
 
