@@ -180,9 +180,29 @@ const MapView = () => {
         return;
       }
       
-      if (drawingMode === 'radius') {
-        handleRadiusClick(clickPoint);
-        return;
+      // Don't add area selection when in any active mode
+      if (!measurementMode && !drawingMode) {
+        // Handle area selection
+        const features = map.current.queryRenderedFeatures(e.point, {
+          layers: ['evacuation-zones-fill']
+        });
+        
+        if (features && features.length > 0) {
+          const feature = features[0];
+          console.log('🎯 Evacuation zone selected:', feature.properties);
+          
+          // Update selected feature state
+          setSelectedFeature(feature);
+          
+          // Add or update selection highlight layer
+          updateSelectionHighlight(feature);
+          
+          toast({
+            title: "Area Selected", 
+            description: `Zone ID: ${feature.properties?.id || feature.properties?.zone_id || 'Unknown'}`,
+          });
+          return;
+        }
       }
     };
 
@@ -771,7 +791,7 @@ const MapView = () => {
         }
       });
 
-      // Add hover effects and click handlers for query functionality
+      // Add hover effects for query functionality
       map.current.on('mouseenter', 'evacuation-zones-fill', () => {
         if (map.current) {
           map.current.getCanvas().style.cursor = 'pointer';
@@ -781,27 +801,6 @@ const MapView = () => {
       map.current.on('mouseleave', 'evacuation-zones-fill', () => {
         if (map.current) {
           map.current.getCanvas().style.cursor = '';
-        }
-      });
-
-      // Click handler for area selection and highlighting
-      map.current.on('click', 'evacuation-zones-fill', (e) => {
-        if (measurementMode || drawingMode) return; // Don't select areas when in measurement or drawing mode
-        
-        if (e.features && e.features.length > 0) {
-          const feature = e.features[0];
-          console.log('🎯 Evacuation zone clicked:', feature.properties);
-          
-          // Update selected feature state
-          setSelectedFeature(feature);
-          
-          // Add or update selection highlight layer
-          updateSelectionHighlight(feature);
-          
-          toast({
-            title: "Area Selected",
-            description: `Zone ID: ${feature.properties?.id || feature.properties?.zone_id || 'Unknown'}`,
-          });
         }
       });
 
