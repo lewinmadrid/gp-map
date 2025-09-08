@@ -1139,7 +1139,19 @@ const MapView = () => {
           'fill-color': ['case', ['has', 'zone_type'], ['match', ['get', 'zone_type'], 'immediate', '#ff4444', 'warning', '#ff8800', 'watch', '#ffdd00', '#6366f1' // default blue
           ], '#6366f1' // fallback blue
           ],
-          'fill-opacity': 0
+          'fill-opacity': [
+            'case',
+            ['has', 'zone_type'],
+            [
+              'match',
+              ['get', 'zone_type'],
+              'immediate', 0.3,
+              'warning', 0.3,
+              'watch', 0.3,
+              0 // default blue zones invisible
+            ],
+            0 // zones without zone_type invisible
+          ]
         },
         layout: {
           visibility: 'visible'
