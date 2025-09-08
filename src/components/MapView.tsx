@@ -288,66 +288,95 @@ const MapView = () => {
       
       // Only allow area selection when in select mode
       if (selectMode && !measurementMode && !drawingMode) {
-        // Handle area selection
+        // Handle area selection for evacuation zones
         const features = map.current.queryRenderedFeatures(e.point, {
           layers: ['evacuation-zones-fill']
         });
         
-        // Also check for drawn polygons
-        const drawnFeatures = map.current.queryRenderedFeatures(e.point);
-        const drawnPolygons = drawnFeatures.filter(f => 
-          f.source && (f.source.includes('drawn-polygon') || f.source.includes('uploaded-polygon'))
+        // Also check for drawn polygons and uploaded polygons
+        const allFeatures = map.current.queryRenderedFeatures(e.point);
+        const drawnPolygons = allFeatures.filter(f => 
+          f.source && (
+            f.source.includes('drawn-polygon') || 
+            f.source.includes('uploaded-polygon') ||
+            (f.layer && (f.layer.id.includes('drawn-polygon') || f.layer.id.includes('uploaded-polygon')))
+          )
         );
         
+        // Handle evacuation zone selection
         if (features && features.length > 0) {
           const feature = features[0];
           console.log('🎯 Evacuation zone selected:', feature.properties);
           
+          // Keep track of the current count before adding
+          const currentCount = selectedFeatures.length;
+          
           // Add to selected features array (allow multiple selections)
           setSelectedFeatures(prev => {
             const exists = prev.some(f => 
-              f.properties?.id === feature.properties?.id || 
-              f.properties?.zone_id === feature.properties?.zone_id
+              (f.properties?.id && f.properties.id === feature.properties?.id) ||
+              (f.properties?.zone_id && f.properties.zone_id === feature.properties?.zone_id)
             );
-            if (exists) return prev;
+            if (exists) {
+              toast({
+                title: "Already Selected", 
+                description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} is already selected`,
+              });
+              return prev;
+            }
             return [...prev, feature];
           });
           
-          // Add or update selection highlight layer
-          updateSelectionHighlight(feature, selectedFeatures.length);
+          // Add selection highlight layer
+          updateSelectionHighlight(feature, currentCount);
           
           toast({
-            title: "Area Selected", 
-            description: `Zone ID: ${feature.properties?.id || feature.properties?.zone_id || 'Unknown'}. Total selected: ${selectedFeatures.length + 1}`,
+            title: "Zone Selected", 
+            description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} selected. Total: ${currentCount + 1}`,
           });
           return;
-        } else if (drawnPolygons.length > 0) {
+        } 
+        
+        // Handle drawn polygon selection
+        if (drawnPolygons.length > 0) {
           const polygon = drawnPolygons[0];
-          console.log('🎯 Drawn polygon selected:', polygon.properties);
+          console.log('🎯 Drawn polygon selected:', polygon);
           
           // Count vertices for drawn polygons
           const vertexCount = countPolygonVertices(polygon);
+          const polygonId = polygon.properties?.id || polygon.source || `polygon-${Date.now()}`;
+          
           setPolygonVertexCounts(prev => ({
             ...prev,
-            [polygon.properties?.id || polygon.source]: vertexCount
+            [polygonId]: vertexCount
           }));
+          
+          // Keep track of the current count before adding
+          const currentCount = selectedPolygons.length;
           
           // Add to selected polygons
           setSelectedPolygons(prev => {
-            const exists = prev.some(p => 
-              p.properties?.id === polygon.properties?.id || 
-              p.source === polygon.source
-            );
-            if (exists) return prev;
+            const exists = prev.some(p => {
+              const pId = p.properties?.id || p.source;
+              const newId = polygon.properties?.id || polygon.source;
+              return pId === newId;
+            });
+            if (exists) {
+              toast({
+                title: "Already Selected", 
+                description: `Polygon is already selected`,
+              });
+              return prev;
+            }
             return [...prev, polygon];
           });
           
           // Highlight the selected polygon
-          updatePolygonHighlight(polygon, selectedPolygons.length);
+          updatePolygonHighlight(polygon, currentCount);
           
           toast({
             title: "Polygon Selected", 
-            description: `Polygon with ${vertexCount} vertices selected. Total selected: ${selectedPolygons.length + 1}`,
+            description: `Polygon with ${vertexCount} vertices selected. Total: ${currentCount + 1}`,
           });
           return;
         }
@@ -536,19 +565,25 @@ const MapView = () => {
   const handleExcludeArea = () => {
     if (selectedPolygons.length === 0) {
       toast({
-        title: "No Polygon Selected",
-        description: "Please select a polygon first to create a hole in it.",
+        title: "Select a Polygon First",
+        description: "Click on a drawn polygon to select it, then try 'Exclude Area' to create a hole.",
         variant: "destructive"
       });
       return;
     }
+    
+    // Clear drawing markers to start fresh
+    drawingMarkers.forEach(marker => {
+      marker.remove();
+    });
+    setDrawingMarkers([]);
     
     setExcludeMode(true);
     setDrawingMode('polygon');
     setSelectMode(false);
     toast({
       title: "Exclude Area Mode",
-      description: "Draw a polygon to create a hole in the selected polygon."
+      description: "Now draw a polygon inside the selected area to create a hole. Double-click to finish."
     });
   };
 
@@ -1654,19 +1689,36 @@ const MapView = () => {
         </div>
       </div>
 
-      {/* Polygon Vertex Count Display */}
-      {selectedPolygons.length > 0 && (
+      {/* Selection Status Display */}
+      {(selectedPolygons.length > 0 || selectedFeatures.length > 0) && (
         <div className="absolute top-20 right-4 z-20">
           <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg px-3 py-2">
-            <div className="text-xs text-gray-600">
-              {selectedPolygons.length === 1 ? (
-                <span>
-                  Selected Polygon: {Object.values(polygonVertexCounts)[0] || 0} vertices
-                </span>
-              ) : (
-                <span>
-                  {selectedPolygons.length} Polygons Selected
-                </span>
+            <div className="text-xs text-gray-600 space-y-1">
+              {selectedPolygons.length > 0 && (
+                <div>
+                  {selectedPolygons.length === 1 ? (
+                    <span>
+                      Selected Polygon: {Object.values(polygonVertexCounts)[0] || 0} vertices
+                    </span>
+                  ) : (
+                    <span>
+                      {selectedPolygons.length} Polygons Selected
+                    </span>
+                  )}
+                </div>
+              )}
+              {selectedFeatures.length > 0 && (
+                <div>
+                  {selectedFeatures.length === 1 ? (
+                    <span>
+                      1 Zone Selected: {selectedFeatures[0].properties?.zone_identifier || selectedFeatures[0].properties?.id || 'Unknown'}
+                    </span>
+                  ) : (
+                    <span>
+                      {selectedFeatures.length} Zones Selected
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>
