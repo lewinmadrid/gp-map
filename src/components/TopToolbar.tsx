@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Minus } from 'lucide-react';
+import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Minus, Navigation } from 'lucide-react';
 interface TopToolbarProps {
   currentMode: 'select' | 'polygon' | 'circle' | 'radius';
   onDrawTool: (tool: 'polygon' | 'circle' | 'radius') => void;
@@ -10,6 +10,7 @@ interface TopToolbarProps {
   onUploadShapeFile: (file: File) => void;
   onEditTool: (tool: 'edit' | 'exclude' | 'delete') => void;
   onSnapshot: () => void;
+  onLocationSelect: (location: { name: string; center: [number, number]; zoom: number; polygon?: number[][][] }) => void;
 }
 const TopToolbar: React.FC<TopToolbarProps> = ({
   currentMode,
@@ -17,7 +18,8 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
   onSelectArea,
   onUploadShapeFile,
   onEditTool,
-  onSnapshot
+  onSnapshot,
+  onLocationSelect
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleUploadClick = () => {
@@ -114,6 +116,67 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         <Camera className="h-4 w-4" />
         <span className="text-sm">Snapshot</span>
       </Button>
+
+      {/* Locations Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Navigation className="h-4 w-4" />
+            <span className="text-sm">Locations</span>
+            <ChevronDown className="h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-48 bg-white border border-gray-200 shadow-lg z-50">
+          <DropdownMenuItem 
+            onClick={() => onLocationSelect({
+              name: 'San Francisco Bay Area',
+              center: [-122.4194, 37.7749],
+              zoom: 10,
+              polygon: [[[-122.5, 37.6], [-122.3, 37.6], [-122.3, 37.9], [-122.5, 37.9], [-122.5, 37.6]]]
+            })}
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
+          >
+            <MapPin className="h-4 w-4" />
+            San Francisco Bay Area
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onLocationSelect({
+              name: 'Los Angeles',
+              center: [-118.2437, 34.0522],
+              zoom: 10,
+              polygon: [[[-118.4, 33.9], [-118.1, 33.9], [-118.1, 34.2], [-118.4, 34.2], [-118.4, 33.9]]]
+            })}
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
+          >
+            <MapPin className="h-4 w-4" />
+            Los Angeles
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onLocationSelect({
+              name: 'Miami-Dade County',
+              center: [-80.1918, 25.7617],
+              zoom: 10,
+              polygon: [[[-80.4, 25.5], [-80.0, 25.5], [-80.0, 26.0], [-80.4, 26.0], [-80.4, 25.5]]]
+            })}
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
+          >
+            <MapPin className="h-4 w-4" />
+            Miami-Dade County
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            onClick={() => onLocationSelect({
+              name: 'New York City',
+              center: [-74.0060, 40.7128],
+              zoom: 11,
+              polygon: [[[-74.2, 40.5], [-73.8, 40.5], [-73.8, 40.9], [-74.2, 40.9], [-74.2, 40.5]]]
+            })}
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
+          >
+            <MapPin className="h-4 w-4" />
+            New York City
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
     </TooltipProvider>;
 };

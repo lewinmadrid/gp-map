@@ -1679,6 +1679,63 @@ const MapView = () => {
     }} onSnapshot={() => {
       console.log('Snapshot requested');
       // Add snapshot functionality here
+    }} onLocationSelect={(location) => {
+      console.log('Location selected:', location.name);
+      if (map.current) {
+        // Move map to location
+        map.current.flyTo({
+          center: location.center,
+          zoom: location.zoom,
+          duration: 2000
+        });
+        
+        // Add polygon if provided
+        if (location.polygon) {
+          const polygonId = `location-polygon-${Date.now()}`;
+          
+          map.current.addSource(polygonId, {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Polygon',
+                coordinates: location.polygon
+              }
+            }
+          });
+          
+          map.current.addLayer({
+            id: `${polygonId}-fill`,
+            type: 'fill',
+            source: polygonId,
+            paint: {
+              'fill-color': '#ff6b6b',
+              'fill-opacity': 0.3
+            }
+          });
+          
+          map.current.addLayer({
+            id: `${polygonId}-outline`,
+            type: 'line',
+            source: polygonId,
+            paint: {
+              'line-color': '#ff6b6b',
+              'line-width': 2
+            }
+          });
+          
+          toast({
+            title: "Location Selected",
+            description: `Moved to ${location.name} with sample polygon`
+          });
+        } else {
+          toast({
+            title: "Location Selected",
+            description: `Moved to ${location.name}`
+          });
+        }
+      }
     }} />
       
       {/* Map Container - dynamically adjusted for sidebar */}
