@@ -934,16 +934,18 @@ const MapView = () => {
     const polygonCoordinates = [coordinates];
     const polygonId = `drawn-polygon-${Date.now()}`;
     
+    const newPolygon = {
+      type: 'Feature' as const,
+      properties: { id: polygonId, type: 'drawn-polygon' },
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: polygonCoordinates
+      }
+    };
+    
     map.current.addSource(polygonId, {
       type: 'geojson',
-      data: {
-        type: 'Feature',
-        properties: { id: polygonId, type: 'drawn-polygon' },
-        geometry: {
-          type: 'Polygon',
-          coordinates: polygonCoordinates
-        }
-      }
+      data: newPolygon
     });
     
     map.current.addLayer({
@@ -966,8 +968,22 @@ const MapView = () => {
       }
     });
     
+    // Automatically select the newly drawn polygon
+    const vertexCount = coordinates.length - 1; // Subtract 1 for closing coordinate
+    setPolygonVertexCounts(prev => ({
+      ...prev,
+      [polygonId]: vertexCount
+    }));
+    setSelectedPolygons([newPolygon]); // Auto-select the new polygon
+    
+    // Highlight the newly drawn polygon
+    updatePolygonHighlight(newPolygon, 0);
+    
     finishDrawing();
-    toast({ title: "Polygon Created", description: `Polygon with ${drawingPoints.length} vertices created.` });
+    toast({ 
+      title: "Polygon Created & Selected", 
+      description: `Polygon with ${drawingPoints.length} vertices created and selected. Use 'Edit > Exclude Area' to add holes.` 
+    });
   };
 
   const drawCircle = (center: [number, number], radiusMeters: number) => {
