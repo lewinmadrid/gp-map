@@ -64,21 +64,21 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
           <DropdownMenuItem 
             onClick={() => onDrawTool('polygon')}
-            className="flex items-center gap-2 hover:bg-gray-100"
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
           >
             <Square className="h-4 w-4" />
             Polygon
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => onDrawTool('circle')}
-            className="flex items-center gap-2 hover:bg-gray-100"
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
           >
             <Circle className="h-4 w-4" />
             Circle
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => onDrawTool('radius')}
-            className="flex items-center gap-2 hover:bg-gray-100"
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
           >
             <MapPin className="h-4 w-4" />
             Radius
@@ -131,21 +131,21 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
           <DropdownMenuItem 
             onClick={() => onEditTool('edit')}
-            className="flex items-center gap-2 hover:bg-gray-100"
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
           >
             <Edit className="h-4 w-4" />
             Edit Geometry
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => onEditTool('exclude')}
-            className="flex items-center gap-2 hover:bg-gray-100"
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
           >
             <Minus className="h-4 w-4" />
             Exclude Area
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => onEditTool('delete')}
-            className="flex items-center gap-2 hover:bg-gray-100"
+            className="flex items-center gap-2 hover:bg-gray-100 text-black"
           >
             <Trash2 className="h-4 w-4" />
             Delete
