@@ -55,7 +55,7 @@ const BasemapToggle: React.FC<BasemapToggleProps> = ({
         }}>
               <div className="w-full h-full rounded bg-gradient-to-br from-gray-200 to-gray-400"></div>
             </Button>
-            <div className="text-xs font-medium">{basemap.name}</div>
+            <div className="text-xs font-medium text-black">{basemap.name}</div>
           </div>)}
       </div>
     </div>;
