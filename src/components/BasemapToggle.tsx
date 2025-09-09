@@ -1,5 +1,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import streetsImage from '@/assets/basemap-streets.png';
+import satelliteImage from '@/assets/basemap-satellite.png';
+import topographicImage from '@/assets/basemap-topographic.png';
+import terrainImage from '@/assets/basemap-terrain.png';
+import googleRoadsImage from '@/assets/basemap-google-roads.png';
+import googleSatelliteImage from '@/assets/basemap-google-satellite.png';
+import googleHybridImage from '@/assets/basemap-google-hybrid.png';
+import googleTerrainImage from '@/assets/basemap-google-terrain.png';
 interface BasemapToggleProps {
   isOpen: boolean;
   currentBasemap: string;
@@ -16,35 +24,43 @@ const BasemapToggle: React.FC<BasemapToggleProps> = ({
   const basemaps = [{
     key: 'streets',
     name: 'Esri Streets',
-    preview: 'bg-gray-100'
+    preview: 'bg-gray-100',
+    image: streetsImage
   }, {
     key: 'satellite',
     name: 'Esri Satellite',
-    preview: 'bg-blue-900'
+    preview: 'bg-blue-900',
+    image: satelliteImage
   }, {
     key: 'topographic',
     name: 'Esri Topo',
-    preview: 'bg-green-800'
+    preview: 'bg-green-800',
+    image: topographicImage
   }, {
     key: 'terrain',
     name: 'Esri Terrain',
-    preview: 'bg-amber-800'
+    preview: 'bg-amber-800',
+    image: terrainImage
   }, {
     key: 'google_roads',
     name: 'Google Roads',
-    preview: 'bg-gray-50'
+    preview: 'bg-gray-50',
+    image: googleRoadsImage
   }, {
     key: 'google_satellite',
     name: 'Google Satellite',
-    preview: 'bg-blue-950'
+    preview: 'bg-blue-950',
+    image: googleSatelliteImage
   }, {
     key: 'google_hybrid',
     name: 'Google Hybrid',
-    preview: 'bg-slate-700'
+    preview: 'bg-slate-700',
+    image: googleHybridImage
   }, {
     key: 'google_terrain',
     name: 'Google Terrain',
-    preview: 'bg-emerald-700'
+    preview: 'bg-emerald-700',
+    image: googleTerrainImage
   }];
   return <div className="absolute top-4 right-16 border border-border rounded-lg shadow-lg z-50 p-4 bg-slate-50">
       <div className="grid grid-cols-4 gap-3 max-w-sm">
@@ -53,7 +69,11 @@ const BasemapToggle: React.FC<BasemapToggleProps> = ({
           onBasemapChange(basemap.key);
           onClose();
         }}>
-              <div className="w-full h-full rounded bg-gradient-to-br from-gray-200 to-gray-400"></div>
+              <img 
+                src={basemap.image} 
+                alt={basemap.name}
+                className="w-full h-full rounded object-cover"
+              />
             </Button>
             <div className="text-xs font-medium text-black">{basemap.name}</div>
           </div>)}
