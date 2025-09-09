@@ -300,52 +300,29 @@ const MapView = () => {
           console.log('🎯 Evacuation zone selected:', feature.properties);
 
           // Use more specific feature identification to prevent false matches
-          const featureIdentifier = feature.properties?.zone_id || 
-                                    feature.properties?.id || 
-                                    feature.properties?.zone_identifier || 
-                                    (feature.geometry && 'coordinates' in feature.geometry ? 
-                                     `${feature.geometry.coordinates?.[0]?.[0]?.[0]}-${feature.geometry.coordinates?.[0]?.[0]?.[1]}` : 
-                                     `feature-${Date.now()}`);
+          const featureIdentifier = feature.properties?.zone_id || feature.properties?.id || feature.properties?.zone_identifier || (feature.geometry && 'coordinates' in feature.geometry ? `${feature.geometry.coordinates?.[0]?.[0]?.[0]}-${feature.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
 
           // Check if already selected using more specific matching
           const isAlreadySelected = selectedFeatures.some(f => {
-            const selectedIdentifier = f.properties?.zone_id || 
-                                      f.properties?.id || 
-                                      f.properties?.zone_identifier || 
-                                      (f.geometry && 'coordinates' in f.geometry ? 
-                                       `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : 
-                                       `feature-${Date.now()}`);
+            const selectedIdentifier = f.properties?.zone_id || f.properties?.id || f.properties?.zone_identifier || (f.geometry && 'coordinates' in f.geometry ? `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
             return selectedIdentifier === featureIdentifier;
           });
-          
           if (isAlreadySelected) {
             // Instead of showing toast, deselect the zone
             setSelectedFeatures(prev => prev.filter(f => {
-              const selectedIdentifier = f.properties?.zone_id || 
-                                        f.properties?.id || 
-                                        f.properties?.zone_identifier || 
-                                        (f.geometry && 'coordinates' in f.geometry ? 
-                                         `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : 
-                                         `feature-${Date.now()}`);
+              const selectedIdentifier = f.properties?.zone_id || f.properties?.id || f.properties?.zone_identifier || (f.geometry && 'coordinates' in f.geometry ? `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
               return selectedIdentifier !== featureIdentifier;
             }));
-            
+
             // Remove highlight
             clearSingleFeatureHighlight(feature);
-            
+
             // Calculate remaining total vertices
             const remainingFeatures = selectedFeatures.filter(f => {
-              const selectedIdentifier = f.properties?.zone_id || 
-                                        f.properties?.id || 
-                                        f.properties?.zone_identifier || 
-                                        (f.geometry && 'coordinates' in f.geometry ? 
-                                         `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : 
-                                         `feature-${Date.now()}`);
+              const selectedIdentifier = f.properties?.zone_id || f.properties?.id || f.properties?.zone_identifier || (f.geometry && 'coordinates' in f.geometry ? `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
               return selectedIdentifier !== featureIdentifier;
             });
-            
             const totalVertices = remainingFeatures.reduce((sum, f) => sum + countPolygonVertices(f), 0);
-            
             toast({
               title: "Zone Deselected",
               description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} deselected. Remaining: ${remainingFeatures.length} zones, ${totalVertices} vertices total`
@@ -355,7 +332,7 @@ const MapView = () => {
 
           // Count vertices for this zone
           const vertexCount = countPolygonVertices(feature);
-          
+
           // Add to selected features array
           const currentCount = selectedFeatures.length;
           setSelectedFeatures(prev => [...prev, feature]);
@@ -407,11 +384,10 @@ const MapView = () => {
 
           // Highlight the selected polygon
           updatePolygonHighlight(polygon, currentCount);
-          
+
           // Calculate total vertices from all selected polygons including this new one
           const allVertexCounts = Object.values(polygonVertexCounts);
           const totalVertices = allVertexCounts.reduce((sum, count) => sum + count, 0) + vertexCount;
-          
           toast({
             title: "Polygon Selected",
             description: `Polygon with ${vertexCount} vertices selected. Total: ${currentCount + 1} polygons, ${totalVertices} vertices`
@@ -746,12 +722,7 @@ const MapView = () => {
     // Remove all drawn polygons and circles
     const style = map.current.getStyle();
     if (style && style.layers) {
-      const layersToRemove = style.layers.map(layer => layer.id).filter(id => 
-        id.includes('drawn-polygon') || 
-        id.includes('drawn-circle') || 
-        id.includes('uploaded-polygon') || 
-        id.includes('location-polygon')
-      );
+      const layersToRemove = style.layers.map(layer => layer.id).filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle') || id.includes('uploaded-polygon') || id.includes('location-polygon'));
       layersToRemove.forEach(layerId => {
         if (map.current?.getLayer(layerId)) {
           map.current.removeLayer(layerId);
@@ -761,12 +732,7 @@ const MapView = () => {
 
     // Remove all drawn sources
     if (style && style.sources) {
-      const sourcesToRemove = Object.keys(style.sources).filter(id => 
-        id.includes('drawn-polygon') || 
-        id.includes('drawn-circle') || 
-        id.includes('uploaded-polygon') || 
-        id.includes('location-polygon')
-      );
+      const sourcesToRemove = Object.keys(style.sources).filter(id => id.includes('drawn-polygon') || id.includes('drawn-circle') || id.includes('uploaded-polygon') || id.includes('location-polygon'));
       sourcesToRemove.forEach(sourceId => {
         if (map.current?.getSource(sourceId)) {
           map.current.removeSource(sourceId);
@@ -1151,18 +1117,8 @@ const MapView = () => {
           'fill-color': ['case', ['has', 'zone_type'], ['match', ['get', 'zone_type'], 'immediate', '#ff4444', 'warning', '#ff8800', 'watch', '#ffdd00', '#6366f1' // default blue
           ], '#6366f1' // fallback blue
           ],
-          'fill-opacity': [
-            'case',
-            ['has', 'zone_type'],
-            [
-              'match',
-              ['get', 'zone_type'],
-              'immediate', 0.3,
-              'warning', 0.3,
-              'watch', 0.3,
-              0 // default blue zones invisible
-            ],
-            0 // zones without zone_type invisible
+          'fill-opacity': ['case', ['has', 'zone_type'], ['match', ['get', 'zone_type'], 'immediate', 0.3, 'warning', 0.3, 'watch', 0.3, 0 // default blue zones invisible
+          ], 0 // zones without zone_type invisible
           ]
         },
         layout: {
@@ -1412,11 +1368,9 @@ const MapView = () => {
   // Clear single feature highlight (for deselection)
   const clearSingleFeatureHighlight = (feature: any) => {
     if (!map.current) return;
-    
     const featureId = feature.properties?.id || feature.properties?.zone_id || `feature-${Date.now()}`;
     const layerId = `selected-area-${featureId}`;
     const sourceId = `selected-source-${featureId}`;
-    
     if (map.current?.getLayer(`${layerId}-highlight`)) {
       map.current.removeLayer(`${layerId}-highlight`);
     }
@@ -1691,7 +1645,7 @@ const MapView = () => {
     }} onSnapshot={() => {
       console.log('Snapshot requested');
       // Add snapshot functionality here
-    }} onLocationSelect={(location) => {
+    }} onLocationSelect={location => {
       console.log('Location selected:', location.name);
       if (map.current) {
         // Move map to location
@@ -1700,11 +1654,10 @@ const MapView = () => {
           zoom: location.zoom,
           duration: 2000
         });
-        
+
         // Add polygon if provided
         if (location.polygon) {
           const polygonId = `location-polygon-${Date.now()}`;
-          
           map.current.addSource(polygonId, {
             type: 'geojson',
             data: {
@@ -1716,7 +1669,6 @@ const MapView = () => {
               }
             }
           });
-          
           map.current.addLayer({
             id: `${polygonId}-fill`,
             type: 'fill',
@@ -1726,7 +1678,6 @@ const MapView = () => {
               'fill-opacity': 0.3
             }
           });
-          
           map.current.addLayer({
             id: `${polygonId}-outline`,
             type: 'line',
@@ -1736,7 +1687,6 @@ const MapView = () => {
               'line-width': 2
             }
           });
-          
           toast({
             title: "Location Selected",
             description: `Moved to ${location.name} with sample polygon`
@@ -1755,12 +1705,12 @@ const MapView = () => {
       
       {/* Map Container - dynamically adjusted for sidebar */}
       <div ref={mapContainer} className="absolute inset-0 transition-all duration-300 ease-in-out" style={{
-      left: currentMode === 'evac' ? (sidebarExpanded ? '320px' : '64px') : '0px'
+      left: currentMode === 'evac' ? sidebarExpanded ? '320px' : '64px' : '0px'
     }} />
       
       {/* Active Layer Selector - Top Right Corner */}
       <div className="absolute top-4 right-4 z-20">
-        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg px-3 min-w-56 rounded-none py-0">
+        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg min-w-56 rounded-none py-0 px-[6px]">
           <div className="flex items-center gap-1">
             <span className="text-xs text-gray-600 whitespace-nowrap">Active Layer</span>
             <Select value={activeLayer} onValueChange={setActiveLayer}>
