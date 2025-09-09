@@ -46,7 +46,7 @@ const MapView = () => {
   const [polygonVertexCounts, setPolygonVertexCounts] = useState<{
     [key: string]: number;
   }>({});
-  const [currentMode, setCurrentMode] = useState<'alert' | 'evac'>('alert');
+  const [currentMode, setCurrentMode] = useState<'alert' | 'evac'>('evac');
   const {
     toast
   } = useToast();
