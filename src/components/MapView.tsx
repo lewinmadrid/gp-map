@@ -1755,7 +1755,7 @@ const MapView = () => {
       
       {/* Map Container - dynamically adjusted for sidebar */}
       <div ref={mapContainer} className="absolute inset-0 transition-all duration-300 ease-in-out" style={{
-      left: sidebarExpanded ? '320px' : '64px'
+      left: currentMode === 'evac' ? (sidebarExpanded ? '320px' : '64px') : '0px'
     }} />
       
       {/* Active Layer Selector - Top Right Corner */}
