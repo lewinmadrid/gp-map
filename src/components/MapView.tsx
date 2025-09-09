@@ -10,6 +10,7 @@ import ToolsPopup from './ToolsPopup';
 import Legend from './Legend';
 import LeftSidebar from './LeftSidebar';
 import TopToolbar from './TopToolbar';
+import ModeToggle from './ModeToggle';
 import * as shp from 'shpjs';
 import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler } from 'lucide-react';
 const MapView = () => {
@@ -45,6 +46,7 @@ const MapView = () => {
   const [polygonVertexCounts, setPolygonVertexCounts] = useState<{
     [key: string]: number;
   }>({});
+  const [currentMode, setCurrentMode] = useState<'alert' | 'evac'>('alert');
   const {
     toast
   } = useToast();
@@ -1622,11 +1624,11 @@ const MapView = () => {
     }
   };
   return <div className="relative w-full h-screen bg-background overflow-hidden">
-      {/* Left Sidebar */}
-      <LeftSidebar onExpandedChange={setSidebarExpanded} />
+      {/* Left Sidebar - only show in EVAC mode */}
+      {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} />}
       
-      {/* Top Toolbar */}
-      <TopToolbar currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
+      {/* Top Toolbar - only show in Alert mode */}
+      {currentMode === 'alert' && <TopToolbar currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
       // Clear any existing drawings but KEEP selections
       clearDrawnShapes();
 
@@ -1746,7 +1748,10 @@ const MapView = () => {
           });
         }
       }
-    }} />
+    }} />}
+
+    {/* Mode Toggle - Bottom Left */}
+    <ModeToggle mode={currentMode} onModeChange={setCurrentMode} />
       
       {/* Map Container - dynamically adjusted for sidebar */}
       <div ref={mapContainer} className="absolute inset-0 transition-all duration-300 ease-in-out" style={{
