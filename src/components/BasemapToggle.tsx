@@ -62,7 +62,7 @@ const BasemapToggle: React.FC<BasemapToggleProps> = ({
     preview: 'bg-emerald-700',
     image: googleTerrainImage
   }];
-  return <div className="absolute top-4 right-16 border border-border rounded-lg shadow-lg z-50 p-4 bg-slate-50">
+  return <div className="absolute top-4 right-16 border-[0.5px] border-border rounded-lg shadow-lg z-50 p-4 bg-slate-50">
       <div className="grid grid-cols-4 gap-3 max-w-sm">
         {basemaps.map(basemap => <div key={basemap.key} className="text-center">
             <Button variant={currentBasemap === basemap.key ? "default" : "outline"} className={`w-16 h-12 p-1 mb-1 ${basemap.preview} border-2 ${currentBasemap === basemap.key ? 'border-primary' : 'border-border'}`} onClick={() => {
