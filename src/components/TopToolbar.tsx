@@ -109,11 +109,11 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
           <DropdownMenuItem onClick={handleUploadClick} className="flex items-center gap-2 hover:bg-gray-100 text-black">
             <Upload className="h-4 w-4" />
-            Upload
+            Upload Shape File
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onSnapshot} className="flex items-center gap-2 hover:bg-gray-100 text-black">
             <Camera className="h-4 w-4" />
-            Snapshot
+            Add Map to Alert
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

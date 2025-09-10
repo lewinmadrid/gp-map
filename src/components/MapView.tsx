@@ -23,6 +23,7 @@ const MapView = () => {
   const [layerStatus, setLayerStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [activeLayer, setActiveLayer] = useState('Genasys Zones');
   const [layersPanelOpen, setLayersPanelOpen] = useState(false);
+  const [zoneLayerVisible, setZoneLayerVisible] = useState(true);
   const [basemapToggleOpen, setBasemapToggleOpen] = useState(false);
   const [toolsPopupOpen, setToolsPopupOpen] = useState(false);
   const [measurementMode, setMeasurementMode] = useState(false);
@@ -1577,6 +1578,27 @@ const MapView = () => {
       });
     }
   };
+
+  // Toggle zone layer visibility
+  const toggleZoneLayerVisibility = (visible: boolean) => {
+    if (!map.current) return;
+    
+    const layersToToggle = ['evacuation-zones-fill', 'evacuation-zones-outline', 'evacuation-labels'];
+    
+    layersToToggle.forEach(layerId => {
+      const layer = map.current.getLayer(layerId);
+      if (layer) {
+        map.current.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
+      }
+    });
+    
+    setZoneLayerVisible(visible);
+    
+    toast({
+      title: visible ? "Zones Visible" : "Zones Hidden",
+      description: `Genasys zones are now ${visible ? 'visible' : 'hidden'} on the map`
+    });
+  };
   return <div className="relative w-full h-screen bg-background overflow-hidden">
       {/* Left Sidebar - only show in EVAC mode */}
       {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} />}
@@ -1787,8 +1809,8 @@ const MapView = () => {
         </Button>
       </div>
 
-      {/* Bottom Right Toolbar - Bottom 4 buttons */}
-      <div className="absolute bottom-4 right-4 z-20 flex flex-col gap-1">
+      {/* Bottom Right Toolbar - Adjusted for Alert mode */}
+      <div className={`absolute right-4 z-20 flex flex-col gap-1 ${currentMode === 'alert' ? 'bottom-20' : 'bottom-4'}`}>
         {/* Tools Popup Button */}
         <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={() => setToolsPopupOpen(!toolsPopupOpen)}>
           {toolsPopupOpen ? <ChevronDown className="h-4 w-4 text-gray-600" /> : <ChevronUp className="h-4 w-4 text-gray-600" />}
@@ -1810,8 +1832,20 @@ const MapView = () => {
         </Button>
       </div>
 
+      {/* Alert Mode Cancel/Save Buttons */}
+      {currentMode === 'alert' && (
+        <div className="absolute bottom-4 right-4 z-30 flex gap-2">
+          <Button variant="outline" size="sm" className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600">
+            Cancel
+          </Button>
+          <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+            Save
+          </Button>
+        </div>
+      )}
+
       {/* Popups */}
-      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} />
+      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} />
       <BasemapToggle isOpen={basemapToggleOpen} currentBasemap={currentBasemap} onBasemapChange={changeBasemap} onClose={() => setBasemapToggleOpen(false)} />
       <ToolsPopup isOpen={toolsPopupOpen} onClose={() => setToolsPopupOpen(false)} onMeasure={toggleMeasurement} onGeolocation={triggerGeolocation} onLegend={() => setLegendOpen(true)} measurementMode={measurementMode} />
       <Legend isOpen={legendOpen} onClose={() => setLegendOpen(false)} />
