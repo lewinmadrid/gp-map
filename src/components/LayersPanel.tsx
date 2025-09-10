@@ -22,6 +22,7 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose }) => {
   const [evacuationExpanded, setEvacuationExpanded] = React.useState(true);
   const [fireExpanded, setFireExpanded] = React.useState(true);
   const [customExpanded, setCustomExpanded] = React.useState(true);
+  const [genasysZonesVisible, setGenasysZonesVisible] = React.useState(true);
 
   if (!isOpen) return null;
 
@@ -120,17 +121,16 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose }) => {
                     </div>
                     <span className="text-sm text-black">Genasys Zones</span>
                   </div>
-                  <Eye className="h-4 w-4 text-gray-500" />
-                </div>
-                
-                <div className="flex items-center justify-between p-2 rounded border-l-4 border-l-orange-400">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-semibold text-orange-600">Z</span>
-                    </div>
-                    <span className="text-sm text-black">Zone Labels</span>
-                  </div>
-                  <Eye className="h-4 w-4 text-gray-500" />
+                  <button 
+                    onClick={() => setGenasysZonesVisible(!genasysZonesVisible)}
+                    className="hover:bg-gray-100 rounded p-1"
+                  >
+                    {genasysZonesVisible ? (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    )}
+                  </button>
                 </div>
               </div>
             )}

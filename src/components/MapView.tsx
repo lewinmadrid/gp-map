@@ -1719,7 +1719,6 @@ const MapView = () => {
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-200 z-50">
                 <SelectItem value="Genasys Zones" className="text-xs text-black">Genasys Zones</SelectItem>
-                <SelectItem value="Zone Labels" className="text-xs text-black">Zone Labels</SelectItem>
                 <SelectItem value="Custom Zone Areas" className="text-xs text-black">Custom Zone Areas</SelectItem>
                 <SelectItem value="Custom Layer 1" className="text-xs text-black">Custom Layer 1</SelectItem>
                 <SelectItem value="Custom Layer 2" className="text-xs text-black">Custom Layer 2</SelectItem>

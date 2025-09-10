@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Minus, Navigation } from 'lucide-react';
+import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Minus, Navigation, Settings } from 'lucide-react';
 interface TopToolbarProps {
   currentMode: 'select' | 'polygon' | 'circle' | 'radius';
   onDrawTool: (tool: 'polygon' | 'circle' | 'radius') => void;
@@ -97,25 +97,27 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         <span className="text-sm">Select Area</span>
       </Button>
 
-      {/* Upload Shape File */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1" onClick={handleUploadClick}>
-            <Upload className="h-4 w-4" />
-            <span className="text-sm">Upload</span>
+      {/* Tools Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Settings className="h-4 w-4" />
+            <span className="text-sm">Tools</span>
+            <ChevronDown className="h-3 w-3" />
           </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Upload a zipped shape file to create the alert area</p>
-        </TooltipContent>
-      </Tooltip>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
+          <DropdownMenuItem onClick={handleUploadClick} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+            <Upload className="h-4 w-4" />
+            Upload
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onSnapshot} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+            <Camera className="h-4 w-4" />
+            Snapshot
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <input ref={fileInputRef} type="file" accept=".zip,.gz" onChange={handleFileChange} className="hidden" />
-
-      {/* Snapshot */}
-      <Button variant="secondary" size="sm" onClick={onSnapshot} className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 rounded-sm">
-        <Camera className="h-4 w-4" />
-        <span className="text-sm">Snapshot</span>
-      </Button>
 
       {/* Locations Dropdown */}
       <DropdownMenu>
