@@ -1,10 +1,13 @@
 import MapView from '@/components/MapView';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const Index = () => {
   return (
-    <main className="w-full h-screen overflow-hidden">
-      <MapView />
-    </main>
+    <ErrorBoundary>
+      <main className="w-full h-screen overflow-hidden">
+        <MapView />
+      </main>
+    </ErrorBoundary>
   );
 };
 
