@@ -226,29 +226,39 @@ const MapView = () => {
       bearing: 0
     });
 
-    // Initialize geolocation control but don't add to map (will be triggered programmatically)
-    geolocateControlRef.current = new GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true
-    });
-    map.current.addControl(geolocateControlRef.current, 'top-left');
-    // Hide the geolocation control from view
-    const geolocateButton = document.querySelector('.maplibregl-ctrl-geolocate');
-    if (geolocateButton) {
-      (geolocateButton as HTMLElement).style.display = 'none';
-    }
-    map.current.addControl(new ScaleControl({
-      maxWidth: 100,
-      unit: 'imperial'
-    }), 'bottom-left');
+      // Initialize geolocation control but don't add to map (will be triggered programmatically)
+      geolocateControlRef.current = new GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true
+      });
+      map.current.addControl(geolocateControlRef.current, 'top-left');
+      
+      // Hide the geolocation control from view
+      setTimeout(() => {
+        const geolocateButton = document.querySelector('.maplibregl-ctrl-geolocate');
+        if (geolocateButton) {
+          (geolocateButton as HTMLElement).style.display = 'none';
+        }
+      }, 100);
+      
+      map.current.addControl(new ScaleControl({
+        maxWidth: 100,
+        unit: 'imperial'
+      }), 'bottom-left');
 
     // Set map loaded state and add vector layers when style is loaded
     map.current.on('load', () => {
       if (!map.current) return;
+      console.log('Map loaded successfully');
       addVectorLayers();
       setMapLoaded(true);
+    });
+    
+    // Add error handler
+    map.current.on('error', (e) => {
+      console.error('Map error:', e);
     });
 
     } catch (error) {
@@ -1552,8 +1562,17 @@ const MapView = () => {
 
   // Trigger geolocation
   const triggerGeolocation = () => {
-    if (geolocateControlRef.current) {
-      geolocateControlRef.current.trigger();
+    if (geolocateControlRef.current && map.current) {
+      try {
+        geolocateControlRef.current.trigger();
+      } catch (error) {
+        console.error('Error triggering geolocation:', error);
+        toast({
+          title: "Geolocation Error",
+          description: "Unable to access your location. Please check browser permissions.",
+          variant: "destructive"
+        });
+      }
     }
   };
   const [searchOpen, setSearchOpen] = useState(false);
@@ -1614,6 +1633,16 @@ const MapView = () => {
     });
   };
   return <div className="relative w-full h-screen bg-background overflow-hidden">
+      {/* Loading State */}
+      {!mapLoaded && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading map...</p>
+          </div>
+        </div>
+      )}
+      
       {/* Left Sidebar - only show in EVAC mode */}
       {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} />}
       
