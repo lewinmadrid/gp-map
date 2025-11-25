@@ -1766,7 +1766,7 @@ const MapView = () => {
     }} />}
 
     {/* Mode Toggle - Bottom Left */}
-    <ModeToggle mode={currentMode} onModeChange={setCurrentMode} />
+    <ModeToggle mode={currentMode} onModeChange={setCurrentMode} sidebarExpanded={sidebarExpanded} />
       
       {/* Map Container - dynamically adjusted for sidebar */}
       <div ref={mapContainer} className="absolute inset-0 transition-all duration-300 ease-in-out" style={{

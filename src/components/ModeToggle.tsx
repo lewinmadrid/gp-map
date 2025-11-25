@@ -5,11 +5,18 @@ import { AlertTriangle, Shield } from 'lucide-react';
 interface ModeToggleProps {
   mode: 'alert' | 'evac';
   onModeChange: (mode: 'alert' | 'evac') => void;
+  sidebarExpanded?: boolean;
 }
 
-const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange }) => {
+const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpanded = false }) => {
+  const getLeftPosition = () => {
+    if (mode === 'alert') return 'left-4';
+    if (sidebarExpanded) return 'left-[336px]';
+    return 'left-20';
+  };
+
   return (
-    <div className="fixed bottom-4 left-4 z-50">
+    <div className={`fixed bottom-4 z-50 transition-all duration-300 ${getLeftPosition()}`}>
       <div className="bg-background border border-border rounded-lg shadow-lg p-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground">
