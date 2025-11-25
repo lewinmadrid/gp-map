@@ -9,7 +9,7 @@ interface ModeToggleProps {
 
 const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange }) => {
   return (
-    <div className="fixed bottom-4 left-20 z-50">
+    <div className="fixed bottom-4 left-4 z-50">
       <div className="bg-background border border-border rounded-lg shadow-lg p-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground">
