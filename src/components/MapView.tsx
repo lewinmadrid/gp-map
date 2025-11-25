@@ -195,8 +195,9 @@ const MapView = () => {
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Initialize MapLibre map with Esri basemap
-    map.current = new Map({
+    try {
+      // Initialize MapLibre map with Esri basemap
+      map.current = new Map({
       container: mapContainer.current,
       style: {
         version: 8,
@@ -250,10 +251,23 @@ const MapView = () => {
       setMapLoaded(true);
     });
 
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      toast({
+        title: "Map Initialization Error",
+        description: "Failed to initialize map. Please refresh the page.",
+        variant: "destructive"
+      });
+    }
+
     // Cleanup
     return () => {
-      if (map.current) {
-        map.current.remove();
+      try {
+        if (map.current) {
+          map.current.remove();
+        }
+      } catch (error) {
+        console.error('Error cleaning up map:', error);
       }
     };
   }, []);
