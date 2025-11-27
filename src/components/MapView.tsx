@@ -619,6 +619,15 @@ const MapView = () => {
       });
       return;
     }
+    
+    if (selectedPolygons.length > 1) {
+      toast({
+        title: "Multiple Polygons Selected",
+        description: "Please select only one polygon to add an exclusion area. Click other polygons to deselect them.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     // Clear drawing markers to start fresh
     drawingMarkers.forEach(marker => {
