@@ -677,13 +677,19 @@ const MapView = () => {
     }
 
     if (geometry.type === 'Polygon') {
-      return Math.max(0, geometry.coordinates[0].length - 1);
+      // Count vertices from outer ring and all holes
+      return geometry.coordinates.reduce((sum: number, ring: any) => {
+        return sum + Math.max(0, ring.length - 1);
+      }, 0);
     }
     
     if (geometry.type === 'MultiPolygon') {
-      // Sum vertices from all polygons in the MultiPolygon
+      // Sum vertices from all polygons (outer rings + holes) in the MultiPolygon
       return geometry.coordinates.reduce((sum: number, polygon: any) => {
-        return sum + Math.max(0, polygon[0].length - 1);
+        // Each polygon can have multiple rings (outer + holes)
+        return sum + polygon.reduce((ringSum: number, ring: any) => {
+          return ringSum + Math.max(0, ring.length - 1);
+        }, 0);
       }, 0);
     }
 
