@@ -356,13 +356,24 @@ const MapView = () => {
 
           // Count vertices for this zone
           const vertexCount = countPolygonVertices(feature);
+          console.log('📊 New zone vertex count:', vertexCount);
 
           // Add to selected features array
           const currentCount = selectedFeatures.length;
           setSelectedFeatures(prev => [...prev, feature]);
 
           // Calculate total vertices from all selected zones including this new one
-          const totalVertices = selectedFeatures.reduce((sum, f) => sum + countPolygonVertices(f), 0) + vertexCount;
+          console.log('📊 Currently selected features:', selectedFeatures.length);
+          console.log('📊 Calculating total from existing features:');
+          const existingTotal = selectedFeatures.reduce((sum, f, index) => {
+            const count = countPolygonVertices(f);
+            console.log(`📊 Feature ${index}: ${count} vertices (zone: ${f.properties?.zone_identifier})`);
+            return sum + count;
+          }, 0);
+          console.log('📊 Existing total:', existingTotal);
+          console.log('📊 New feature vertices:', vertexCount);
+          const totalVertices = existingTotal + vertexCount;
+          console.log('📊 TOTAL VERTICES:', totalVertices);
 
           // Add selection highlight layer with unique index
           updateSelectionHighlight(feature, currentCount);
