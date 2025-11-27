@@ -13,7 +13,7 @@ import LeftSidebar from './LeftSidebar';
 import TopToolbar from './TopToolbar';
 import ModeToggle from './ModeToggle';
 import * as shp from 'shpjs';
-import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler } from 'lucide-react';
+import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler, Scissors, Undo, Trash2 } from 'lucide-react';
 const MapView = () => {
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -49,6 +49,7 @@ const MapView = () => {
   const [editingPolygonId, setEditingPolygonId] = useState<string | null>(null);
   const [selectedPolygons, setSelectedPolygons] = useState<any[]>([]);
   const [currentMode, setCurrentMode] = useState<'alert' | 'evac'>('evac');
+  const [drawingHistory, setDrawingHistory] = useState<any[]>([]);
   const {
     toast
   } = useToast();
@@ -821,10 +822,66 @@ const MapView = () => {
     setDistances([]);
     setTempCircleCenter(null);
     setSelectMode(true); // Return to select mode
+    setDrawingHistory([]); // Clear history
 
     toast({
       title: "All Cleared",
       description: "All drawn shapes, selections, and markers have been removed."
+    });
+  };
+
+  // Handle undo last action
+  const handleUndo = () => {
+    if (!map.current) return;
+
+    if (drawingHistory.length === 0) {
+      toast({
+        title: "Nothing to Undo",
+        description: "No drawing actions to undo.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Get the last action
+    const lastAction = drawingHistory[drawingHistory.length - 1];
+    
+    // Remove the polygon/circle from map
+    if (map.current.getLayer(`${lastAction.id}-fill`)) {
+      map.current.removeLayer(`${lastAction.id}-fill`);
+    }
+    if (map.current.getLayer(`${lastAction.id}-outline`)) {
+      map.current.removeLayer(`${lastAction.id}-outline`);
+    }
+    if (map.current.getSource(lastAction.id)) {
+      map.current.removeSource(lastAction.id);
+    }
+
+    // Remove from selected polygons
+    setSelectedPolygons(prev => prev.filter(p => {
+      const pId = p.properties?.id || p.source;
+      return pId !== lastAction.id;
+    }));
+
+    // Remove highlight layers
+    const sourceId = `selected-polygon-source-${lastAction.id}`;
+    const layerId = `selected-polygon-${lastAction.id}`;
+    if (map.current.getLayer(`${layerId}-highlight`)) {
+      map.current.removeLayer(`${layerId}-highlight`);
+    }
+    if (map.current.getLayer(`${layerId}-outline`)) {
+      map.current.removeLayer(`${layerId}-outline`);
+    }
+    if (map.current.getSource(sourceId)) {
+      map.current.removeSource(sourceId);
+    }
+
+    // Remove from history
+    setDrawingHistory(prev => prev.slice(0, -1));
+
+    toast({
+      title: "Undo Successful",
+      description: `Removed last ${lastAction.type}.`
     });
   };
 
@@ -1043,6 +1100,9 @@ const MapView = () => {
       return newSelections;
     });
 
+    // Add to drawing history
+    setDrawingHistory(prev => [...prev, { id: polygonId, type: 'polygon' }]);
+
     // Stay in drawing mode, just reset drawing state for next polygon
     setDrawingPoints([]);
     setIsDrawing(false);
@@ -1127,6 +1187,9 @@ const MapView = () => {
       
       return newSelections;
     });
+
+    // Add to drawing history
+    setDrawingHistory(prev => [...prev, { id: circleId, type: 'circle' }]);
   };
   const finishDrawing = () => {
     setDrawingMode(null);
@@ -1828,6 +1891,49 @@ const MapView = () => {
         }
       }
     }} />}
+
+    {/* Action Buttons Row - Below TopToolbar */}
+    {currentMode === 'alert' && !isMobile && (
+      <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-40 flex gap-2">
+        {/* Exclude Area Button */}
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className={`h-10 px-4 border shadow-sm flex items-center gap-2 ${
+            excludeMode 
+              ? 'bg-gray-200 border-gray-400 text-gray-800' 
+              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+          }`}
+          onClick={handleExcludeArea}
+        >
+          <Scissors className="h-4 w-4" />
+          <span className="text-sm">Exclude Area</span>
+        </Button>
+
+        {/* Undo Button */}
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="h-10 px-4 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-2"
+          onClick={handleUndo}
+          disabled={drawingHistory.length === 0}
+        >
+          <Undo className="h-4 w-4" />
+          <span className="text-sm">Undo</span>
+        </Button>
+
+        {/* Delete Button */}
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="h-10 px-4 border border-red-300 shadow-sm bg-white hover:bg-red-50 text-red-600 flex items-center gap-2"
+          onClick={handleDeleteAll}
+        >
+          <Trash2 className="h-4 w-4" />
+          <span className="text-sm">Delete</span>
+        </Button>
+      </div>
+    )}
 
     {/* Mode Toggle - Bottom Left */}
     <ModeToggle mode={currentMode} onModeChange={setCurrentMode} sidebarExpanded={sidebarExpanded} isMobile={isMobile} />
