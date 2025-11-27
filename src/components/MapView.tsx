@@ -519,10 +519,6 @@ const MapView = () => {
         const radius = calculateDistance(tempCircleCenter, point);
         drawCircle(tempCircleCenter, radius * 1000); // Convert km to meters
         finishDrawing();
-        toast({
-          title: "Circle Created",
-          description: `Radius: ${(radius * 0.621371).toFixed(2)} miles`
-        });
       }
     };
     const handleRadiusClick = (point: [number, number]) => {
@@ -543,10 +539,6 @@ const MapView = () => {
       const radiusMeters = radiusMiles * 1609.34;
       drawCircle(point, radiusMeters);
       finishDrawing();
-      toast({
-        title: "Circle Created",
-        description: `Radius: ${radiusMiles} miles`
-      });
     };
 
     // Function to draw measurement lines
@@ -1031,11 +1023,25 @@ const MapView = () => {
       }
     });
 
-    // Automatically select the newly drawn polygon
-    setSelectedPolygons([newPolygon]); // Auto-select the new polygon
-
-    // Highlight the newly drawn polygon
-    updatePolygonHighlight(newPolygon, 0);
+    // Automatically select the newly drawn polygon and add to existing selections
+    setSelectedPolygons(prev => {
+      const newSelections = [...prev, newPolygon];
+      const currentCount = prev.length;
+      
+      // Highlight the newly drawn polygon with correct index
+      updatePolygonHighlight(newPolygon, currentCount);
+      
+      // Calculate total vertices
+      const totalVertices = newSelections.reduce((sum, p) => sum + countPolygonVertices(p), 0);
+      const vertexCount = countPolygonVertices(newPolygon);
+      
+      toast({
+        title: "Polygon Created",
+        description: `Polygon with ${vertexCount} vertices created. Total: ${newSelections.length} polygons, ${totalVertices} vertices`
+      });
+      
+      return newSelections;
+    });
 
     // Stay in drawing mode, just reset drawing state for next polygon
     setDrawingPoints([]);
@@ -1045,10 +1051,6 @@ const MapView = () => {
     setEditMode(false);
     setEditingPolygonId(null);
     setCurrentPolygonHoles([]);
-    toast({
-      title: "Polygon Created & Selected",
-      description: `Polygon with ${drawingPoints.length} vertices created. Draw another or switch modes.`
-    });
   };
   const drawCircle = (center: [number, number], radiusMeters: number) => {
     if (!map.current) return;
@@ -1070,19 +1072,22 @@ const MapView = () => {
     // Close the circle
     coordinates.push(coordinates[0]);
     const circleId = `drawn-circle-${Date.now()}`;
+    
+    const circleFeature = {
+      type: 'Feature' as const,
+      properties: {
+        id: circleId,
+        type: 'drawn-circle'
+      },
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [coordinates]
+      }
+    };
+    
     map.current.addSource(circleId, {
       type: 'geojson',
-      data: {
-        type: 'Feature',
-        properties: {
-          id: circleId,
-          type: 'drawn-circle'
-        },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [coordinates]
-        }
-      }
+      data: circleFeature
     });
     map.current.addLayer({
       id: `${circleId}-fill`,
@@ -1101,6 +1106,26 @@ const MapView = () => {
         'line-color': '#10b981',
         'line-width': 2
       }
+    });
+    
+    // Automatically select the newly drawn circle and add to existing selections
+    setSelectedPolygons(prev => {
+      const newSelections = [...prev, circleFeature];
+      const currentCount = prev.length;
+      
+      // Highlight the newly drawn circle with correct index
+      updatePolygonHighlight(circleFeature, currentCount);
+      
+      // Calculate total vertices
+      const totalVertices = newSelections.reduce((sum, p) => sum + countPolygonVertices(p), 0);
+      const vertexCount = countPolygonVertices(circleFeature);
+      
+      toast({
+        title: "Circle Created",
+        description: `Circle with ${vertexCount} vertices created. Total: ${newSelections.length} shapes, ${totalVertices} vertices`
+      });
+      
+      return newSelections;
     });
   };
   const finishDrawing = () => {
