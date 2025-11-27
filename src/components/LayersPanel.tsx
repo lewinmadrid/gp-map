@@ -17,9 +17,10 @@ interface LayersPanelProps {
   onClose: () => void;
   onToggleZoneLayer: (visible: boolean) => void;
   zoneLayerVisible: boolean;
+  isMobile?: boolean;
 }
 
-const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose, onToggleZoneLayer, zoneLayerVisible }) => {
+const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose, onToggleZoneLayer, zoneLayerVisible, isMobile = false }) => {
   const [trafficExpanded, setTrafficExpanded] = React.useState(false);
   const [evacuationExpanded, setEvacuationExpanded] = React.useState(true);
   const [fireExpanded, setFireExpanded] = React.useState(true);
@@ -29,7 +30,7 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose, onToggleZone
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-4 right-16 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+    <div className={`absolute ${isMobile ? 'inset-x-4 top-20 max-h-[80vh] overflow-y-auto' : 'top-4 right-16 w-80'} bg-white border border-gray-200 rounded-lg shadow-lg z-50`}>
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-black">Layers</h2>

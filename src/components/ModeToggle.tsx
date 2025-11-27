@@ -6,10 +6,12 @@ interface ModeToggleProps {
   mode: 'alert' | 'evac';
   onModeChange: (mode: 'alert' | 'evac') => void;
   sidebarExpanded?: boolean;
+  isMobile?: boolean;
 }
 
-const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpanded = false }) => {
+const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpanded = false, isMobile = false }) => {
   const getLeftPosition = () => {
+    if (isMobile) return 'left-4';
     if (mode === 'alert') return 'left-4';
     if (sidebarExpanded) return 'left-[336px]';
     return 'left-20';
