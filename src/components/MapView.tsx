@@ -19,6 +19,8 @@ const MapView = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const geolocateControlRef = useRef<any>(null);
+  const selectedFeaturesRef = useRef<any[]>([]);
+  const selectedPolygonsRef = useRef<any[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentBasemap, setCurrentBasemap] = useState('topographic');
   const [vectorLayerVisible, setVectorLayerVisible] = useState(false);
@@ -50,6 +52,15 @@ const MapView = () => {
   const {
     toast
   } = useToast();
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    selectedFeaturesRef.current = selectedFeatures;
+  }, [selectedFeatures]);
+
+  useEffect(() => {
+    selectedPolygonsRef.current = selectedPolygons;
+  }, [selectedPolygons]);
 
   // Handle shapefile upload
   const handleShapeFileUpload = async (file: File) => {
@@ -326,13 +337,15 @@ const MapView = () => {
           // Use more specific feature identification to prevent false matches
           const featureIdentifier = feature.properties?.zone_id || feature.properties?.id || feature.properties?.zone_identifier || (feature.geometry && 'coordinates' in feature.geometry ? `${feature.geometry.coordinates?.[0]?.[0]?.[0]}-${feature.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
 
-          // Check if already selected using more specific matching
-          const isAlreadySelected = selectedFeatures.some(f => {
+          // Check if already selected using more specific matching and current ref
+          const currentSelectedFeatures = selectedFeaturesRef.current;
+          const isAlreadySelected = currentSelectedFeatures.some(f => {
             const selectedIdentifier = f.properties?.zone_id || f.properties?.id || f.properties?.zone_identifier || (f.geometry && 'coordinates' in f.geometry ? `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
             return selectedIdentifier === featureIdentifier;
           });
+          
           if (isAlreadySelected) {
-            // Instead of showing toast, deselect the zone
+            // Deselect the zone
             setSelectedFeatures(prev => prev.filter(f => {
               const selectedIdentifier = f.properties?.zone_id || f.properties?.id || f.properties?.zone_identifier || (f.geometry && 'coordinates' in f.geometry ? `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
               return selectedIdentifier !== featureIdentifier;
@@ -341,15 +354,14 @@ const MapView = () => {
             // Remove highlight
             clearSingleFeatureHighlight(feature);
 
-            // Calculate remaining total vertices
-            const remainingFeatures = selectedFeatures.filter(f => {
-              const selectedIdentifier = f.properties?.zone_id || f.properties?.id || f.properties?.zone_identifier || (f.geometry && 'coordinates' in f.geometry ? `${f.geometry.coordinates?.[0]?.[0]?.[0]}-${f.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
-              return selectedIdentifier !== featureIdentifier;
-            });
-            const totalVertices = remainingFeatures.reduce((sum, f) => sum + countPolygonVertices(f), 0);
-            toast({
-              title: "Zone Deselected",
-              description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} deselected. Remaining: ${remainingFeatures.length} zones, ${totalVertices} vertices total`
+            // Calculate remaining total vertices using functional update
+            setSelectedFeatures(prev => {
+              const totalVertices = prev.reduce((sum, f) => sum + countPolygonVertices(f), 0);
+              toast({
+                title: "Zone Deselected",
+                description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} deselected. Remaining: ${prev.length} zones, ${totalVertices} vertices total`
+              });
+              return prev;
             });
             return;
           }
@@ -358,28 +370,26 @@ const MapView = () => {
           const vertexCount = countPolygonVertices(feature);
           console.log('📊 New zone vertex count:', vertexCount);
 
-          // Add to selected features array
-          const currentCount = selectedFeatures.length;
-          setSelectedFeatures(prev => [...prev, feature]);
+          // Use functional update to access current state
+          setSelectedFeatures(prev => {
+            const newSelectedFeatures = [...prev, feature];
+            const currentCount = prev.length;
+            
+            // Calculate total vertices from all selected zones including this new one
+            const totalVertices = newSelectedFeatures.reduce((sum, f) => sum + countPolygonVertices(f), 0);
+            
+            console.log('📊 Current selected count:', currentCount);
+            console.log('📊 Total vertices:', totalVertices);
 
-          // Calculate total vertices from all selected zones including this new one
-          console.log('📊 Currently selected features:', selectedFeatures.length);
-          console.log('📊 Calculating total from existing features:');
-          const existingTotal = selectedFeatures.reduce((sum, f, index) => {
-            const count = countPolygonVertices(f);
-            console.log(`📊 Feature ${index}: ${count} vertices (zone: ${f.properties?.zone_identifier})`);
-            return sum + count;
-          }, 0);
-          console.log('📊 Existing total:', existingTotal);
-          console.log('📊 New feature vertices:', vertexCount);
-          const totalVertices = existingTotal + vertexCount;
-          console.log('📊 TOTAL VERTICES:', totalVertices);
-
-          // Add selection highlight layer with unique index
-          updateSelectionHighlight(feature, currentCount);
-          toast({
-            title: "Zone Selected",
-            description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} selected (${vertexCount} vertices). Total: ${currentCount + 1} zones, ${totalVertices} vertices`
+            // Add selection highlight layer with unique index
+            updateSelectionHighlight(feature, currentCount);
+            
+            toast({
+              title: "Zone Selected",
+              description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} selected (${vertexCount} vertices). Total: ${newSelectedFeatures.length} zones, ${totalVertices} vertices`
+            });
+            
+            return newSelectedFeatures;
           });
           return;
         }
@@ -391,7 +401,8 @@ const MapView = () => {
 
           // Check if already selected
           const polygonId = polygon.properties?.id || polygon.source || `polygon-${Date.now()}`;
-          const isAlreadySelected = selectedPolygons.some(p => {
+          const currentSelectedPolygons = selectedPolygonsRef.current;
+          const isAlreadySelected = currentSelectedPolygons.some(p => {
             const pId = p.properties?.id || p.source;
             const newId = polygon.properties?.id || polygon.source;
             return pId === newId;
@@ -405,23 +416,26 @@ const MapView = () => {
             return;
           }
 
-          // Count vertices for this polygon
-          const vertexCount = countPolygonVertices(polygon);
+          // Use functional update to access current state
+          setSelectedPolygons(prev => {
+            const newSelectedPolygons = [...prev, polygon];
+            const currentCount = prev.length;
 
-          // Keep track of the current count before adding
-          const currentCount = selectedPolygons.length;
+            // Count vertices for this polygon
+            const vertexCount = countPolygonVertices(polygon);
 
-          // Add to selected polygons
-          setSelectedPolygons(prev => [...prev, polygon]);
+            // Highlight the selected polygon
+            updatePolygonHighlight(polygon, currentCount);
 
-          // Highlight the selected polygon
-          updatePolygonHighlight(polygon, currentCount);
-
-          // Calculate total vertices from all selected polygons including this new one
-          const totalVertices = selectedPolygons.reduce((sum, p) => sum + countPolygonVertices(p), 0) + vertexCount;
-          toast({
-            title: "Polygon Selected",
-            description: `Polygon with ${vertexCount} vertices selected. Total: ${currentCount + 1} polygons, ${totalVertices} vertices`
+            // Calculate total vertices from all selected polygons including this new one
+            const totalVertices = newSelectedPolygons.reduce((sum, p) => sum + countPolygonVertices(p), 0);
+            
+            toast({
+              title: "Polygon Selected",
+              description: `Polygon with ${vertexCount} vertices selected. Total: ${newSelectedPolygons.length} polygons, ${totalVertices} vertices`
+            });
+            
+            return newSelectedPolygons;
           });
           return;
         }
@@ -671,14 +685,6 @@ const MapView = () => {
 
   // Count vertices in a polygon
   const countPolygonVertices = (feature: any): number => {
-    console.log('🔢 Counting vertices for feature:', {
-      hasGeometry: !!feature.geometry,
-      geometryType: feature.geometry?.type,
-      hasCoordinates: !!feature.geometry?.coordinates,
-      hasToGeoJSON: typeof feature.toGeoJSON === 'function',
-      properties: feature.properties
-    });
-
     // Try to convert vector tile feature to GeoJSON if needed
     let geometry = feature.geometry;
     if (!geometry || !geometry.coordinates) {
@@ -686,38 +692,30 @@ const MapView = () => {
         try {
           const geoJSON = feature.toGeoJSON();
           geometry = geoJSON.geometry;
-          console.log('🔢 Converted to GeoJSON, geometry type:', geometry?.type, 'has coords:', !!geometry?.coordinates);
         } catch (e) {
           console.error('Error converting to GeoJSON:', e);
           return 0;
         }
       } else {
-        console.log('🔢 No geometry coordinates and no toGeoJSON method, returning 0');
         return 0;
       }
     }
 
     if (!geometry || !geometry.coordinates) {
-      console.log('🔢 Still no geometry coordinates after conversion, returning 0');
       return 0;
     }
 
     if (geometry.type === 'Polygon') {
-      const vertexCount = Math.max(0, geometry.coordinates[0].length - 1);
-      console.log('🔢 Polygon vertex count:', vertexCount);
-      return vertexCount;
+      return Math.max(0, geometry.coordinates[0].length - 1);
     }
     
     if (geometry.type === 'MultiPolygon') {
       // Sum vertices from all polygons in the MultiPolygon
-      const vertexCount = geometry.coordinates.reduce((sum: number, polygon: any) => {
+      return geometry.coordinates.reduce((sum: number, polygon: any) => {
         return sum + Math.max(0, polygon[0].length - 1);
       }, 0);
-      console.log('🔢 MultiPolygon vertex count:', vertexCount);
-      return vertexCount;
     }
 
-    console.log('🔢 Unknown geometry type:', geometry.type);
     return 0;
   };
 
