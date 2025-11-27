@@ -13,12 +13,14 @@ interface BasemapToggleProps {
   currentBasemap: string;
   onBasemapChange: (basemap: string) => void;
   onClose: () => void;
+  isMobile?: boolean;
 }
 const BasemapToggle: React.FC<BasemapToggleProps> = ({
   isOpen,
   currentBasemap,
   onBasemapChange,
-  onClose
+  onClose,
+  isMobile = false
 }) => {
   if (!isOpen) return null;
   const basemaps = [{
@@ -62,18 +64,26 @@ const BasemapToggle: React.FC<BasemapToggleProps> = ({
     preview: 'bg-emerald-700',
     image: googleTerrainImage
   }];
-  return <div className="absolute top-4 right-16 border border-border shadow-lg z-50 p-4 bg-slate-50 rounded-sm">
-      <div className="grid grid-cols-4 gap-3 max-w-sm">
-        {basemaps.map(basemap => <div key={basemap.key} className="text-center">
-            <Button variant={currentBasemap === basemap.key ? "default" : "outline"} className={`w-16 h-12 p-1 mb-1 ${basemap.preview} border ${currentBasemap === basemap.key ? 'border-primary' : 'border-border'}`} onClick={() => {
-          onBasemapChange(basemap.key);
-          onClose();
-        }}>
+  return (
+    <div className={`absolute ${isMobile ? 'inset-x-4 top-20 max-h-[80vh] overflow-y-auto' : 'top-4 right-16'} border border-border shadow-lg z-50 p-4 bg-slate-50 rounded-sm`}>
+      <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} gap-3 ${!isMobile && 'max-w-sm'}`}>
+        {basemaps.map(basemap => (
+          <div key={basemap.key} className="text-center">
+            <Button 
+              variant={currentBasemap === basemap.key ? "default" : "outline"} 
+              className={`${isMobile ? 'w-full h-20' : 'w-16 h-12'} p-1 mb-1 ${basemap.preview} border ${currentBasemap === basemap.key ? 'border-primary' : 'border-border'}`} 
+              onClick={() => {
+                onBasemapChange(basemap.key);
+                onClose();
+              }}
+            >
               <img src={basemap.image} alt={basemap.name} className="w-full h-full rounded object-cover" />
             </Button>
             <div className="text-xs font-medium text-black">{basemap.name}</div>
-          </div>)}
+          </div>
+        ))}
       </div>
-    </div>;
+    </div>
+  );
 };
 export default BasemapToggle;

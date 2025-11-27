@@ -13,9 +13,10 @@ interface ToolsPopupProps {
   onGeolocation: () => void;
   onLegend: () => void;
   measurementMode: boolean;
+  isMobile?: boolean;
 }
 
-const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose, onMeasure, onGeolocation, onLegend, measurementMode }) => {
+const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose, onMeasure, onGeolocation, onLegend, measurementMode, isMobile = false }) => {
   if (!isOpen) return null;
 
   const tools = [
@@ -46,20 +47,20 @@ const ToolsPopup: React.FC<ToolsPopupProps> = ({ isOpen, onClose, onMeasure, onG
   ];
 
   return (
-    <div className="absolute bottom-[12rem] right-4 z-50 flex flex-col gap-1">
+    <div className={`absolute ${isMobile ? 'bottom-20 right-4' : 'bottom-[12rem] right-4'} z-50 flex flex-col gap-1`}>
       {tools.map((tool, index) => (
         <Button
           key={index}
           variant="secondary"
           size="sm"
-          className={`w-10 h-10 p-0 border border-gray-200 shadow-sm ${
+          className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 border border-gray-200 shadow-sm ${
             index === 1 && measurementMode 
               ? 'bg-blue-100 hover:bg-blue-200 text-blue-600' 
               : 'bg-white hover:bg-gray-50 text-gray-600'
           }`}
           onClick={tool.onClick}
         >
-          <tool.icon className="h-4 w-4" />
+          <tool.icon className={isMobile ? 'h-5 w-5' : 'h-4 w-4'} />
         </Button>
       ))}
     </div>

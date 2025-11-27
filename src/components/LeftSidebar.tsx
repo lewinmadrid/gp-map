@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface LeftSidebarProps {
   className?: string;
   onExpandedChange?: (expanded: boolean) => void;
+  isMobile?: boolean;
 }
 
-const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedChange }) => {
+const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedChange, isMobile = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpanded = () => {
@@ -84,6 +86,14 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
     </svg>
   );
 
+  const expandedMenuItems = [
+    { icon: DrawShapeIcon, label: 'Draw Shape' },
+    { icon: HazardIcon, label: 'Hazard Library' },
+    { icon: FireIcon, label: 'Active Fires' },
+    { icon: WeatherIcon, label: 'Weather' },
+    { icon: ViewIcon, label: 'Current Operational View' }
+  ];
+
   const compactMenuItems = [
     { icon: MenuIcon, label: 'Menu', onClick: toggleExpanded },
     { icon: DrawShapeIcon, label: 'Draw Shape' },
@@ -93,14 +103,78 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
     { icon: ViewIcon, label: 'Current Operational View' }
   ];
 
-  const expandedMenuItems = [
-    { icon: DrawShapeIcon, label: 'Draw Shape' },
-    { icon: HazardIcon, label: 'Hazard Library' },
-    { icon: FireIcon, label: 'Active Fires' },
-    { icon: WeatherIcon, label: 'Weather' },
-    { icon: ViewIcon, label: 'Current Operational View' }
-  ];
+  // Mobile sidebar (full-screen sheet)
+  if (isMobile) {
+    return (
+      <Sheet open={isExpanded} onOpenChange={toggleExpanded}>
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="fixed left-4 top-4 z-50 w-10 h-10 p-0 bg-slate-900 hover:bg-slate-800 text-gray-400 hover:text-white rounded-lg"
+          >
+            <MenuIcon />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-full bg-slate-900 border-slate-700 p-0">
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center gap-3 p-4 border-b border-slate-700">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center">
+                <LogoIcon />
+              </div>
+              <h1 className="text-base font-medium text-gray-300">Genasys EVAC</h1>
+            </div>
 
+            {/* Menu Items */}
+            <div className="flex-1 p-4 space-y-2">
+              {expandedMenuItems.map((item, index) => {
+                const IconComponent = item.icon;
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+                  >
+                    <IconComponent />
+                    <span className="text-xs">{item.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Help Section */}
+            <div className="border-t border-slate-700 p-4">
+              <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+                <HelpIcon />
+                <div>
+                  <div className="text-xs">Help and Support</div>
+                  <div className="text-xs text-gray-500">For Critical Issues: 1-619-431-3710</div>
+                </div>
+              </div>
+            </div>
+
+            {/* User Profile */}
+            <div className="border-t border-slate-700 p-4">
+              <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+                <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                  ZC
+                </div>
+                <div>
+                  <div className="text-xs">Genasys</div>
+                  <div className="text-xs text-gray-500">lclark@genasys.com</div>
+                </div>
+                <div className="ml-auto">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Desktop sidebar
   if (isExpanded) {
     return (
       <div className={`fixed left-0 top-0 bottom-0 w-80 bg-slate-900 flex flex-col z-40 ${className}`}>

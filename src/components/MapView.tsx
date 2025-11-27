@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import LayersPanel from './LayersPanel';
 import BasemapToggle from './BasemapToggle';
 import ToolsPopup from './ToolsPopup';
@@ -14,6 +15,7 @@ import ModeToggle from './ModeToggle';
 import * as shp from 'shpjs';
 import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler } from 'lucide-react';
 const MapView = () => {
+  const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const geolocateControlRef = useRef<any>(null);
@@ -1644,10 +1646,10 @@ const MapView = () => {
       )}
       
       {/* Left Sidebar - only show in EVAC mode */}
-      {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} />}
+      {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} isMobile={isMobile} />}
       
       {/* Top Toolbar - only show in Alert mode */}
-      {currentMode === 'alert' && <TopToolbar currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
+      {currentMode === 'alert' && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
       // Clear any existing drawings but KEEP selections
       clearDrawnShapes();
 
@@ -1766,15 +1768,15 @@ const MapView = () => {
     }} />}
 
     {/* Mode Toggle - Bottom Left */}
-    <ModeToggle mode={currentMode} onModeChange={setCurrentMode} sidebarExpanded={sidebarExpanded} />
+    <ModeToggle mode={currentMode} onModeChange={setCurrentMode} sidebarExpanded={sidebarExpanded} isMobile={isMobile} />
       
       {/* Map Container - dynamically adjusted for sidebar */}
       <div ref={mapContainer} className="absolute inset-0 transition-all duration-300 ease-in-out" style={{
-      left: currentMode === 'evac' ? sidebarExpanded ? '320px' : '64px' : '0px'
+      left: isMobile ? '0px' : (currentMode === 'evac' ? (sidebarExpanded ? '320px' : '64px') : '0px')
     }} />
       
       {/* Active Layer Selector - Top Right Corner */}
-      <div className="absolute top-4 right-4 z-20">
+      <div className={`absolute top-4 right-4 z-20 ${isMobile ? 'hidden' : ''}`}>
         <div className="bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg min-w-56 rounded-none py-0 pl-[6px]">
           <div className="flex items-center gap-1">
             <span className="text-xs text-gray-600 whitespace-nowrap">Active Layer</span>
@@ -1835,43 +1837,43 @@ const MapView = () => {
         </div>}
 
       {/* Right Side Toolbar - Top buttons moved down */}
-      <div className="absolute top-36 right-4 z-20 flex flex-col gap-1">
+      <div className={`absolute top-36 right-4 z-20 flex flex-col gap-1 ${isMobile ? 'hidden' : ''}`}>
         {/* Search Button */}
-        <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={() => setSearchOpen(!searchOpen)}>
-          <Search className="h-4 w-4 text-gray-600" />
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setSearchOpen(!searchOpen)}>
+          <Search className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
 
         {/* Layers Button */}
-        <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={() => setLayersPanelOpen(!layersPanelOpen)}>
-          <Layers className="h-4 w-4 text-gray-600" />
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setLayersPanelOpen(!layersPanelOpen)}>
+          <Layers className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
 
         {/* Basemap Toggle Button */}
-        <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={() => setBasemapToggleOpen(!basemapToggleOpen)}>
-          <MapIcon className="h-4 w-4 text-gray-600" />
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setBasemapToggleOpen(!basemapToggleOpen)}>
+          <MapIcon className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
       </div>
 
       {/* Bottom Right Toolbar - Adjusted for Alert mode */}
       <div className={`absolute right-4 z-20 flex flex-col gap-1 ${currentMode === 'alert' ? 'bottom-20' : 'bottom-4'}`}>
         {/* Tools Popup Button */}
-        <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={() => setToolsPopupOpen(!toolsPopupOpen)}>
-          {toolsPopupOpen ? <ChevronDown className="h-4 w-4 text-gray-600" /> : <ChevronUp className="h-4 w-4 text-gray-600" />}
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setToolsPopupOpen(!toolsPopupOpen)}>
+          {toolsPopupOpen ? <ChevronDown className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} /> : <ChevronUp className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />}
         </Button>
 
         {/* Reset Map Button */}
-        <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={resetMapView}>
-          <Home className="h-4 w-4 text-gray-600" />
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={resetMapView}>
+          <Home className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
 
         {/* Zoom In */}
-        <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={() => map.current?.zoomIn()}>
-          <ZoomIn className="h-4 w-4 text-gray-600" />
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => map.current?.zoomIn()}>
+          <ZoomIn className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
 
         {/* Zoom Out */}
-        <Button variant="secondary" size="sm" className="w-10 h-10 p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm" onClick={() => map.current?.zoomOut()}>
-          <ZoomOut className="h-4 w-4 text-gray-600" />
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => map.current?.zoomOut()}>
+          <ZoomOut className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
       </div>
 
@@ -1888,9 +1890,9 @@ const MapView = () => {
       )}
 
       {/* Popups */}
-      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} />
-      <BasemapToggle isOpen={basemapToggleOpen} currentBasemap={currentBasemap} onBasemapChange={changeBasemap} onClose={() => setBasemapToggleOpen(false)} />
-      <ToolsPopup isOpen={toolsPopupOpen} onClose={() => setToolsPopupOpen(false)} onMeasure={toggleMeasurement} onGeolocation={triggerGeolocation} onLegend={() => setLegendOpen(true)} measurementMode={measurementMode} />
+      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} isMobile={isMobile} />
+      <BasemapToggle isOpen={basemapToggleOpen} currentBasemap={currentBasemap} onBasemapChange={changeBasemap} onClose={() => setBasemapToggleOpen(false)} isMobile={isMobile} />
+      <ToolsPopup isOpen={toolsPopupOpen} onClose={() => setToolsPopupOpen(false)} onMeasure={toggleMeasurement} onGeolocation={triggerGeolocation} onLegend={() => setLegendOpen(true)} measurementMode={measurementMode} isMobile={isMobile} />
       <Legend isOpen={legendOpen} onClose={() => setLegendOpen(false)} />
 
       {/* Measurement Status */}
