@@ -46,9 +46,6 @@ const MapView = () => {
   const [editMode, setEditMode] = useState(false);
   const [editingPolygonId, setEditingPolygonId] = useState<string | null>(null);
   const [selectedPolygons, setSelectedPolygons] = useState<any[]>([]);
-  const [polygonVertexCounts, setPolygonVertexCounts] = useState<{
-    [key: string]: number;
-  }>({});
   const [currentMode, setCurrentMode] = useState<'alert' | 'evac'>('evac');
   const {
     toast
@@ -381,40 +378,36 @@ const MapView = () => {
           const polygon = drawnPolygons[0];
           console.log('🎯 Drawn polygon selected:', polygon);
 
-          // Count vertices for drawn polygons
-          const vertexCount = countPolygonVertices(polygon);
+          // Check if already selected
           const polygonId = polygon.properties?.id || polygon.source || `polygon-${Date.now()}`;
-          setPolygonVertexCounts(prev => ({
-            ...prev,
-            [polygonId]: vertexCount
-          }));
+          const isAlreadySelected = selectedPolygons.some(p => {
+            const pId = p.properties?.id || p.source;
+            const newId = polygon.properties?.id || polygon.source;
+            return pId === newId;
+          });
+
+          if (isAlreadySelected) {
+            toast({
+              title: "Already Selected",
+              description: `Polygon is already selected`
+            });
+            return;
+          }
+
+          // Count vertices for this polygon
+          const vertexCount = countPolygonVertices(polygon);
 
           // Keep track of the current count before adding
           const currentCount = selectedPolygons.length;
 
           // Add to selected polygons
-          setSelectedPolygons(prev => {
-            const exists = prev.some(p => {
-              const pId = p.properties?.id || p.source;
-              const newId = polygon.properties?.id || polygon.source;
-              return pId === newId;
-            });
-            if (exists) {
-              toast({
-                title: "Already Selected",
-                description: `Polygon is already selected`
-              });
-              return prev;
-            }
-            return [...prev, polygon];
-          });
+          setSelectedPolygons(prev => [...prev, polygon]);
 
           // Highlight the selected polygon
           updatePolygonHighlight(polygon, currentCount);
 
           // Calculate total vertices from all selected polygons including this new one
-          const allVertexCounts = Object.values(polygonVertexCounts);
-          const totalVertices = allVertexCounts.reduce((sum, count) => sum + count, 0) + vertexCount;
+          const totalVertices = selectedPolygons.reduce((sum, p) => sum + countPolygonVertices(p), 0) + vertexCount;
           toast({
             title: "Polygon Selected",
             description: `Polygon with ${vertexCount} vertices selected. Total: ${currentCount + 1} polygons, ${totalVertices} vertices`
@@ -789,7 +782,6 @@ const MapView = () => {
     // Reset all states
     setSelectedFeatures([]);
     setSelectedPolygons([]);
-    setPolygonVertexCounts({});
     setDrawingPoints([]);
     setCurrentPolygonHoles([]);
     setIsDrawing(false);
@@ -989,11 +981,6 @@ const MapView = () => {
     });
 
     // Automatically select the newly drawn polygon
-    const vertexCount = coordinates.length - 1; // Subtract 1 for closing coordinate
-    setPolygonVertexCounts(prev => ({
-      ...prev,
-      [polygonId]: vertexCount
-    }));
     setSelectedPolygons([newPolygon]); // Auto-select the new polygon
 
     // Highlight the newly drawn polygon
@@ -1435,7 +1422,6 @@ const MapView = () => {
     });
     setSelectedFeatures([]);
     setSelectedPolygons([]);
-    setPolygonVertexCounts({});
   };
 
   // Clear all drawn shapes
@@ -1801,9 +1787,9 @@ const MapView = () => {
             <div className="text-xs text-gray-600 space-y-1">
               {selectedPolygons.length > 0 && <div>
                   {selectedPolygons.length === 1 ? <span>
-                      Selected Polygon: {Object.values(polygonVertexCounts)[0] || 0} vertices
+                      Selected Polygon: {countPolygonVertices(selectedPolygons[0])} vertices
                     </span> : <span>
-                      {selectedPolygons.length} Polygons: {Object.values(polygonVertexCounts).reduce((sum, count) => sum + count, 0)} vertices total
+                      {selectedPolygons.length} Polygons: {selectedPolygons.reduce((sum, p) => sum + countPolygonVertices(p), 0)} vertices total
                     </span>}
                 </div>}
               {selectedFeatures.length > 0 && <div>
