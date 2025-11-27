@@ -1960,10 +1960,15 @@ const MapView = () => {
             </div>
             <div className={`text-xs mt-1 ${excludeMode ? 'text-red-600' : 'text-green-600'}`}>
               {excludeMode && 'Drawing hole in existing polygon'}
-              {!excludeMode && drawingMode === 'polygon' && `Points: ${drawingPoints.length}${isDrawing ? ' (click to add, double-click to finish)' : ''}`}
-              {!excludeMode && drawingMode === 'circle' && (tempCircleCenter ? 'Click to set radius' : 'Click to set center')}
+              {!excludeMode && drawingMode === 'polygon' && `Vertices: ${drawingPoints.length}${isDrawing ? ' (click to add, double-click to finish)' : ''}`}
+              {!excludeMode && drawingMode === 'circle' && (tempCircleCenter ? 'Click to set radius' : 'Click to set center point')}
               {!excludeMode && drawingMode === 'radius' && 'Click to set center (radius will be prompted)'}
             </div>
+            {!excludeMode && drawingMode === 'polygon' && drawingPoints.length > 0 && (
+              <div className="text-xs text-green-700 mt-1 font-medium">
+                Current polygon: {drawingPoints.length} vertices
+              </div>
+            )}
             <Button variant="outline" size="sm" onClick={cancelDrawing} className="mt-2 text-xs h-6">
               Cancel Drawing
             </Button>
