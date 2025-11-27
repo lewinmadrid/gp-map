@@ -660,11 +660,53 @@ const MapView = () => {
 
   // Count vertices in a polygon
   const countPolygonVertices = (feature: any): number => {
-    if (!feature.geometry || !feature.geometry.coordinates) return 0;
-    if (feature.geometry.type === 'Polygon') {
-      // For polygon, return the number of vertices in the outer ring (minus 1 for the closing vertex)
-      return Math.max(0, feature.geometry.coordinates[0].length - 1);
+    console.log('🔢 Counting vertices for feature:', {
+      hasGeometry: !!feature.geometry,
+      geometryType: feature.geometry?.type,
+      hasCoordinates: !!feature.geometry?.coordinates,
+      hasToGeoJSON: typeof feature.toGeoJSON === 'function',
+      properties: feature.properties
+    });
+
+    // Try to convert vector tile feature to GeoJSON if needed
+    let geometry = feature.geometry;
+    if (!geometry || !geometry.coordinates) {
+      if (typeof feature.toGeoJSON === 'function') {
+        try {
+          const geoJSON = feature.toGeoJSON();
+          geometry = geoJSON.geometry;
+          console.log('🔢 Converted to GeoJSON, geometry type:', geometry?.type, 'has coords:', !!geometry?.coordinates);
+        } catch (e) {
+          console.error('Error converting to GeoJSON:', e);
+          return 0;
+        }
+      } else {
+        console.log('🔢 No geometry coordinates and no toGeoJSON method, returning 0');
+        return 0;
+      }
     }
+
+    if (!geometry || !geometry.coordinates) {
+      console.log('🔢 Still no geometry coordinates after conversion, returning 0');
+      return 0;
+    }
+
+    if (geometry.type === 'Polygon') {
+      const vertexCount = Math.max(0, geometry.coordinates[0].length - 1);
+      console.log('🔢 Polygon vertex count:', vertexCount);
+      return vertexCount;
+    }
+    
+    if (geometry.type === 'MultiPolygon') {
+      // Sum vertices from all polygons in the MultiPolygon
+      const vertexCount = geometry.coordinates.reduce((sum: number, polygon: any) => {
+        return sum + Math.max(0, polygon[0].length - 1);
+      }, 0);
+      console.log('🔢 MultiPolygon vertex count:', vertexCount);
+      return vertexCount;
+    }
+
+    console.log('🔢 Unknown geometry type:', geometry.type);
     return 0;
   };
 
