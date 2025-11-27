@@ -919,12 +919,27 @@ const MapView = () => {
             // Update the source
             (map.current.getSource(targetSourceId) as any).setData(updatedPolygon);
 
+            // Update selectedPolygons state with the new geometry including holes
+            setSelectedPolygons(prev => {
+              return prev.map(p => {
+                const pId = p.properties?.id || p.source;
+                if (pId === targetSourceId) {
+                  return updatedPolygon;
+                }
+                return p;
+              });
+            });
+
+            // Calculate and display updated vertex count
+            const holeVertices = drawingPoints.length;
+            const totalVertices = countPolygonVertices(updatedPolygon);
+            
             // Stay in exclude mode for more holes, just reset drawing state
             setDrawingPoints([]);
             setIsDrawing(false);
             toast({
               title: "Hole Created",
-              description: `Hole with ${drawingPoints.length} vertices added. Draw another hole or switch modes.`
+              description: `Hole with ${holeVertices} vertices added. Polygon now has ${totalVertices} total vertices.`
             });
             return;
           }
