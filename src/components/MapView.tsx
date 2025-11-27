@@ -355,14 +355,7 @@ const MapView = () => {
             clearSingleFeatureHighlight(feature);
 
             // Calculate remaining total vertices using functional update
-            setSelectedFeatures(prev => {
-              const totalVertices = prev.reduce((sum, f) => sum + countPolygonVertices(f), 0);
-              toast({
-                title: "Zone Deselected",
-                description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} deselected. Remaining: ${prev.length} zones, ${totalVertices} vertices total`
-              });
-              return prev;
-            });
+            setSelectedFeatures(prev => prev);
             return;
           }
 
@@ -384,11 +377,6 @@ const MapView = () => {
             // Add selection highlight layer with unique index
             updateSelectionHighlight(feature, currentCount);
             
-            toast({
-              title: "Zone Selected",
-              description: `Zone ${feature.properties?.zone_identifier || feature.properties?.id || 'Unknown'} selected (${vertexCount} vertices). Total: ${newSelectedFeatures.length} zones, ${totalVertices} vertices`
-            });
-            
             return newSelectedFeatures;
           });
           return;
@@ -409,10 +397,6 @@ const MapView = () => {
           });
 
           if (isAlreadySelected) {
-            toast({
-              title: "Already Selected",
-              description: `Polygon is already selected`
-            });
             return;
           }
 
@@ -429,11 +413,6 @@ const MapView = () => {
 
             // Calculate total vertices from all selected polygons including this new one
             const totalVertices = newSelectedPolygons.reduce((sum, p) => sum + countPolygonVertices(p), 0);
-            
-            toast({
-              title: "Polygon Selected",
-              description: `Polygon with ${vertexCount} vertices selected. Total: ${newSelectedPolygons.length} polygons, ${totalVertices} vertices`
-            });
             
             return newSelectedPolygons;
           });
