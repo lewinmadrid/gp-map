@@ -1894,7 +1894,7 @@ const MapView = () => {
 
     {/* Action Buttons Row - In line with Active Layer */}
     {currentMode === 'evac' && !isMobile && (
-      <div className="absolute top-4 right-64 z-40 flex gap-2">
+      <div className="absolute top-[18px] right-64 z-40 flex gap-2">
         {/* Exclude Area Button */}
         <Button 
           variant="secondary" 
