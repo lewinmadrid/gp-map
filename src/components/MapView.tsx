@@ -12,7 +12,6 @@ import Legend from './Legend';
 import LeftSidebar from './LeftSidebar';
 import TopToolbar from './TopToolbar';
 import ModeToggle from './ModeToggle';
-import UserMenu from './UserMenu';
 import * as shp from 'shpjs';
 import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler, Scissors, Undo, Trash2 } from 'lucide-react';
 const MapView = () => {
@@ -1932,9 +1931,6 @@ const MapView = () => {
         }
       }
     }} />}
-
-    {/* User Menu */}
-    <UserMenu />
 
     {/* Action Buttons Row - In line with Active Layer */}
     {currentMode === 'evac' && !isMobile && (
