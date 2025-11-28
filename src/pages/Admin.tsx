@@ -1,0 +1,312 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Trash2, UserPlus } from "lucide-react";
+
+interface User {
+  id: string;
+  email: string;
+  created_at: string;
+  role: string;
+}
+
+const Admin = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("user");
+  const [inviting, setInviting] = useState(false);
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+
+  const checkAdminStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        navigate("/auth");
+        return;
+      }
+
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .single();
+
+      if (!roles) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have admin privileges",
+          variant: "destructive",
+        });
+        navigate("/");
+        return;
+      }
+
+      setIsAdmin(true);
+      await loadUsers();
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      navigate("/");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await supabase.functions.invoke("admin-user-management", {
+        body: { action: "listUsers" },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (response.error) throw response.error;
+      if (response.data?.users) {
+        setUsers(response.data.users);
+      }
+    } catch (error) {
+      console.error("Error loading users:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load users",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteEmail) return;
+
+    setInviting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await supabase.functions.invoke("admin-user-management", {
+        body: {
+          action: "invite",
+          email: inviteEmail,
+          role: inviteRole,
+        },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Success",
+        description: `Invitation sent to ${inviteEmail}`,
+      });
+
+      setInviteEmail("");
+      setInviteRole("user");
+      await loadUsers();
+    } catch (error) {
+      console.error("Error inviting user:", error);
+      toast({
+        title: "Error",
+        description: "Failed to invite user",
+        variant: "destructive",
+      });
+    } finally {
+      setInviting(false);
+    }
+  };
+
+  const handleDelete = async (userId: string, email: string) => {
+    if (!confirm(`Are you sure you want to delete ${email}?`)) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await supabase.functions.invoke("admin-user-management", {
+        body: {
+          action: "delete",
+          userId,
+        },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Success",
+        description: `User ${email} deleted`,
+      });
+
+      await loadUsers();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const response = await supabase.functions.invoke("admin-user-management", {
+        body: {
+          action: "updateRole",
+          userId,
+          role: newRole,
+        },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Success",
+        description: "User role updated",
+      });
+
+      await loadUsers();
+    } catch (error) {
+      console.error("Error updating role:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update role",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-background p-8">
+      <div className="max-w-6xl mx-auto">
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Map
+        </Button>
+
+        <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Invite New User</CardTitle>
+            <CardDescription>Send an invitation email to a new user</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleInvite} className="flex gap-4">
+              <Input
+                type="email"
+                placeholder="user@example.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                required
+                className="flex-1"
+              />
+              <Select value={inviteRole} onValueChange={setInviteRole}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button type="submit" disabled={inviting}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                {inviting ? "Inviting..." : "Invite"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>User Management</CardTitle>
+            <CardDescription>Manage all users in the system</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Select
+                        value={user.role}
+                        onValueChange={(value) => handleRoleChange(user.id, value)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(user.id, user.email || "")}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Admin;

@@ -1,0 +1,190 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.1'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders })
+  }
+
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        auth: {
+          persistSession: false,
+        },
+      }
+    )
+
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          persistSession: false,
+        },
+      }
+    )
+
+    // Get the authorization header
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
+    // Get the user from the auth header
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    )
+
+    if (userError || !user) {
+      throw new Error('Unauthorized')
+    }
+
+    // Check if user is admin
+    const { data: roles } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single()
+
+    if (!roles) {
+      throw new Error('Forbidden: Admin access required')
+    }
+
+    const { action, email, userId, role } = await req.json()
+
+    console.log('Admin action:', action, { email, userId, role })
+
+    switch (action) {
+      case 'invite': {
+        // Invite a new user
+        const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+          redirectTo: `${req.headers.get('origin')}/auth`,
+        })
+
+        if (inviteError) {
+          console.error('Invite error:', inviteError)
+          throw inviteError
+        }
+
+        // Assign default 'user' role
+        const { error: roleError } = await supabaseAdmin
+          .from('user_roles')
+          .insert({
+            user_id: inviteData.user.id,
+            role: role || 'user',
+          })
+
+        if (roleError) {
+          console.error('Role assignment error:', roleError)
+          throw roleError
+        }
+
+        console.log('User invited successfully:', inviteData.user.id)
+
+        return new Response(
+          JSON.stringify({ success: true, user: inviteData.user }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      case 'delete': {
+        // Delete a user
+        const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
+
+        if (deleteError) {
+          console.error('Delete error:', deleteError)
+          throw deleteError
+        }
+
+        console.log('User deleted successfully:', userId)
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      case 'updateRole': {
+        // First, delete existing role
+        const { error: deleteRoleError } = await supabaseAdmin
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId)
+
+        if (deleteRoleError) {
+          console.error('Delete role error:', deleteRoleError)
+          throw deleteRoleError
+        }
+
+        // Insert new role
+        const { error: roleError } = await supabaseAdmin
+          .from('user_roles')
+          .insert({
+            user_id: userId,
+            role,
+          })
+
+        if (roleError) {
+          console.error('Update role error:', roleError)
+          throw roleError
+        }
+
+        console.log('User role updated successfully:', userId, role)
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      case 'listUsers': {
+        // List all users with their roles
+        const { data: users, error: usersError } = await supabaseAdmin.auth.admin.listUsers()
+
+        if (usersError) {
+          console.error('List users error:', usersError)
+          throw usersError
+        }
+
+        // Get roles for all users
+        const { data: rolesData } = await supabaseClient
+          .from('user_roles')
+          .select('*')
+
+        const usersWithRoles = users.users.map((u) => ({
+          id: u.id,
+          email: u.email,
+          created_at: u.created_at,
+          role: rolesData?.find((r) => r.user_id === u.id)?.role || 'user',
+        }))
+
+        console.log('Listed users:', usersWithRoles.length)
+
+        return new Response(
+          JSON.stringify({ success: true, users: usersWithRoles }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      default:
+        throw new Error('Invalid action')
+    }
+  } catch (error) {
+    console.error('Error:', error)
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
+  }
+})
