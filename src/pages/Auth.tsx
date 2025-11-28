@@ -65,7 +65,7 @@ export default function Auth() {
         }
       } else {
         // Signup
-        const redirectUrl = `${window.location.origin}/`;
+        const redirectUrl = `${window.location.origin}/auth`;
         const { error } = await supabase.auth.signUp({
           email: validatedData.email,
           password: validatedData.password,
