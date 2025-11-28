@@ -3,14 +3,14 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Minus, Navigation, Settings, Menu } from 'lucide-react';
+import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Minus, Navigation, Settings, Menu, Undo } from 'lucide-react';
 
 interface TopToolbarProps {
   currentMode: 'select' | 'polygon' | 'circle' | 'radius';
   onDrawTool: (tool: 'polygon' | 'circle' | 'radius') => void;
   onSelectArea: () => void;
   onUploadShapeFile: (file: File) => void;
-  onEditTool: (tool: 'edit' | 'exclude' | 'delete') => void;
+  onEditTool: (tool: 'edit' | 'exclude' | 'delete' | 'undo') => void;
   onSnapshot: () => void;
   onLocationSelect: (location: { name: string; center: [number, number]; zoom: number; polygon?: number[][][] }) => void;
   isMobile?: boolean;
@@ -109,6 +109,10 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { onEditTool('edit'); setMobileMenuOpen(false); }}>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Geometry
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => { onEditTool('undo'); setMobileMenuOpen(false); }}>
+                  <Undo className="h-4 w-4 mr-2" />
+                  Undo
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { onEditTool('exclude'); setMobileMenuOpen(false); }}>
                   <Minus className="h-4 w-4 mr-2" />
@@ -210,6 +214,10 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
             <DropdownMenuItem onClick={() => onEditTool('edit')} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <Edit className="h-4 w-4" />
               Edit Geometry
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEditTool('undo')} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+              <Undo className="h-4 w-4" />
+              Undo
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEditTool('exclude')} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <Minus className="h-4 w-4" />
