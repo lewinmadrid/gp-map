@@ -834,6 +834,50 @@ const MapView = () => {
   const handleUndo = () => {
     if (!map.current) return;
 
+    // If currently drawing a polygon, remove the last vertex
+    if (drawingMode === 'polygon' && drawingPoints.length > 0) {
+      // Remove the last point
+      const newPoints = drawingPoints.slice(0, -1);
+      setDrawingPoints(newPoints);
+
+      // Remove the last drawing marker
+      const lastMarker = drawingMarkers[drawingMarkers.length - 1];
+      if (lastMarker) {
+        lastMarker.remove();
+        setDrawingMarkers(prev => prev.slice(0, -1));
+      }
+
+      // Update the temporary line on the map
+      if (newPoints.length > 0) {
+        const lineSource = map.current.getSource('drawing-line') as any;
+        if (lineSource && lineSource.setData) {
+          lineSource.setData({
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: newPoints
+            }
+          });
+        }
+      } else {
+        // If no points left, remove the line
+        if (map.current.getLayer('drawing-line')) {
+          map.current.removeLayer('drawing-line');
+        }
+        if (map.current.getSource('drawing-line')) {
+          map.current.removeSource('drawing-line');
+        }
+      }
+
+      toast({
+        title: "Vertex Removed",
+        description: `${newPoints.length} vertices remaining.`
+      });
+      return;
+    }
+
+    // Otherwise, remove the last completed shape from history
     if (drawingHistory.length === 0) {
       toast({
         title: "Nothing to Undo",
