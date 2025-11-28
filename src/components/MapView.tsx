@@ -1914,7 +1914,7 @@ const MapView = () => {
         <Button 
           variant="secondary" 
           size="sm" 
-          className="h-10 px-4 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-2"
+          className="h-10 px-4 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-2 disabled:bg-white disabled:opacity-50"
           onClick={handleUndo}
           disabled={drawingHistory.length === 0}
         >
