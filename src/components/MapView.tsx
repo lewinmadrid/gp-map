@@ -877,13 +877,30 @@ const MapView = () => {
       return;
     }
 
+    // If in select mode and zones are selected, deselect the last zone
+    if (selectMode && selectedFeatures.length > 0) {
+      const lastFeature = selectedFeatures[selectedFeatures.length - 1];
+      
+      // Remove the highlight for this feature
+      clearSingleFeatureHighlight(lastFeature);
+      
+      // Remove from selected features
+      setSelectedFeatures(prev => prev.slice(0, -1));
+      
+      return;
+    }
+
     // Otherwise, remove the last completed shape from history
-    if (drawingHistory.length === 0) {
+    if (drawingHistory.length === 0 && selectedFeatures.length === 0) {
       toast({
         title: "Nothing to Undo",
-        description: "No drawing actions to undo.",
+        description: "No actions to undo.",
         variant: "destructive"
       });
+      return;
+    }
+
+    if (drawingHistory.length === 0) {
       return;
     }
 
