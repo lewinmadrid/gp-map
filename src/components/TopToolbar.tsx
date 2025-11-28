@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Minus, Navigation, Settings, Menu, Undo } from 'lucide-react';
+import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Scissors, Navigation, Settings, Menu, Undo } from 'lucide-react';
 
 interface TopToolbarProps {
   currentMode: 'select' | 'polygon' | 'circle' | 'radius';
@@ -115,7 +115,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
                   Undo
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { onEditTool('exclude'); setMobileMenuOpen(false); }}>
-                  <Minus className="h-4 w-4 mr-2" />
+                  <Scissors className="h-4 w-4 mr-2" />
                   Exclude Area
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { onEditTool('delete'); setMobileMenuOpen(false); }}>
@@ -220,7 +220,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
               Undo
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEditTool('exclude')} className="flex items-center gap-2 hover:bg-gray-100 text-black">
-              <Minus className="h-4 w-4" />
+              <Scissors className="h-4 w-4" />
               Exclude Area
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEditTool('delete')} className="flex items-center gap-2 hover:bg-gray-100 text-black">
