@@ -1833,6 +1833,8 @@ const MapView = () => {
         handleEditPolygon();
       } else if (tool === 'delete') {
         handleDeleteAll();
+      } else if (tool === 'undo') {
+        handleUndo();
       }
     }} onSnapshot={() => {
       console.log('Snapshot requested');
