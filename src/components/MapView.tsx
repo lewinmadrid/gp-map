@@ -1138,12 +1138,6 @@ const MapView = () => {
       
       // Calculate total vertices
       const totalVertices = newSelections.reduce((sum, p) => sum + countPolygonVertices(p), 0);
-      const vertexCount = countPolygonVertices(newPolygon);
-      
-      toast({
-        title: "Polygon Created",
-        description: `Polygon with ${vertexCount} vertices created. Total: ${newSelections.length} polygons, ${totalVertices} vertices`
-      });
       
       return newSelections;
     });
@@ -1226,12 +1220,6 @@ const MapView = () => {
       
       // Calculate total vertices
       const totalVertices = newSelections.reduce((sum, p) => sum + countPolygonVertices(p), 0);
-      const vertexCount = countPolygonVertices(circleFeature);
-      
-      toast({
-        title: "Circle Created",
-        description: `Circle with ${vertexCount} vertices created. Total: ${newSelections.length} shapes, ${totalVertices} vertices`
-      });
       
       return newSelections;
     });
