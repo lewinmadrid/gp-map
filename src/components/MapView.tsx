@@ -923,6 +923,10 @@ const MapView = () => {
     // Remove from history
     setDrawingHistory(prev => prev.slice(0, -1));
 
+    // Clear any drawing markers that might still be visible
+    drawingMarkers.forEach(marker => marker.remove());
+    setDrawingMarkers([]);
+
     toast({
       title: "Undo Successful",
       description: `Removed last ${lastAction.type}.`
