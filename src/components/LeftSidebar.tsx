@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { User, Shield, LogOut } from 'lucide-react';
 
 interface LeftSidebarProps {
   className?: string;
@@ -9,7 +19,46 @@ interface LeftSidebarProps {
 }
 
 const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedChange, isMobile = false }) => {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userInitials, setUserInitials] = useState("U");
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setUserEmail(user.email || "");
+      
+      // Get initials from email
+      const email = user.email || "";
+      const initials = email.substring(0, 2).toUpperCase();
+      setUserInitials(initials);
+      
+      // Check if user is admin
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      
+      setIsAdmin(!!roles);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  const handleAdminPanel = () => {
+    navigate("/admin");
+  };
 
   const toggleExpanded = () => {
     const newState = !isExpanded;
@@ -155,18 +204,44 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
 
             {/* User Profile */}
             <div className="border-t border-slate-700 p-4">
-              <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
-                <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                  ZC
-                </div>
-                <div>
-                  <div className="text-xs">Genasys</div>
-                  <div className="text-xs text-gray-500">lclark@genasys.com</div>
-                </div>
-                <div className="ml-auto">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                </div>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+                    <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                      {userInitials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-white truncate">{userEmail}</div>
+                      <div className="text-xs text-gray-500">User Account</div>
+                    </div>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
+                  <div className="px-2 py-2 text-sm text-gray-600 truncate">
+                    {userEmail}
+                  </div>
+                  <DropdownMenuSeparator />
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={handleAdminPanel}
+                        className="flex items-center gap-2 hover:bg-gray-100 text-black cursor-pointer"
+                      >
+                        <Shield className="h-4 w-4" />
+                        Admin Panel
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 hover:bg-gray-100 text-red-600 cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </SheetContent>
@@ -225,18 +300,44 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
 
         {/* User Profile */}
         <div className="border-t border-slate-700 p-4">
-          <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
-            <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-              ZC
-            </div>
-            <div>
-              <div className="text-xs">Genasys</div>
-              <div className="text-xs text-gray-500">lclark@genasys.com</div>
-            </div>
-            <div className="ml-auto">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+                <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                  {userInitials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-white truncate">{userEmail}</div>
+                  <div className="text-xs text-gray-500">User Account</div>
+                </div>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
+              <div className="px-2 py-2 text-sm text-gray-600 truncate">
+                {userEmail}
+              </div>
+              <DropdownMenuSeparator />
+              {isAdmin && (
+                <>
+                  <DropdownMenuItem
+                    onClick={handleAdminPanel}
+                    className="flex items-center gap-2 hover:bg-gray-100 text-black cursor-pointer"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Admin Panel
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="flex items-center gap-2 hover:bg-gray-100 text-red-600 cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     );
@@ -272,9 +373,42 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
 
       {/* Bottom section */}
       <div className="mt-auto">
-        <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-white text-xs font-medium">
-          ZC
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-8 h-8 p-0 bg-slate-700 rounded-full text-white hover:bg-slate-600"
+            >
+              <span className="text-xs font-medium">{userInitials}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
+            <div className="px-2 py-2 text-sm text-gray-600 truncate">
+              {userEmail}
+            </div>
+            <DropdownMenuSeparator />
+            {isAdmin && (
+              <>
+                <DropdownMenuItem
+                  onClick={handleAdminPanel}
+                  className="flex items-center gap-2 hover:bg-gray-100 text-black cursor-pointer"
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin Panel
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="flex items-center gap-2 hover:bg-gray-100 text-red-600 cursor-pointer"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
