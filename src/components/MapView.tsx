@@ -1976,7 +1976,7 @@ const MapView = () => {
                 </div>}
               {selectedFeatures.length > 0 && <div>
                   {selectedFeatures.length === 1 ? <span>
-                      1 Zone Selected: {selectedFeatures[0].properties?.zone_identifier || selectedFeatures[0].properties?.id || 'Unknown'} ({countPolygonVertices(selectedFeatures[0])} vertices)
+                      1 Zone Selected: {selectedFeatures[0].properties?.zonename_zh || selectedFeatures[0].properties?.zone_identifier || selectedFeatures[0].properties?.id || 'Unknown'} ({countPolygonVertices(selectedFeatures[0])} vertices)
                     </span> : <span>
                       {selectedFeatures.length} Zones: {selectedFeatures.reduce((sum, f) => sum + countPolygonVertices(f), 0)} vertices total
                     </span>}
