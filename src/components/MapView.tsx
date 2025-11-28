@@ -1858,10 +1858,6 @@ const MapView = () => {
       // Switch to select mode
       setSelectMode(true);
       setDrawingMode(null);
-      toast({
-        title: "Select Mode",
-        description: "Click on zones to select and highlight them."
-      });
     }} onUploadShapeFile={handleShapeFileUpload} onEditTool={tool => {
       console.log('Edit tool selected:', tool);
       if (tool === 'exclude') {
@@ -2118,26 +2114,16 @@ const MapView = () => {
           </div>
         </div>}
 
-      {/* Drawing Status */}
-      {drawingMode && <div className="absolute top-20 left-20 z-30">
-          <div className={`backdrop-blur-sm border rounded-lg shadow-lg p-3 ${excludeMode ? 'bg-red-100/95 border-red-200' : 'bg-green-100/95 border-green-200'}`}>
-            <div className={`flex items-center gap-2 text-sm ${excludeMode ? 'text-red-800' : 'text-green-800'}`}>
-              <div className={`w-3 h-3 rounded-full ${excludeMode ? 'bg-red-500' : 'bg-green-500'}`}></div>
-              <span>
-                {excludeMode ? 'Exclude Area' : drawingMode.charAt(0).toUpperCase() + drawingMode.slice(1)} Drawing Mode
-              </span>
+      {/* Drawing Status - Only show for Exclude Mode */}
+      {drawingMode && excludeMode && <div className="absolute top-20 left-20 z-30">
+          <div className="backdrop-blur-sm border rounded-lg shadow-lg p-3 bg-red-100/95 border-red-200">
+            <div className="flex items-center gap-2 text-sm text-red-800">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <span>Exclude Area Drawing Mode</span>
             </div>
-            <div className={`text-xs mt-1 ${excludeMode ? 'text-red-600' : 'text-green-600'}`}>
-              {excludeMode && 'Drawing hole in existing polygon'}
-              {!excludeMode && drawingMode === 'polygon' && `Vertices: ${drawingPoints.length}${isDrawing ? ' (click to add, double-click to finish)' : ''}`}
-              {!excludeMode && drawingMode === 'circle' && (tempCircleCenter ? 'Click to set radius' : 'Click to set center point')}
-              {!excludeMode && drawingMode === 'radius' && 'Click to set center (radius will be prompted)'}
+            <div className="text-xs mt-1 text-red-600">
+              Drawing hole in existing polygon
             </div>
-            {!excludeMode && drawingMode === 'polygon' && drawingPoints.length > 0 && (
-              <div className="text-xs text-green-700 mt-1 font-medium">
-                Current polygon: {drawingPoints.length} vertices
-              </div>
-            )}
             <Button variant="outline" size="sm" onClick={cancelDrawing} className="mt-2 text-xs h-6">
               Cancel Drawing
             </Button>
