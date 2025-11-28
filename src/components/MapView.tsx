@@ -1840,17 +1840,6 @@ const MapView = () => {
       // Switch to drawing mode
       setSelectMode(false);
       setDrawingMode(tool);
-
-      // Show appropriate instructions
-      const instructions = {
-        polygon: "Click to add points. Double-click to finish polygon.",
-        circle: "Click to set center, then click to set radius.",
-        radius: "Click to set center. You'll be prompted for radius distance."
-      };
-      toast({
-        title: `${tool.charAt(0).toUpperCase() + tool.slice(1)} Drawing Mode`,
-        description: instructions[tool]
-      });
     }} onSelectArea={() => {
       // Clear any existing drawings
       clearDrawnShapes();
