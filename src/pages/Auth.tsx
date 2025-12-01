@@ -34,13 +34,18 @@ export default function Auth() {
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session && !isSettingPassword) {
+      // Always check URL hash directly at the time of auth change
+      const currentHashParams = new URLSearchParams(window.location.hash.substring(1));
+      const currentType = currentHashParams.get('type');
+      
+      // Only redirect if logged in AND not in invite/recovery flow
+      if (session && currentType !== 'invite' && currentType !== 'recovery') {
         navigate('/');
       }
     });
 
     // Check for existing session only if not in password setup mode
-    if (!isSettingPassword) {
+    if (type !== 'invite' && type !== 'recovery') {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
           navigate('/');
@@ -49,7 +54,7 @@ export default function Auth() {
     }
 
     return () => subscription.unsubscribe();
-  }, [navigate, isSettingPassword]);
+  }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
