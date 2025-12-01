@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import MapView from '@/components/MapView';
+import AdminNav from '@/components/AdminNav';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 const Index = () => {
@@ -47,7 +48,8 @@ const Index = () => {
 
   return (
     <ErrorBoundary>
-      <main className="w-full h-screen overflow-hidden">
+      <main className="w-full h-screen overflow-hidden relative">
+        <AdminNav />
         <MapView />
       </main>
     </ErrorBoundary>
