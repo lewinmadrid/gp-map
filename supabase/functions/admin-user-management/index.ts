@@ -64,13 +64,22 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case 'invite': {
-        // Get the app URL from referer or origin
-        const referer = req.headers.get('referer') || req.headers.get('origin') || '';
-        const appUrl = referer.replace(/\/$/, ''); // Remove trailing slash
-        const redirectUrl = `${appUrl}/set-password`;
+        // Get the app URL from referer header which includes the full URL
+        const referer = req.headers.get('referer');
+        console.log('Invite - full referer:', referer);
         
-        console.log('Invite - referer:', req.headers.get('referer'));
-        console.log('Invite - origin:', req.headers.get('origin'));
+        // Extract base URL from referer (e.g., https://xxx.lovableproject.com/admin -> https://xxx.lovableproject.com)
+        let baseUrl = 'https://5c98291b-71e3-426d-8d4c-7f43a1b26fc1.lovableproject.com';
+        if (referer) {
+          try {
+            const url = new URL(referer);
+            baseUrl = `${url.protocol}//${url.host}`;
+          } catch (e) {
+            console.error('Failed to parse referer URL:', e);
+          }
+        }
+        
+        const redirectUrl = `${baseUrl}/set-password`;
         console.log('Invite - constructed redirectUrl:', redirectUrl);
         
         // Invite a new user
