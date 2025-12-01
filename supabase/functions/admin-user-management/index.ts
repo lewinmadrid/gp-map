@@ -43,20 +43,28 @@ Deno.serve(async (req) => {
     )
 
     if (userError || !user) {
+      console.error('Auth error:', userError)
       throw new Error('Unauthorized')
     }
 
-    // Check if user is admin
-    const { data: roles, error: rolesError } = await supabaseClient
+    console.log('Checking admin status for user:', user.id)
+
+    // Check if user is admin using admin client to bypass RLS
+    const { data: roles, error: rolesError } = await supabaseAdmin
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .eq('role', 'admin')
       .maybeSingle()
 
+    console.log('Role check result:', { roles, rolesError })
+
     if (rolesError || !roles) {
+      console.error('Not an admin:', user.id)
       throw new Error('Forbidden: Admin access required')
     }
+
+    console.log('Admin access confirmed for user:', user.id)
 
     const { action, email, userId, role } = await req.json()
 
