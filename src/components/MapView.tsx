@@ -1705,8 +1705,8 @@ const MapView = () => {
   const resetMapView = () => {
     if (!map.current) return;
     map.current.easeTo({
-      center: [-116.4, 33.7],
-      zoom: 10,
+      center: [-117.1611, 32.7157],
+      zoom: 13,
       bearing: 0,
       pitch: 0
     });
