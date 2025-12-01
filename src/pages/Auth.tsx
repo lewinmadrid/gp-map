@@ -25,7 +25,8 @@ export default function Auth() {
   // Check URL hash IMMEDIATELY on component mount - BEFORE any state or effects
   const hashParams = new URLSearchParams(window.location.hash.substring(1));
   const inviteType = hashParams.get('type');
-  const isInviteFlow = inviteType === 'invite' || inviteType === 'recovery';
+  const isPasswordSetup = window.location.hash.includes('password-setup');
+  const isInviteFlow = inviteType === 'invite' || inviteType === 'recovery' || isPasswordSetup;
   const [isSettingPassword, setIsSettingPassword] = useState(isInviteFlow);
 
   useEffect(() => {
