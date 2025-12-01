@@ -83,18 +83,31 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            className={`h-10 px-3 border shadow-sm ${
-              currentMode === 'select' 
-                ? 'bg-blue-100 border-blue-300 text-blue-700' 
-                : 'bg-white border-gray-200 text-gray-600'
-            }`}
-            onClick={onSelectArea}
-          >
-            <MapPin className="h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className={`h-10 px-3 border shadow-sm ${
+                  currentMode === 'select' 
+                    ? 'bg-blue-100 border-blue-300 text-blue-700' 
+                    : 'bg-white border-gray-200 text-gray-600'
+                }`}
+              >
+                <MapPin className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg">
+              <DropdownMenuItem onClick={onSelectArea} className="flex items-center gap-2 text-black">
+                <MapPin className="h-4 w-4" />
+                Query Zone
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onSelectArea} className="flex items-center gap-2 text-black">
+                <MapPin className="h-4 w-4" />
+                Select Zone
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* More menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -230,11 +243,26 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Select Area */}
-        <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${currentMode === 'select' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`} onClick={onSelectArea}>
-          <MapPin className="h-4 w-4" />
-          <span className="text-sm">Select Area</span>
-        </Button>
+        {/* Select Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${currentMode === 'select' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+              <MapPin className="h-4 w-4" />
+              <span className="text-sm">Select</span>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
+            <DropdownMenuItem onClick={onSelectArea} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+              <MapPin className="h-4 w-4" />
+              Query Zone
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onSelectArea} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+              <MapPin className="h-4 w-4" />
+              Select Zone
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Tools Dropdown */}
         <DropdownMenu>
