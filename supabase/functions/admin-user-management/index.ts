@@ -64,9 +64,18 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case 'invite': {
+        // Get the app URL from referer or origin
+        const referer = req.headers.get('referer') || req.headers.get('origin') || '';
+        const appUrl = referer.replace(/\/$/, ''); // Remove trailing slash
+        const redirectUrl = `${appUrl}/set-password`;
+        
+        console.log('Invite - referer:', req.headers.get('referer'));
+        console.log('Invite - origin:', req.headers.get('origin'));
+        console.log('Invite - constructed redirectUrl:', redirectUrl);
+        
         // Invite a new user
         const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-          redirectTo: `${req.headers.get('origin')}/set-password`,
+          redirectTo: redirectUrl,
         })
 
         if (inviteError) {
