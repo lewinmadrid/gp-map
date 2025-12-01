@@ -293,6 +293,19 @@ const MapView = () => {
     };
   }, []);
 
+  // Update cursor based on drawing mode
+  useEffect(() => {
+    if (!map.current) return;
+    
+    if (drawingMode === 'polygon' || drawingMode === 'circle' || drawingMode === 'radius') {
+      map.current.getCanvas().style.cursor = 'crosshair';
+    } else if (measurementMode) {
+      map.current.getCanvas().style.cursor = 'crosshair';
+    } else {
+      map.current.getCanvas().style.cursor = '';
+    }
+  }, [drawingMode, measurementMode]);
+
   // Separate useEffect for measurement and drawing click handlers
   useEffect(() => {
     if (!map.current) return;
