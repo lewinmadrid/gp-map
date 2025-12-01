@@ -230,8 +230,8 @@ const MapView = () => {
           source: 'esri-source'
         }]
       },
-      center: [-116.4, 33.7],
-      // Riverside County, CA
+      center: [-117.1611, 32.7157],
+      // San Diego, CA
       zoom: 10,
       pitch: 0,
       bearing: 0
