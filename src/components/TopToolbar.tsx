@@ -259,7 +259,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onSelectArea} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <MapPin className="h-4 w-4" />
-              Select Area
+              Select Zone
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
