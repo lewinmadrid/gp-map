@@ -847,26 +847,20 @@ const MapView = () => {
         setDrawingMarkers(prev => prev.slice(0, -1));
       }
 
-      // Update the temporary line on the map
-      if (newPoints.length > 0) {
-        const lineSource = map.current.getSource('drawing-line') as any;
-        if (lineSource && lineSource.setData) {
-          lineSource.setData({
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates: newPoints
-            }
-          });
-        }
+      // Redraw the temporary line on the map
+      if (newPoints.length >= 2) {
+        // Update the line by redrawing
+        drawTemporaryPolygon(newPoints);
       } else {
-        // If no points left, remove the line
-        if (map.current.getLayer('drawing-line')) {
-          map.current.removeLayer('drawing-line');
+        // If less than 2 points, remove the line
+        if (map.current.getLayer('temp-polygon-fill')) {
+          map.current.removeLayer('temp-polygon-fill');
         }
-        if (map.current.getSource('drawing-line')) {
-          map.current.removeSource('drawing-line');
+        if (map.current.getLayer('temp-polygon-outline')) {
+          map.current.removeLayer('temp-polygon-outline');
+        }
+        if (map.current.getSource('temp-polygon')) {
+          map.current.removeSource('temp-polygon');
         }
       }
 
