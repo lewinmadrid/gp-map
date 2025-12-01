@@ -30,29 +30,26 @@ export default function Auth() {
     
     if (type === 'invite' || type === 'recovery') {
       setIsSettingPassword(true);
-      return; // Don't redirect, let user set password
     }
 
-    // Set up auth state listener FIRST
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // Check URL hash at the time of auth change to prevent premature redirect
-      const currentHashParams = new URLSearchParams(window.location.hash.substring(1));
-      const currentType = currentHashParams.get('type');
-      
-      if (session && currentType !== 'invite' && currentType !== 'recovery') {
+      if (session && !isSettingPassword) {
         navigate('/');
       }
     });
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/');
-      }
-    });
+    // Check for existing session only if not in password setup mode
+    if (!isSettingPassword) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          navigate('/');
+        }
+      });
+    }
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, isSettingPassword]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
