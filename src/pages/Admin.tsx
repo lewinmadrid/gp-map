@@ -224,7 +224,11 @@ const Admin = () => {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Invite New User</CardTitle>
-            <CardDescription>Send an invitation email to a new user</CardDescription>
+            <CardDescription>
+              Send an invitation email to a new user. They will be redirected to{' '}
+              <code className="text-xs bg-muted px-1 py-0.5 rounded">{window.location.origin}/set-password</code>
+              {' '}to set their password.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleInvite} className="flex gap-4">
