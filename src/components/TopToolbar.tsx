@@ -243,12 +243,12 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Zone Dropdown */}
+        {/* Select Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${currentMode === 'select' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
               <MapPin className="h-4 w-4" />
-              <span className="text-sm">Zone</span>
+              <span className="text-sm">Select</span>
               <ChevronDown className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
@@ -259,7 +259,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onSelectArea} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <MapPin className="h-4 w-4" />
-              Select Zone
+              Select Area
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
