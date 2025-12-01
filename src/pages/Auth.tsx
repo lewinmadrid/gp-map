@@ -21,40 +21,35 @@ export default function Auth() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
-  const [isSettingPassword, setIsSettingPassword] = useState(false);
+  
+  // Check URL hash IMMEDIATELY on component mount - BEFORE any state or effects
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  const inviteType = hashParams.get('type');
+  const isInviteFlow = inviteType === 'invite' || inviteType === 'recovery';
+  const [isSettingPassword, setIsSettingPassword] = useState(isInviteFlow);
 
   useEffect(() => {
-    // Check for invite/recovery flow in URL hash
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const type = hashParams.get('type');
-    
-    if (type === 'invite' || type === 'recovery') {
-      setIsSettingPassword(true);
+    // Don't set up auth checks if we're in invite flow
+    if (isInviteFlow) {
+      return;
     }
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // Always check URL hash directly at the time of auth change
-      const currentHashParams = new URLSearchParams(window.location.hash.substring(1));
-      const currentType = currentHashParams.get('type');
-      
-      // Only redirect if logged in AND not in invite/recovery flow
-      if (session && currentType !== 'invite' && currentType !== 'recovery') {
+      if (session) {
         navigate('/');
       }
     });
 
-    // Check for existing session only if not in password setup mode
-    if (type !== 'invite' && type !== 'recovery') {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          navigate('/');
-        }
-      });
-    }
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/');
+      }
+    });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, isInviteFlow]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
