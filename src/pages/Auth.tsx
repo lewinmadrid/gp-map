@@ -25,18 +25,28 @@ export default function Auth() {
   // Check URL hash IMMEDIATELY on component mount - BEFORE any state or effects
   const hashParams = new URLSearchParams(window.location.hash.substring(1));
   const inviteType = hashParams.get('type');
-  const isPasswordSetup = window.location.hash.includes('password-setup');
-  const isInviteFlow = inviteType === 'invite' || inviteType === 'recovery' || isPasswordSetup;
+  const isInviteFlow = inviteType === 'invite' || inviteType === 'recovery';
+  
+  console.log('Auth component - URL hash:', window.location.hash);
+  console.log('Auth component - invite type:', inviteType);
+  console.log('Auth component - isInviteFlow:', isInviteFlow);
+  
   const [isSettingPassword, setIsSettingPassword] = useState(isInviteFlow);
 
   useEffect(() => {
+    console.log('Auth useEffect - isInviteFlow:', isInviteFlow, 'isSettingPassword:', isSettingPassword);
+    
     // Don't set up auth checks if we're in invite flow
     if (isInviteFlow) {
+      console.log('Auth - In invite flow, skipping auth checks');
       return;
     }
 
+    console.log('Auth - Setting up auth listeners');
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, 'has session:', !!session);
       if (session) {
         navigate('/');
       }
@@ -44,6 +54,7 @@ export default function Auth() {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Existing session check:', !!session);
       if (session) {
         navigate('/');
       }
