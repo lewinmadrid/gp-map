@@ -230,9 +230,9 @@ const MapView = () => {
           source: 'esri-source'
         }]
       },
-      center: [-122.3255, 37.5630],
-      // San Mateo, CA
-      zoom: 12,
+      center: [-116.4, 33.7],
+      // Riverside County, CA
+      zoom: 10,
       pitch: 0,
       bearing: 0
     });
@@ -1705,8 +1705,8 @@ const MapView = () => {
   const resetMapView = () => {
     if (!map.current) return;
     map.current.easeTo({
-      center: [-122.3255, 37.5630],
-      zoom: 12,
+      center: [-116.4, 33.7],
+      zoom: 10,
       bearing: 0,
       pitch: 0
     });
