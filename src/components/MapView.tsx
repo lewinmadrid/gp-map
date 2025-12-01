@@ -232,7 +232,7 @@ const MapView = () => {
       },
       center: [-117.1611, 32.7157],
       // San Diego, CA
-      zoom: 10,
+      zoom: 12,
       pitch: 0,
       bearing: 0
     });
