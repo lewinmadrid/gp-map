@@ -47,14 +47,14 @@ Deno.serve(async (req) => {
     }
 
     // Check if user is admin
-    const { data: roles } = await supabaseClient
+    const { data: roles, error: rolesError } = await supabaseClient
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .eq('role', 'admin')
-      .single()
+      .maybeSingle()
 
-    if (!roles) {
+    if (rolesError || !roles) {
       throw new Error('Forbidden: Admin access required')
     }
 
