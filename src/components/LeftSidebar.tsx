@@ -53,9 +53,16 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
   };
 
   const handleLogout = async () => {
-    await endSession();
-    await supabase.auth.signOut();
-    navigate("/auth");
+    try {
+      await endSession();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      // Navigation will be handled by the auth state listener in Index.tsx
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Force navigation even if there's an error
+      navigate("/auth");
+    }
   };
 
   const handleAdminPanel = () => {
