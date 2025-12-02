@@ -185,11 +185,26 @@ Deno.serve(async (req) => {
           .from('user_roles')
           .select('*')
 
+        // Get last access time for all users
+        const { data: sessionsData } = await supabaseAdmin
+          .from('user_sessions')
+          .select('user_id, login_at')
+          .order('login_at', { ascending: false })
+
+        // Create a map of user_id to last access time
+        const lastAccessMap = new Map()
+        sessionsData?.forEach((session) => {
+          if (!lastAccessMap.has(session.user_id)) {
+            lastAccessMap.set(session.user_id, session.login_at)
+          }
+        })
+
         const usersWithRoles = users.users.map((u) => ({
           id: u.id,
           email: u.email,
           created_at: u.created_at,
           role: rolesData?.find((r) => r.user_id === u.id)?.role || 'user',
+          last_access: lastAccessMap.get(u.id) || null,
         }))
 
         console.log('Listed users:', usersWithRoles.length)
