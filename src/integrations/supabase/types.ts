@@ -32,6 +32,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity_logs: {
+        Row: {
+          action_data: Json | null
+          action_type: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action_data?: Json | null
+          action_type: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action_data?: Json | null
+          action_type?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -52,6 +84,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          ip_address: string | null
+          login_at: string
+          logout_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          ip_address?: string | null
+          login_at?: string
+          logout_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          ip_address?: string | null
+          login_at?: string
+          logout_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

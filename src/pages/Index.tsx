@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import MapView from '@/components/MapView';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { endSession } from '@/hooks/useActivityLogger';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -30,7 +31,20 @@ const Index = () => {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Handle browser close/refresh to end session
+    const handleBeforeUnload = () => {
+      const sessionId = localStorage.getItem('current_session_id');
+      if (sessionId) {
+        endSession();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [navigate]);
 
   if (loading) {

@@ -14,8 +14,10 @@ import TopToolbar from './TopToolbar';
 import ModeToggle from './ModeToggle';
 import * as shp from 'shpjs';
 import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler, Scissors, Undo, Trash2 } from 'lucide-react';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 const MapView = () => {
   const isMobile = useIsMobile();
+  const { logActivity } = useActivityLogger();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const geolocateControlRef = useRef<any>(null);
@@ -1669,6 +1671,7 @@ const MapView = () => {
       map.current.style.sourceCaches['esri-source'].reload();
     }
     setCurrentBasemap(basemapKey);
+    logActivity('basemap_changed', { basemap: basemapKey, name: basemap.name });
   };
   const toggleVectorLayer = () => {
     if (!map.current || !mapLoaded) return;
@@ -1982,7 +1985,15 @@ const MapView = () => {
     )}
 
     {/* Mode Toggle - Bottom Left */}
-    <ModeToggle mode={currentMode} onModeChange={setCurrentMode} sidebarExpanded={sidebarExpanded} isMobile={isMobile} />
+    <ModeToggle 
+      mode={currentMode} 
+      onModeChange={(newMode) => {
+        setCurrentMode(newMode);
+        logActivity('mode_changed', { mode: newMode });
+      }} 
+      sidebarExpanded={sidebarExpanded} 
+      isMobile={isMobile} 
+    />
       
       {/* Map Container - dynamically adjusted for sidebar */}
       <div ref={mapContainer} className="absolute inset-0 transition-all duration-300 ease-in-out" style={{

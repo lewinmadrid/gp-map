@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { createSession } from '@/hooks/useActivityLogger';
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
@@ -62,6 +63,8 @@ export default function Auth() {
           }
         } else {
           toast.success('Logged in successfully');
+          // Create session record
+          await createSession();
         }
       } else {
         // Signup

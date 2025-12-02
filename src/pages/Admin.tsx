@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Trash2, UserPlus } from "lucide-react";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 
 interface User {
   id: string;
@@ -19,6 +20,7 @@ interface User {
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { logActivity } = useActivityLogger();
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
@@ -117,6 +119,8 @@ const Admin = () => {
         description: `Invitation sent to ${inviteEmail}`,
       });
 
+      logActivity('admin_user_invited', { email: inviteEmail, role: inviteRole });
+
       setInviteEmail("");
       setInviteRole("user");
       await loadUsers();
@@ -155,6 +159,8 @@ const Admin = () => {
         description: `User ${email} deleted`,
       });
 
+      logActivity('admin_user_deleted', { userId, email });
+
       await loadUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -187,6 +193,8 @@ const Admin = () => {
         title: "Success",
         description: "User role updated",
       });
+
+      logActivity('admin_role_updated', { userId, newRole });
 
       await loadUsers();
     } catch (error) {

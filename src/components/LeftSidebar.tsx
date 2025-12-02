@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { User, Shield, LogOut } from 'lucide-react';
+import { endSession } from '@/hooks/useActivityLogger';
 
 interface LeftSidebarProps {
   className?: string;
@@ -52,6 +53,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
   };
 
   const handleLogout = async () => {
+    await endSession();
     await supabase.auth.signOut();
     navigate("/auth");
   };
