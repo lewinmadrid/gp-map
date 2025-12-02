@@ -4,6 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Camera, Circle, Square, MapPin, Edit, Upload, ChevronDown, Trash2, Scissors, Navigation, Settings, Menu, Undo } from 'lucide-react';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 
 interface TopToolbarProps {
   currentMode: 'select' | 'polygon' | 'circle' | 'radius';
@@ -28,6 +29,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { logActivity } = useActivityLogger();
   
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -68,15 +70,15 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg">
-              <DropdownMenuItem onClick={() => { onDrawTool('polygon'); }} className="flex items-center gap-2 text-black">
+              <DropdownMenuItem onClick={() => { onDrawTool('polygon'); logActivity('draw_tool_selected', { tool: 'polygon' }); }} className="flex items-center gap-2 text-black">
                 <Square className="h-4 w-4" />
                 Polygon
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { onDrawTool('circle'); }} className="flex items-center gap-2 text-black">
+              <DropdownMenuItem onClick={() => { onDrawTool('circle'); logActivity('draw_tool_selected', { tool: 'circle' }); }} className="flex items-center gap-2 text-black">
                 <Circle className="h-4 w-4" />
                 Circle
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { onDrawTool('radius'); }} className="flex items-center gap-2 text-black">
+              <DropdownMenuItem onClick={() => { onDrawTool('radius'); logActivity('draw_tool_selected', { tool: 'radius' }); }} className="flex items-center gap-2 text-black">
                 <MapPin className="h-4 w-4" />
                 Radius
               </DropdownMenuItem>
@@ -91,7 +93,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
                 ? 'bg-blue-100 border-blue-300 text-blue-700' 
                 : 'bg-white border-gray-200 text-gray-600'
             }`}
-            onClick={onSelectArea}
+            onClick={() => { onSelectArea(); logActivity('select_area_activated'); }}
           >
             <MapPin className="h-4 w-4" />
           </Button>
@@ -136,6 +138,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
                 <div className="text-sm font-medium mb-4 mt-6">Locations</div>
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { 
                   onLocationSelect({ name: 'San Francisco Bay Area', center: [-122.4194, 37.7749], zoom: 10, polygon: [[[-122.5, 37.6], [-122.3, 37.6], [-122.3, 37.9], [-122.5, 37.9], [-122.5, 37.6]]] }); 
+                  logActivity('location_selected', { location: 'San Francisco' });
                   setMobileMenuOpen(false); 
                 }}>
                   <MapPin className="h-4 w-4 mr-2" />
@@ -143,6 +146,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { 
                   onLocationSelect({ name: 'Los Angeles', center: [-118.2437, 34.0522], zoom: 10, polygon: [[[-118.4, 33.9], [-118.1, 33.9], [-118.1, 34.2], [-118.4, 34.2], [-118.4, 33.9]]] }); 
+                  logActivity('location_selected', { location: 'Los Angeles' });
                   setMobileMenuOpen(false); 
                 }}>
                   <MapPin className="h-4 w-4 mr-2" />
@@ -150,6 +154,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { 
                   onLocationSelect({ name: 'Miami-Dade County', center: [-80.1918, 25.7617], zoom: 10, polygon: [[[-80.4, 25.5], [-80.0, 25.5], [-80.0, 26.0], [-80.4, 26.0], [-80.4, 25.5]]] }); 
+                  logActivity('location_selected', { location: 'Miami-Dade' });
                   setMobileMenuOpen(false); 
                 }}>
                   <MapPin className="h-4 w-4 mr-2" />
@@ -157,6 +162,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { 
                   onLocationSelect({ name: 'New York City', center: [-74.0060, 40.7128], zoom: 11, polygon: [[[-74.2, 40.5], [-73.8, 40.5], [-73.8, 40.9], [-74.2, 40.9], [-74.2, 40.5]]] }); 
+                  logActivity('location_selected', { location: 'New York City' });
                   setMobileMenuOpen(false); 
                 }}>
                   <MapPin className="h-4 w-4 mr-2" />
@@ -186,15 +192,15 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
-            <DropdownMenuItem onClick={() => onDrawTool('polygon')} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+            <DropdownMenuItem onClick={() => { onDrawTool('polygon'); logActivity('draw_tool_selected', { tool: 'polygon' }); }} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <Square className="h-4 w-4" />
               Polygon
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDrawTool('circle')} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+            <DropdownMenuItem onClick={() => { onDrawTool('circle'); logActivity('draw_tool_selected', { tool: 'circle' }); }} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <Circle className="h-4 w-4" />
               Circle
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDrawTool('radius')} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+            <DropdownMenuItem onClick={() => { onDrawTool('radius'); logActivity('draw_tool_selected', { tool: 'radius' }); }} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <MapPin className="h-4 w-4" />
               Radius
             </DropdownMenuItem>
@@ -231,7 +237,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         </DropdownMenu>
 
         {/* Select Area */}
-        <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${currentMode === 'select' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`} onClick={onSelectArea}>
+        <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${currentMode === 'select' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`} onClick={() => { onSelectArea(); logActivity('select_area_activated'); }}>
           <MapPin className="h-4 w-4" />
           <span className="text-sm">Select Area</span>
         </Button>
@@ -269,28 +275,28 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 bg-white border border-gray-200 shadow-lg z-50">
             <DropdownMenuItem 
-              onClick={() => onLocationSelect({ name: 'San Francisco Bay Area', center: [-122.4194, 37.7749], zoom: 10, polygon: [[[-122.5, 37.6], [-122.3, 37.6], [-122.3, 37.9], [-122.5, 37.9], [-122.5, 37.6]]] })}
+              onClick={() => { onLocationSelect({ name: 'San Francisco Bay Area', center: [-122.4194, 37.7749], zoom: 10, polygon: [[[-122.5, 37.6], [-122.3, 37.6], [-122.3, 37.9], [-122.5, 37.9], [-122.5, 37.6]]] }); logActivity('location_selected', { location: 'San Francisco' }); }}
               className="flex items-center gap-2 hover:bg-gray-100 text-black"
             >
               <MapPin className="h-4 w-4" />
               San Francisco Bay Area
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => onLocationSelect({ name: 'Los Angeles', center: [-118.2437, 34.0522], zoom: 10, polygon: [[[-118.4, 33.9], [-118.1, 33.9], [-118.1, 34.2], [-118.4, 34.2], [-118.4, 33.9]]] })}
+              onClick={() => { onLocationSelect({ name: 'Los Angeles', center: [-118.2437, 34.0522], zoom: 10, polygon: [[[-118.4, 33.9], [-118.1, 33.9], [-118.1, 34.2], [-118.4, 34.2], [-118.4, 33.9]]] }); logActivity('location_selected', { location: 'Los Angeles' }); }}
               className="flex items-center gap-2 hover:bg-gray-100 text-black"
             >
               <MapPin className="h-4 w-4" />
               Los Angeles
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => onLocationSelect({ name: 'Miami-Dade County', center: [-80.1918, 25.7617], zoom: 10, polygon: [[[-80.4, 25.5], [-80.0, 25.5], [-80.0, 26.0], [-80.4, 26.0], [-80.4, 25.5]]] })}
+              onClick={() => { onLocationSelect({ name: 'Miami-Dade County', center: [-80.1918, 25.7617], zoom: 10, polygon: [[[-80.4, 25.5], [-80.0, 25.5], [-80.0, 26.0], [-80.4, 26.0], [-80.4, 25.5]]] }); logActivity('location_selected', { location: 'Miami-Dade' }); }}
               className="flex items-center gap-2 hover:bg-gray-100 text-black"
             >
               <MapPin className="h-4 w-4" />
               Miami-Dade County
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => onLocationSelect({ name: 'New York City', center: [-74.0060, 40.7128], zoom: 11, polygon: [[[-74.2, 40.5], [-73.8, 40.5], [-73.8, 40.9], [-74.2, 40.9], [-74.2, 40.5]]] })}
+              onClick={() => { onLocationSelect({ name: 'New York City', center: [-74.0060, 40.7128], zoom: 11, polygon: [[[-74.2, 40.5], [-73.8, 40.5], [-73.8, 40.9], [-74.2, 40.9], [-74.2, 40.5]]] }); logActivity('location_selected', { location: 'New York City' }); }}
               className="flex items-center gap-2 hover:bg-gray-100 text-black"
             >
               <MapPin className="h-4 w-4" />
