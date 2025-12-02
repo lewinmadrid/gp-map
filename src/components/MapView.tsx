@@ -65,6 +65,14 @@ const MapView = () => {
     selectedPolygonsRef.current = selectedPolygons;
   }, [selectedPolygons]);
 
+  // Reset sidebar expanded state when switching to EVAC mode
+  // This ensures the map offset matches the sidebar's initial collapsed state
+  useEffect(() => {
+    if (currentMode === 'evac') {
+      setSidebarExpanded(false);
+    }
+  }, [currentMode]);
+
   // Handle shapefile upload
   const handleShapeFileUpload = async (file: File) => {
     if (!map.current) return;
