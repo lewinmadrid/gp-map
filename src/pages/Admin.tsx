@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Trash2, UserPlus, BarChart3 } from "lucide-react";
+import { ArrowLeft, Trash2, UserPlus, BarChart3, RefreshCw } from "lucide-react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { AdminDashboard } from "@/components/AdminDashboard";
 
@@ -30,6 +30,7 @@ const Admin = () => {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("user");
   const [inviting, setInviting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     checkAdminStatus();
@@ -94,6 +95,16 @@ const Admin = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadUsers();
+    setRefreshing(false);
+    toast({
+      title: "Refreshed",
+      description: "User list updated",
+    });
   };
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -280,8 +291,21 @@ const Admin = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>Manage all users in the system</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>User Management</CardTitle>
+                    <CardDescription>Manage all users in the system</CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <Table>
