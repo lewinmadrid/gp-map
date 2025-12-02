@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Trash2, UserPlus } from "lucide-react";
+import { ArrowLeft, Trash2, UserPlus, BarChart3 } from "lucide-react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { AdminDashboard } from "@/components/AdminDashboard";
 
 interface User {
   id: string;
@@ -221,7 +223,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Map
@@ -229,93 +231,109 @@ const Admin = () => {
 
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
 
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Invite New User</CardTitle>
-            <CardDescription>
-              Send an invitation email to a new user. They will be redirected to{' '}
-              <code className="text-xs bg-muted px-1 py-0.5 rounded">{window.location.origin}/set-password</code>
-              {' '}to set their password.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleInvite} className="flex gap-4">
-              <Input
-                type="email"
-                placeholder="user@example.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                required
-                className="flex-1"
-              />
-              <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button type="submit" disabled={inviting}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                {inviting ? "Inviting..." : "Invite"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="users" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>User Management</CardTitle>
-            <CardDescription>Manage all users in the system</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Select
-                        value={user.role}
-                        onValueChange={(value) => handleRoleChange(user.id, value)}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(user.id, user.email || "")}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+          <TabsContent value="users" className="space-y-8 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Invite New User</CardTitle>
+                <CardDescription>
+                  Send an invitation email to a new user. They will be redirected to{' '}
+                  <code className="text-xs bg-muted px-1 py-0.5 rounded">{window.location.origin}/set-password</code>
+                  {' '}to set their password.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleInvite} className="flex gap-4">
+                  <Input
+                    type="email"
+                    placeholder="user@example.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    required
+                    className="flex-1"
+                  />
+                  <Select value={inviteRole} onValueChange={setInviteRole}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button type="submit" disabled={inviting}>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    {inviting ? "Inviting..." : "Invite"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>Manage all users in the system</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <Select
+                            value={user.role}
+                            onValueChange={(value) => handleRoleChange(user.id, value)}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="user">User</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(user.id, user.email || "")}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="mt-6">
+            <AdminDashboard />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
