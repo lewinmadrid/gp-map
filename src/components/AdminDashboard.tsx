@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Activity, Clock, Users, TrendingUp } from "lucide-react";
+import { Activity, Clock, Users, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface SessionStats {
   totalSessions: number;
@@ -45,10 +46,17 @@ export const AdminDashboard = () => {
   });
   const [featureUsage, setFeatureUsage] = useState<FeatureUsage[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityLog[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  useEffect(() => {
+    loadRecentActivity();
+  }, [currentPage]);
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -140,6 +148,17 @@ export const AdminDashboard = () => {
 
   const loadRecentActivity = async () => {
     try {
+      // Get total count for pagination
+      const { count } = await supabase
+        .from("user_activity_logs")
+        .select("*", { count: "exact", head: true });
+
+      if (count) {
+        setTotalPages(Math.ceil(count / itemsPerPage));
+      }
+
+      // Fetch paginated data
+      const offset = (currentPage - 1) * itemsPerPage;
       const { data } = await supabase
         .from("user_activity_logs")
         .select(`
@@ -150,7 +169,7 @@ export const AdminDashboard = () => {
           user_id
         `)
         .order("created_at", { ascending: false })
-        .limit(20);
+        .range(offset, offset + itemsPerPage - 1);
 
       if (data) {
         // Fetch user emails
@@ -323,7 +342,9 @@ export const AdminDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest 20 user actions</CardDescription>
+          <CardDescription>
+            Page {currentPage} of {totalPages} ({itemsPerPage} items per page)
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -352,6 +373,29 @@ export const AdminDashboard = () => {
               ))}
             </TableBody>
           </Table>
+          <div className="flex items-center justify-between mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
