@@ -24,12 +24,15 @@ export default function Auth() {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth state change event:', event, 'Session:', session?.user?.email);
+      
       if (session && event === 'SIGNED_IN') {
+        console.log('🔐 User signed in, creating session...');
         // Create session record when user signs in
-        setTimeout(() => {
-          createSession();
+        setTimeout(async () => {
+          await createSession();
+          navigate('/');
         }, 0);
-        navigate('/');
       } else if (session) {
         navigate('/');
       }
