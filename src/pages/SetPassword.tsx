@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { createSession } from '@/hooks/useActivityLogger';
 
 const passwordSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters" }).max(72)
@@ -58,6 +59,8 @@ export default function SetPassword() {
         toast.error(error.message);
       } else {
         toast.success('Password set successfully! Redirecting...');
+        // Create session for the newly registered user
+        await createSession();
         setTimeout(() => navigate('/'), 1500);
       }
     } catch (error) {
