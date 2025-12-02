@@ -24,7 +24,13 @@ export default function Auth() {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (session && event === 'SIGNED_IN') {
+        // Create session record when user signs in
+        setTimeout(() => {
+          createSession();
+        }, 0);
+        navigate('/');
+      } else if (session) {
         navigate('/');
       }
     });
@@ -61,8 +67,7 @@ export default function Auth() {
         }
       } else {
         toast.success('Logged in successfully');
-        // Create session record
-        await createSession();
+        // Session creation is handled by onAuthStateChange
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
