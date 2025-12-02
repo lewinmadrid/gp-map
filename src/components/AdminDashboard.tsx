@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Activity, Clock, Users, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -48,11 +49,19 @@ export const AdminDashboard = () => {
   const [recentActivity, setRecentActivity] = useState<ActivityLog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedUser, setSelectedUser] = useState<string>("all");
+  const [availableUsers, setAvailableUsers] = useState<Array<{ id: string; email: string }>>([]);
   const itemsPerPage = 10;
 
   useEffect(() => {
     loadDashboardData();
+    loadAvailableUsers();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when filter changes
+    loadRecentActivity();
+  }, [selectedUser]);
 
   useEffect(() => {
     loadRecentActivity();
@@ -146,20 +155,42 @@ export const AdminDashboard = () => {
     }
   };
 
+  const loadAvailableUsers = async () => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, email")
+        .order("email");
+
+      if (data) {
+        setAvailableUsers(data);
+      }
+    } catch (error) {
+      console.error("Error loading users:", error);
+    }
+  };
+
   const loadRecentActivity = async () => {
     try {
-      // Get total count for pagination
-      const { count } = await supabase
+      // Build query with optional user filter
+      let query = supabase
         .from("user_activity_logs")
         .select("*", { count: "exact", head: true });
+
+      if (selectedUser !== "all") {
+        query = query.eq("user_id", selectedUser);
+      }
+
+      // Get total count for pagination
+      const { count } = await query;
 
       if (count) {
         setTotalPages(Math.ceil(count / itemsPerPage));
       }
 
-      // Fetch paginated data
+      // Fetch paginated data with filter
       const offset = (currentPage - 1) * itemsPerPage;
-      const { data } = await supabase
+      let dataQuery = supabase
         .from("user_activity_logs")
         .select(`
           id,
@@ -170,6 +201,12 @@ export const AdminDashboard = () => {
         `)
         .order("created_at", { ascending: false })
         .range(offset, offset + itemsPerPage - 1);
+
+      if (selectedUser !== "all") {
+        dataQuery = dataQuery.eq("user_id", selectedUser);
+      }
+
+      const { data } = await dataQuery;
 
       if (data) {
         // Fetch user emails
@@ -341,10 +378,30 @@ export const AdminDashboard = () => {
       {/* Recent Activity Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>
-            Page {currentPage} of {totalPages} ({itemsPerPage} items per page)
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>
+                Page {currentPage} of {totalPages} ({itemsPerPage} items per page)
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Filter by user:</span>
+              <Select value={selectedUser} onValueChange={setSelectedUser}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="All users" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="all">All users</SelectItem>
+                  {availableUsers.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
