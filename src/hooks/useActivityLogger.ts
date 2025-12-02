@@ -36,10 +36,15 @@ export const useActivityLogger = () => {
 
 export const createSession = async () => {
   try {
+    console.log('📝 createSession: Starting session creation...');
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) return null;
+    if (!user) {
+      console.warn('📝 createSession: No authenticated user found');
+      return null;
+    }
 
+    console.log('📝 createSession: Creating session for user:', user.id);
     const userAgent = navigator.userAgent;
     
     const { data, error } = await supabase
@@ -52,10 +57,12 @@ export const createSession = async () => {
       .single();
 
     if (error) {
-      console.error('Error creating session:', error);
+      console.error('📝 createSession: Error creating session:', error);
       return null;
     }
 
+    console.log('📝 createSession: Session created successfully:', data.id);
+    
     // Store session ID in localStorage for logout tracking
     if (data) {
       localStorage.setItem('current_session_id', data.id);
@@ -63,7 +70,7 @@ export const createSession = async () => {
 
     return data;
   } catch (error) {
-    console.error('Error in createSession:', error);
+    console.error('📝 createSession: Error in createSession:', error);
     return null;
   }
 };
