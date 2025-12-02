@@ -17,6 +17,7 @@ interface User {
   email: string;
   created_at: string;
   role: string;
+  last_access: string | null;
 }
 
 const Admin = () => {
@@ -289,6 +290,7 @@ const Admin = () => {
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead>Created</TableHead>
+                      <TableHead>Last Access</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -312,6 +314,11 @@ const Admin = () => {
                         </TableCell>
                         <TableCell>
                           {new Date(user.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {user.last_access 
+                            ? new Date(user.last_access).toLocaleString()
+                            : 'Never'}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
