@@ -128,7 +128,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
                 <div className="text-sm font-medium mb-4 mt-6">Tools</div>
                 <Button variant="ghost" className="w-full justify-start" onClick={handleUploadClick}>
                   <Upload className="h-4 w-4 mr-2" />
-                  Upload Shape File
+                  Upload Shape
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" onClick={() => { onSnapshot(); setMobileMenuOpen(false); }}>
                   <Camera className="h-4 w-4 mr-2" />
@@ -254,7 +254,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
           <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
             <DropdownMenuItem onClick={handleUploadClick} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <Upload className="h-4 w-4" />
-              Upload Shape File
+              Upload Shape
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onSnapshot} className="flex items-center gap-2 hover:bg-gray-100 text-black">
               <Camera className="h-4 w-4" />
