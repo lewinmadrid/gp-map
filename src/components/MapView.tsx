@@ -2126,7 +2126,7 @@ const MapView = () => {
 
       {/* Save Dialog */}
       <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" hideOverlay>
           <DialogHeader>
             <DialogTitle>Save</DialogTitle>
             <DialogDescription>
