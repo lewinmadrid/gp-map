@@ -54,6 +54,7 @@ const MapView = () => {
   const [currentMode, setCurrentMode] = useState<'alert' | 'evac'>('evac');
   const [drawingHistory, setDrawingHistory] = useState<any[]>([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const {
     toast
   } = useToast();
@@ -2115,7 +2116,7 @@ const MapView = () => {
       {/* Alert Mode Cancel/Save Buttons */}
       {currentMode === 'alert' && (
         <div className="absolute bottom-4 right-4 z-30 flex gap-2">
-          <Button variant="outline" size="sm" className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600">
+          <Button variant="outline" size="sm" className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600" onClick={() => setCancelDialogOpen(true)}>
             Cancel
           </Button>
           <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setSaveDialogOpen(true)}>
@@ -2123,6 +2124,23 @@ const MapView = () => {
           </Button>
         </div>
       )}
+
+      {/* Cancel Dialog */}
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent className="sm:max-w-md" hideOverlay>
+          <DialogHeader>
+            <DialogTitle>Cancel</DialogTitle>
+            <DialogDescription>
+              This button will cancel the polygon edits and close the map window
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Save Dialog */}
       <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
