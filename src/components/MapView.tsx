@@ -2130,7 +2130,7 @@ const MapView = () => {
           <DialogHeader>
             <DialogTitle>Save</DialogTitle>
             <DialogDescription>
-              This button will save the polygon and update the Alert targets
+              This button will save the polygon, update the Alert targets and close the map window
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
