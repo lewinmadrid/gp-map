@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import LayersPanel from './LayersPanel';
 import BasemapToggle from './BasemapToggle';
@@ -52,6 +53,7 @@ const MapView = () => {
   const [selectedPolygons, setSelectedPolygons] = useState<any[]>([]);
   const [currentMode, setCurrentMode] = useState<'alert' | 'evac'>('evac');
   const [drawingHistory, setDrawingHistory] = useState<any[]>([]);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const {
     toast
   } = useToast();
@@ -2116,11 +2118,28 @@ const MapView = () => {
           <Button variant="outline" size="sm" className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600">
             Cancel
           </Button>
-          <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setSaveDialogOpen(true)}>
             Save
           </Button>
         </div>
       )}
+
+      {/* Save Dialog */}
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save</DialogTitle>
+            <DialogDescription>
+              This button will save the polygon and update the Alert targets
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Popups */}
       <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} isMobile={isMobile} />
