@@ -72,19 +72,26 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case 'invite': {
-        // Get the app URL from referer header which includes the full URL
+        // Use SITE_URL secret for production, fallback to referer for development
+        const siteUrl = Deno.env.get('SITE_URL');
         const referer = req.headers.get('referer');
-        console.log('Invite - full referer:', referer);
+        console.log('Invite - SITE_URL:', siteUrl, 'referer:', referer);
         
-        // Extract base URL from referer (e.g., https://xxx.lovableproject.com/admin -> https://xxx.lovableproject.com)
-        let baseUrl = 'https://5c98291b-71e3-426d-8d4c-7f43a1b26fc1.lovableproject.com';
-        if (referer) {
+        let baseUrl: string;
+        if (siteUrl) {
+          // Use configured production URL
+          baseUrl = siteUrl.replace(/\/$/, ''); // Remove trailing slash if present
+        } else if (referer) {
+          // Fallback to referer for development
           try {
             const url = new URL(referer);
             baseUrl = `${url.protocol}//${url.host}`;
           } catch (e) {
             console.error('Failed to parse referer URL:', e);
+            baseUrl = 'https://lwkcovcbhdotptzphevc.lovable.app';
           }
+        } else {
+          baseUrl = 'https://lwkcovcbhdotptzphevc.lovable.app';
         }
         
         const redirectUrl = `${baseUrl}/set-password`;
