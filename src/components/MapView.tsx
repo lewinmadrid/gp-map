@@ -1629,7 +1629,8 @@ const MapView = () => {
     if (!map.current || !feature) return;
 
     // Create unique layer IDs based on feature properties, not just index
-    const featureId = feature.properties?.id || feature.properties?.zone_id || `feature-${Date.now()}-${index}`;
+    // Support multiple layer types: Genasys Zones (id, zone_id), Public Parks (FID)
+    const featureId = feature.properties?.id || feature.properties?.zone_id || feature.properties?.FID || `feature-${Date.now()}-${index}`;
     const layerId = `selected-area-${featureId}`;
     const sourceId = `selected-source-${featureId}`;
 
@@ -1680,7 +1681,8 @@ const MapView = () => {
   // Clear single feature highlight (for deselection)
   const clearSingleFeatureHighlight = (feature: any) => {
     if (!map.current) return;
-    const featureId = feature.properties?.id || feature.properties?.zone_id || `feature-${Date.now()}`;
+    // Support multiple layer types: Genasys Zones (id, zone_id), Public Parks (FID)
+    const featureId = feature.properties?.id || feature.properties?.zone_id || feature.properties?.FID || `feature-unknown`;
     const layerId = `selected-area-${featureId}`;
     const sourceId = `selected-source-${featureId}`;
     if (map.current?.getLayer(`${layerId}-highlight`)) {
