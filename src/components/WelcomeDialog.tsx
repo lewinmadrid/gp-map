@@ -20,8 +20,9 @@ const WelcomeDialog = () => {
       <DialogContent className="sm:max-w-md" hideOverlay>
         <DialogHeader>
           <DialogTitle>Prototype Overview</DialogTitle>
-          <DialogDescription className="text-base pt-2">
-            This prototype creates a common mapping component for EVAC and ALERT. The EVAC functionality doesn't change, while the ALERT functions move to a set of menus and buttons that appear over the map at the top of the map window.
+          <DialogDescription className="text-base pt-2 space-y-3">
+            <p>This prototype creates a common mapping component for EVAC and ALERT. The EVAC functionality doesn't change, while the ALERT functions move to a set of menus and buttons that appear over the map at the top of the map window.</p>
+            <p>Please Note: The fonts, icons and map symbology will differ in the production version.</p>
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end pt-4">
