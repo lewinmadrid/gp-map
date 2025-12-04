@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronUp, ChevronDown, Copy, ZoomIn, Table } from 'lucide-react';
+import { X, ChevronUp, ChevronDown, Copy, ZoomIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AttributePanelProps {
@@ -84,11 +84,7 @@ const AttributePanel: React.FC<AttributePanelProps> = ({
       {!isMinimized && (
         <>
           {/* Toolbar */}
-          <div className="flex items-center gap-3 px-3 py-1.5 border-b border-gray-200 bg-gray-50">
-            <button className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900">
-              <Table className="h-3 w-3" />
-              <span>Table</span>
-            </button>
+          <div className="flex items-center px-3 py-1.5 border-b border-gray-200 bg-gray-50">
             <button 
               className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
               onClick={onZoomTo}
