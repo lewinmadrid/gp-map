@@ -34,12 +34,12 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
                   onPressedChange={(pressed) => onModeChange(pressed ? 'evac' : 'alert')}
                   variant="outline"
                   size="sm"
-                  className="h-8 w-8"
+                  className="h-10 w-10 p-0"
                 >
                   {mode === 'alert' ? (
-                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTriangle className="h-5 w-5" />
                   ) : (
-                    <img src={evacIcon} alt="EVAC" className="h-6 w-6" />
+                    <img src={evacIcon} alt="EVAC" className="h-10 w-10 rounded" />
                   )}
                 </Toggle>
               </div>
