@@ -368,19 +368,33 @@ const MapView = () => {
 
       // Only allow area selection when in select mode
       if (selectMode && !measurementMode && !drawingMode) {
-        // Handle area selection for evacuation zones
+        // Determine which layer to query based on activeLayer selection
+        const layerToQuery = (() => {
+          switch (activeLayer) {
+            case 'Genasys Zones':
+              return 'evacuation-zones-fill';
+            case 'Public Parks':
+              return 'public-parks-fill';
+            case 'Custom Zone Areas':
+              return 'evacuation-zones-fill'; // fallback
+            default:
+              return 'evacuation-zones-fill';
+          }
+        })();
+
+        // Handle area selection for the active layer
         const features = map.current.queryRenderedFeatures(e.point, {
-          layers: ['evacuation-zones-fill']
+          layers: [layerToQuery]
         });
 
         // Also check for drawn polygons and uploaded polygons
         const allFeatures = map.current.queryRenderedFeatures(e.point);
         const drawnPolygons = allFeatures.filter(f => f.source && (f.source.includes('drawn-polygon') || f.source.includes('uploaded-polygon') || f.layer && (f.layer.id.includes('drawn-polygon') || f.layer.id.includes('uploaded-polygon'))));
 
-        // Handle evacuation zone selection
+        // Handle feature selection from active layer
         if (features && features.length > 0) {
           const feature = features[0];
-          console.log('🎯 Evacuation zone selected:', feature.properties);
+          console.log(`🎯 ${activeLayer} feature selected:`, feature.properties);
 
           // Use more specific feature identification to prevent false matches
           const featureIdentifier = feature.properties?.zone_id || feature.properties?.id || feature.properties?.zone_identifier || (feature.geometry && 'coordinates' in feature.geometry ? `${feature.geometry.coordinates?.[0]?.[0]?.[0]}-${feature.geometry.coordinates?.[0]?.[0]?.[1]}` : `feature-${Date.now()}`);
