@@ -1,7 +1,8 @@
 import React from 'react';
 import { Toggle } from '@/components/ui/toggle';
-import { AlertTriangle, Shield } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import evacIcon from '@/assets/evac-icon.svg';
 
 interface ModeToggleProps {
   mode: 'alert' | 'evac';
@@ -38,7 +39,7 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
                   {mode === 'alert' ? (
                     <AlertTriangle className="h-4 w-4" />
                   ) : (
-                    <Shield className="h-4 w-4" />
+                    <img src={evacIcon} alt="EVAC" className="h-4 w-4" />
                   )}
                 </Toggle>
               </div>
