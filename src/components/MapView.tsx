@@ -1420,26 +1420,16 @@ const MapView = () => {
       // Remove minzoom restriction to force immediate loading
       map.current.setLayoutProperty('evacuation-zone-labels', 'visibility', 'visible');
 
-      // Force map to request labels tiles immediately
+      // Query source to verify labels are loading (without changing zoom)
       setTimeout(() => {
         if (map.current) {
-          const zoom = map.current.getZoom();
-          console.log('🏷️ Current zoom level:', zoom);
-          console.log('🏷️ Forcing zoom to 10 to trigger label tile requests...');
-          map.current.setZoom(10);
-
-          // Also try to query the source directly to force loading
-          setTimeout(() => {
-            if (map.current) {
-              try {
-                console.log('🏷️ Attempting to query labels source features...');
-                const features = map.current.querySourceFeatures('vector-labels');
-                console.log('🏷️ Queried labels features result:', features);
-              } catch (e) {
-                console.log('🏷️ Error querying labels features:', e);
-              }
-            }
-          }, 1000);
+          try {
+            console.log('🏷️ Attempting to query labels source features...');
+            const features = map.current.querySourceFeatures('vector-labels');
+            console.log('🏷️ Queried labels features result:', features);
+          } catch (e) {
+            console.log('🏷️ Error querying labels features:', e);
+          }
         }
       }, 1000);
 
