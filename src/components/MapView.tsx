@@ -447,8 +447,8 @@ const MapView = () => {
             return newSelectedFeatures;
           });
           
-          // Show attribute panel for the selected feature
-          setAttributePanelFeature({ ...feature, _layerName: activeLayer });
+          // Show attribute panel for the selected feature (use Object.assign to preserve prototype methods)
+          setAttributePanelFeature(Object.assign(feature, { _layerName: activeLayer }));
           return;
         }
 
