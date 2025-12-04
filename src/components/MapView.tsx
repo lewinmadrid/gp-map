@@ -654,7 +654,7 @@ const MapView = () => {
         map.current.off('click', handleMapClick);
       }
     };
-  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, selectMode, excludeMode, toast]);
+  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, selectMode, excludeMode, activeLayer, toast]);
 
   // Show exclude tooltip only on initial page load
   useEffect(() => {
