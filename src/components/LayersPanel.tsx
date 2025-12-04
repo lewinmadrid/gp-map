@@ -17,10 +17,12 @@ interface LayersPanelProps {
   onClose: () => void;
   onToggleZoneLayer: (visible: boolean) => void;
   zoneLayerVisible: boolean;
+  onToggleParksLayer: (visible: boolean) => void;
+  parksLayerVisible: boolean;
   isMobile?: boolean;
 }
 
-const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose, onToggleZoneLayer, zoneLayerVisible, isMobile = false }) => {
+const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose, onToggleZoneLayer, zoneLayerVisible, onToggleParksLayer, parksLayerVisible, isMobile = false }) => {
   const [trafficExpanded, setTrafficExpanded] = React.useState(false);
   const [evacuationExpanded, setEvacuationExpanded] = React.useState(true);
   const [fireExpanded, setFireExpanded] = React.useState(true);
@@ -165,6 +167,29 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose, onToggleZone
               </div>
               <MoreHorizontal className="h-4 w-4 text-gray-500" />
             </div>
+            
+            {customExpanded && (
+              <div className="px-3 pb-3 space-y-2">
+                <div className="flex items-center justify-between p-2 rounded border-l-4 border-l-green-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                    </div>
+                    <span className="text-sm text-black">Public Parks</span>
+                  </div>
+                  <button 
+                    onClick={() => onToggleParksLayer(!parksLayerVisible)}
+                    className="hover:bg-gray-100 rounded p-1"
+                  >
+                    {parksLayerVisible ? (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
