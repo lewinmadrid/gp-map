@@ -181,7 +181,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
   // Desktop full toolbar
   return (
     <TooltipProvider>
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-2">
+      <div className="absolute top-4 left-4 z-50 flex gap-2">
         {/* Draw Tool Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
