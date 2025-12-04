@@ -21,7 +21,7 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
   return (
     <div className={`fixed bottom-4 z-50 transition-all duration-300 ${getLeftPosition()}`}>
       <TooltipProvider>
-        <Tooltip>
+        <Tooltip defaultOpen>
           <TooltipTrigger asChild>
             <div className="bg-background border border-border rounded-lg shadow-lg p-2">
               <div className="flex items-center gap-2">
