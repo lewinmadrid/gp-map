@@ -42,41 +42,41 @@ const AttributePanel: React.FC<AttributePanelProps> = ({
   };
 
   return (
-    <div className="absolute top-20 right-4 z-30 bg-white shadow-xl border border-gray-300 min-w-[380px] max-w-[450px]">
+    <div className="absolute top-20 right-4 z-30 bg-white shadow-lg border border-gray-300 min-w-[280px] max-w-[320px]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
-        <h3 className="font-medium text-gray-900 text-base">{layerName.replace(/_/g, '_')}</h3>
-        <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-white">
+        <h3 className="font-medium text-gray-900 text-xs">{layerName.replace(/_/g, '_')}</h3>
+        <div className="flex items-center gap-0.5">
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 hover:bg-gray-100"
+            className="h-6 w-6 p-0 hover:bg-gray-100"
             onClick={handleCopy}
             title="Copy attributes"
           >
-            <Copy className="h-4 w-4 text-gray-500" />
+            <Copy className="h-3 w-3 text-gray-500" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 hover:bg-gray-100"
+            className="h-6 w-6 p-0 hover:bg-gray-100"
             onClick={() => setIsMinimized(!isMinimized)}
             title={isMinimized ? "Expand" : "Minimize"}
           >
             {isMinimized ? (
-              <ChevronDown className="h-4 w-4 text-gray-500" />
+              <ChevronDown className="h-3 w-3 text-gray-500" />
             ) : (
-              <ChevronUp className="h-4 w-4 text-gray-500" />
+              <ChevronUp className="h-3 w-3 text-gray-500" />
             )}
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 hover:bg-gray-100"
+            className="h-6 w-6 p-0 hover:bg-gray-100"
             onClick={onClose}
             title="Close"
           >
-            <X className="h-4 w-4 text-gray-500" />
+            <X className="h-3 w-3 text-gray-500" />
           </Button>
         </div>
       </div>
@@ -84,22 +84,22 @@ const AttributePanel: React.FC<AttributePanelProps> = ({
       {!isMinimized && (
         <>
           {/* Toolbar */}
-          <div className="flex items-center gap-4 px-4 py-2 border-b border-gray-200 bg-gray-50">
-            <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
-              <Table className="h-4 w-4" />
+          <div className="flex items-center gap-3 px-3 py-1.5 border-b border-gray-200 bg-gray-50">
+            <button className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900">
+              <Table className="h-3 w-3" />
               <span>Table</span>
             </button>
             <button 
-              className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
               onClick={onZoomTo}
             >
-              <ZoomIn className="h-4 w-4" />
+              <ZoomIn className="h-3 w-3" />
               <span>Zoom to</span>
             </button>
           </div>
 
           {/* Attributes Table */}
-          <div className="max-h-[400px] overflow-y-auto">
+          <div className="max-h-[300px] overflow-y-auto">
             <table className="w-full">
               <tbody>
                 {attributes.map(([key, value], index) => (
@@ -107,10 +107,10 @@ const AttributePanel: React.FC<AttributePanelProps> = ({
                     key={key} 
                     className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
                   >
-                    <td className="px-4 py-2.5 text-sm font-medium text-gray-700 border-r border-gray-200 w-[45%]">
+                    <td className="px-3 py-1.5 text-xs font-medium text-gray-700 border-r border-gray-200 w-[45%]">
                       {key}
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-gray-900">
+                    <td className="px-3 py-1.5 text-xs text-gray-900">
                       {formatValue(value)}
                     </td>
                   </tr>
