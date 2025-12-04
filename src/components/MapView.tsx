@@ -76,6 +76,23 @@ const MapView = () => {
     }
   }, [currentMode]);
 
+  // Preserve map center/zoom when sidebar expands/collapses
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
+    
+    const center = map.current.getCenter();
+    const zoom = map.current.getZoom();
+    
+    // Resize map after layout change
+    setTimeout(() => {
+      if (map.current) {
+        map.current.resize();
+        // Restore the center and zoom after resize
+        map.current.jumpTo({ center, zoom });
+      }
+    }, 50);
+  }, [sidebarExpanded, mapLoaded]);
+
   // Handle shapefile upload
   const handleShapeFileUpload = async (file: File) => {
     if (!map.current) return;
