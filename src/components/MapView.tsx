@@ -56,6 +56,8 @@ const MapView = () => {
   const [drawingHistory, setDrawingHistory] = useState<any[]>([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const hasShownExcludeTooltipRef = useRef(false);
+  const [showExcludeTooltip, setShowExcludeTooltip] = useState(false);
   const {
     toast
   } = useToast();
@@ -638,6 +640,19 @@ const MapView = () => {
       }
     };
   }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, selectMode, excludeMode, toast]);
+
+  // Show exclude tooltip only on initial page load
+  useEffect(() => {
+    if (!hasShownExcludeTooltipRef.current && currentMode === 'evac') {
+      hasShownExcludeTooltipRef.current = true;
+      setShowExcludeTooltip(true);
+      // Auto-hide after 5 seconds
+      const timer = setTimeout(() => {
+        setShowExcludeTooltip(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Handle exclude area functionality
   const handleExcludeArea = () => {
@@ -1966,7 +1981,7 @@ const MapView = () => {
     {/* Action Buttons Row - In line with Active Layer */}
     {currentMode === 'evac' && !isMobile && (
       <TooltipProvider>
-        <Tooltip defaultOpen>
+        <Tooltip open={showExcludeTooltip} onOpenChange={setShowExcludeTooltip}>
           <TooltipTrigger asChild>
             <div className="absolute top-[18px] right-64 z-40 flex gap-2">
               {/* Exclude Area Button */}
