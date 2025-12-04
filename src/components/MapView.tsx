@@ -1554,6 +1554,48 @@ const MapView = () => {
         }
       });
       console.log('✅ Vector evacuation zones added successfully via Supabase proxy');
+      
+      // Add ArcGIS Public Parks Feature Layer
+      try {
+        console.log('🌳 Adding Public Parks feature layer...');
+        const parksResponse = await fetch(
+          'https://services2.arcgis.com/9Dr0YQ6qqPzosKvr/arcgis/rest/services/Public_Parks/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson'
+        );
+        const parksData = await parksResponse.json();
+        console.log('🌳 Parks data loaded:', parksData.features?.length, 'features');
+        
+        map.current.addSource('public-parks', {
+          type: 'geojson',
+          data: parksData
+        });
+        
+        // Add fill layer for parks
+        map.current.addLayer({
+          id: 'public-parks-fill',
+          type: 'fill',
+          source: 'public-parks',
+          paint: {
+            'fill-color': '#228B22',
+            'fill-opacity': 0.4
+          }
+        });
+        
+        // Add outline layer for parks
+        map.current.addLayer({
+          id: 'public-parks-outline',
+          type: 'line',
+          source: 'public-parks',
+          paint: {
+            'line-color': '#006400',
+            'line-width': 2
+          }
+        });
+        
+        console.log('✅ Public Parks layer added successfully');
+      } catch (parksError) {
+        console.error('❌ Error adding Public Parks layer:', parksError);
+      }
+      
       setLayerStatus('success');
       setVectorLayerVisible(true);
     } catch (error) {
