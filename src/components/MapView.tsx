@@ -32,6 +32,7 @@ const MapView = () => {
   const [activeLayer, setActiveLayer] = useState('Genasys Zones');
   const [layersPanelOpen, setLayersPanelOpen] = useState(false);
   const [zoneLayerVisible, setZoneLayerVisible] = useState(true);
+  const [parksLayerVisible, setParksLayerVisible] = useState(true);
   const [basemapToggleOpen, setBasemapToggleOpen] = useState(false);
   const [toolsPopupOpen, setToolsPopupOpen] = useState(false);
   const [measurementMode, setMeasurementMode] = useState(false);
@@ -1904,6 +1905,22 @@ const MapView = () => {
       description: `Genasys zones are now ${visible ? 'visible' : 'hidden'} on the map`
     });
   };
+
+  // Toggle parks layer visibility
+  const toggleParksLayerVisibility = (visible: boolean) => {
+    if (!map.current) return;
+    
+    const layersToToggle = ['public-parks-fill', 'public-parks-outline'];
+    
+    layersToToggle.forEach(layerId => {
+      const layer = map.current.getLayer(layerId);
+      if (layer) {
+        map.current.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
+      }
+    });
+    
+    setParksLayerVisible(visible);
+  };
   return <div className="relative w-full h-screen bg-background overflow-hidden">
       {/* Loading State */}
       {!mapLoaded && (
@@ -2240,7 +2257,7 @@ const MapView = () => {
       </Dialog>
 
       {/* Popups */}
-      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} isMobile={isMobile} />
+      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} onToggleParksLayer={toggleParksLayerVisibility} parksLayerVisible={parksLayerVisible} isMobile={isMobile} />
       <BasemapToggle isOpen={basemapToggleOpen} currentBasemap={currentBasemap} onBasemapChange={changeBasemap} onClose={() => setBasemapToggleOpen(false)} isMobile={isMobile} />
       <ToolsPopup isOpen={toolsPopupOpen} onClose={() => setToolsPopupOpen(false)} onMeasure={toggleMeasurement} onGeolocation={triggerGeolocation} onLegend={() => setLegendOpen(true)} measurementMode={measurementMode} isMobile={isMobile} />
       <Legend isOpen={legendOpen} onClose={() => setLegendOpen(false)} />
