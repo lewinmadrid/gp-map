@@ -1537,10 +1537,6 @@ const MapView = () => {
       console.log('✅ Vector evacuation zones added successfully via Supabase proxy');
       setLayerStatus('success');
       setVectorLayerVisible(true);
-      toast({
-        title: "Vector Layer Loaded",
-        description: "Loaded via Supabase Edge Function proxy"
-      });
     } catch (error) {
       console.error('❌ Error adding vector layers:', error);
       setLayerStatus('error');
