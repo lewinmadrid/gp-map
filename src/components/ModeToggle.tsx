@@ -27,7 +27,7 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
             <div className="bg-background border border-border rounded-lg shadow-lg p-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-foreground">
-                  {mode === 'alert' ? 'Alert' : 'EVAC'}
+                  {mode === 'alert' ? 'ALERT' : 'EVAC'}
                 </span>
                 <Toggle
                   pressed={mode === 'evac'}
