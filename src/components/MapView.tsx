@@ -646,13 +646,15 @@ const MapView = () => {
     if (!hasShownExcludeTooltipRef.current && currentMode === 'evac') {
       hasShownExcludeTooltipRef.current = true;
       setShowExcludeTooltip(true);
-      // Auto-hide after 5 seconds
-      const timer = setTimeout(() => {
-        setShowExcludeTooltip(false);
-      }, 5000);
-      return () => clearTimeout(timer);
     }
   }, []);
+
+  // Hide tooltip when mode changes
+  useEffect(() => {
+    if (hasShownExcludeTooltipRef.current) {
+      setShowExcludeTooltip(false);
+    }
+  }, [currentMode]);
 
   // Handle exclude area functionality
   const handleExcludeArea = () => {
