@@ -33,6 +33,7 @@ const MapView = () => {
   const [layersPanelOpen, setLayersPanelOpen] = useState(false);
   const [zoneLayerVisible, setZoneLayerVisible] = useState(true);
   const [parksLayerVisible, setParksLayerVisible] = useState(false);
+  const [waterDistrictLayerVisible, setWaterDistrictLayerVisible] = useState(false);
   const [basemapToggleOpen, setBasemapToggleOpen] = useState(false);
   const [toolsPopupOpen, setToolsPopupOpen] = useState(false);
   const [measurementMode, setMeasurementMode] = useState(false);
@@ -375,6 +376,8 @@ const MapView = () => {
               return 'evacuation-zones-fill';
             case 'Public Parks':
               return 'public-parks-fill';
+            case 'Water District CWA':
+              return 'water-district-fill';
             case 'Custom Zone Areas':
               return 'evacuation-zones-fill'; // fallback
             default:
@@ -1617,6 +1620,53 @@ const MapView = () => {
         console.error('❌ Error adding Public Parks layer:', parksError);
       }
       
+      // Add ArcGIS Water District CWA Feature Layer
+      try {
+        console.log('💧 Adding Water District CWA feature layer...');
+        const waterDistrictResponse = await fetch(
+          'https://services2.arcgis.com/9Dr0YQ6qqPzosKvr/arcgis/rest/services/Water_District_CWA/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson'
+        );
+        const waterDistrictData = await waterDistrictResponse.json();
+        console.log('💧 Water District data loaded:', waterDistrictData.features?.length, 'features');
+        
+        map.current.addSource('water-district', {
+          type: 'geojson',
+          data: waterDistrictData
+        });
+        
+        // Add fill layer for water districts
+        map.current.addLayer({
+          id: 'water-district-fill',
+          type: 'fill',
+          source: 'water-district',
+          layout: {
+            'visibility': 'none'
+          },
+          paint: {
+            'fill-color': '#1E90FF',
+            'fill-opacity': 0.4
+          }
+        });
+        
+        // Add outline layer for water districts
+        map.current.addLayer({
+          id: 'water-district-outline',
+          type: 'line',
+          source: 'water-district',
+          layout: {
+            'visibility': 'none'
+          },
+          paint: {
+            'line-color': '#0000CD',
+            'line-width': 2
+          }
+        });
+        
+        console.log('✅ Water District CWA layer added successfully');
+      } catch (waterDistrictError) {
+        console.error('❌ Error adding Water District CWA layer:', waterDistrictError);
+      }
+      
       setLayerStatus('success');
       setVectorLayerVisible(true);
     } catch (error) {
@@ -1635,8 +1685,8 @@ const MapView = () => {
     if (!map.current || !feature) return;
 
     // Create unique layer IDs based on feature properties, not just index
-    // Support multiple layer types: Genasys Zones (id, zone_id), Public Parks (FID)
-    const featureId = feature.properties?.id || feature.properties?.zone_id || feature.properties?.FID || `feature-${Date.now()}-${index}`;
+    // Support multiple layer types: Genasys Zones (id, zone_id), Public Parks (FID), Water District (OBJECTID)
+    const featureId = feature.properties?.id || feature.properties?.zone_id || feature.properties?.FID || feature.properties?.OBJECTID || `feature-${Date.now()}-${index}`;
     const layerId = `selected-area-${featureId}`;
     const sourceId = `selected-source-${featureId}`;
 
@@ -1687,8 +1737,8 @@ const MapView = () => {
   // Clear single feature highlight (for deselection)
   const clearSingleFeatureHighlight = (feature: any) => {
     if (!map.current) return;
-    // Support multiple layer types: Genasys Zones (id, zone_id), Public Parks (FID)
-    const featureId = feature.properties?.id || feature.properties?.zone_id || feature.properties?.FID || `feature-unknown`;
+    // Support multiple layer types: Genasys Zones (id, zone_id), Public Parks (FID), Water District (OBJECTID)
+    const featureId = feature.properties?.id || feature.properties?.zone_id || feature.properties?.FID || feature.properties?.OBJECTID || `feature-unknown`;
     const layerId = `selected-area-${featureId}`;
     const sourceId = `selected-source-${featureId}`;
     if (map.current?.getLayer(`${layerId}-highlight`)) {
@@ -1943,6 +1993,22 @@ const MapView = () => {
     
     setParksLayerVisible(visible);
   };
+
+  // Toggle water district layer visibility
+  const toggleWaterDistrictLayerVisibility = (visible: boolean) => {
+    if (!map.current) return;
+    
+    const layersToToggle = ['water-district-fill', 'water-district-outline'];
+    
+    layersToToggle.forEach(layerId => {
+      const layer = map.current.getLayer(layerId);
+      if (layer) {
+        map.current.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
+      }
+    });
+    
+    setWaterDistrictLayerVisible(visible);
+  };
   return <div className="relative w-full h-screen bg-background overflow-hidden">
       {/* Loading State */}
       {!mapLoaded && (
@@ -2143,7 +2209,7 @@ const MapView = () => {
                 <SelectItem value="Genasys Zones" className="text-xs text-black">Genasys Zones</SelectItem>
                 <SelectItem value="Custom Zone Areas" className="text-xs text-black">Custom Zone Areas</SelectItem>
                 <SelectItem value="Public Parks" className="text-xs text-black">Public Parks</SelectItem>
-                <SelectItem value="Custom Layer 2" className="text-xs text-black">Custom Layer 2</SelectItem>
+                <SelectItem value="Water District CWA" className="text-xs text-black">Water District CWA</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -2279,7 +2345,7 @@ const MapView = () => {
       </Dialog>
 
       {/* Popups */}
-      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} onToggleParksLayer={toggleParksLayerVisibility} parksLayerVisible={parksLayerVisible} isMobile={isMobile} />
+      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} onToggleParksLayer={toggleParksLayerVisibility} parksLayerVisible={parksLayerVisible} onToggleWaterDistrictLayer={toggleWaterDistrictLayerVisibility} waterDistrictLayerVisible={waterDistrictLayerVisible} isMobile={isMobile} />
       <BasemapToggle isOpen={basemapToggleOpen} currentBasemap={currentBasemap} onBasemapChange={changeBasemap} onClose={() => setBasemapToggleOpen(false)} isMobile={isMobile} />
       <ToolsPopup isOpen={toolsPopupOpen} onClose={() => setToolsPopupOpen(false)} onMeasure={toggleMeasurement} onGeolocation={triggerGeolocation} onLegend={() => setLegendOpen(true)} measurementMode={measurementMode} isMobile={isMobile} />
       <Legend isOpen={legendOpen} onClose={() => setLegendOpen(false)} />
