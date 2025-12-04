@@ -39,7 +39,7 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
                   {mode === 'alert' ? (
                     <AlertTriangle className="h-4 w-4" />
                   ) : (
-                    <img src={evacIcon} alt="EVAC" className="h-4 w-4" />
+                    <img src={evacIcon} alt="EVAC" className="h-6 w-6" />
                   )}
                 </Toggle>
               </div>
