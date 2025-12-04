@@ -2205,8 +2205,8 @@ const MapView = () => {
       {/* Active Layer Selector - Top Right Corner */}
       <div className={`absolute top-4 right-4 z-20 ${isMobile ? 'hidden' : ''}`}>
         <Select value={activeLayer} onValueChange={setActiveLayer}>
-          <SelectTrigger className="bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 min-w-[180px] h-auto flex flex-col items-start gap-0 [&>svg]:absolute [&>svg]:right-2 [&>svg]:top-1/2 [&>svg]:-translate-y-1/2">
-            <span className="text-[10px] text-gray-500 font-normal">Active Layer</span>
+          <SelectTrigger className="bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-1 min-w-[180px] h-auto flex flex-col items-start gap-0 [&>svg]:absolute [&>svg]:right-2 [&>svg]:top-1/2 [&>svg]:-translate-y-1/2 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-70">
+            <span className="text-[10px] text-gray-500 font-normal leading-tight">Active Layer</span>
             <div className="flex items-center gap-2 w-full pr-5">
               {activeLayer === 'Genasys Zones' && (
                 <div className="w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
