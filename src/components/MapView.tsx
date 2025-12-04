@@ -649,9 +649,11 @@ const MapView = () => {
     }
   }, []);
 
-  // Hide tooltip when mode changes
+  // Hide tooltip when mode changes (not on initial mount)
+  const prevModeRef = useRef(currentMode);
   useEffect(() => {
-    if (hasShownExcludeTooltipRef.current) {
+    if (prevModeRef.current !== currentMode) {
+      prevModeRef.current = currentMode;
       setShowExcludeTooltip(false);
     }
   }, [currentMode]);
