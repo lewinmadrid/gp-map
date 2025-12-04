@@ -607,7 +607,11 @@ const MapView = () => {
 
       // Add double-click handler for polygon completion
       if (drawingMode === 'polygon') {
-        const handleDoubleClick = () => {
+        // Disable default double-click zoom during polygon drawing
+        map.current.doubleClickZoom.disable();
+        
+        const handleDoubleClick = (e: any) => {
+          e.preventDefault();
           if (isDrawing && drawingPoints.length >= 3) {
             finishPolygon();
           }
@@ -617,6 +621,8 @@ const MapView = () => {
           if (map.current) {
             map.current.off('click', handleMapClick);
             map.current.off('dblclick', handleDoubleClick);
+            // Re-enable double-click zoom when exiting polygon mode
+            map.current.doubleClickZoom.enable();
           }
         };
       }
