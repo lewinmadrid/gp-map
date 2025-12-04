@@ -17,7 +17,7 @@ const WelcomeDialog = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" hideOverlay>
         <DialogHeader>
           <DialogTitle>Prototype Overview</DialogTitle>
           <DialogDescription className="text-base pt-2">
