@@ -105,7 +105,7 @@ const AttributePanel: React.FC<AttributePanelProps> = ({
                 {attributes.map(([key, value], index) => (
                   <tr 
                     key={key} 
-                    className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+                    className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
                   >
                     <td className="px-4 py-2.5 text-sm font-medium text-gray-700 border-r border-gray-200 w-[45%]">
                       {key}
