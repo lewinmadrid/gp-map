@@ -50,7 +50,7 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
             sideOffset={12}
           >
             <p className="text-sm">Click here to switch modes. This button won't appear in the real implementation</p>
-            <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white border-r border-b border-gray-200 rotate-45" />
+            <div className="absolute -bottom-2 left-16 w-4 h-4 bg-white border-r border-b border-gray-200 rotate-45" />
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
