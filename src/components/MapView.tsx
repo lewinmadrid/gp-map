@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
 import LayersPanel from './LayersPanel';
 import BasemapToggle from './BasemapToggle';
@@ -1968,44 +1969,53 @@ const MapView = () => {
 
     {/* Action Buttons Row - In line with Active Layer */}
     {currentMode === 'evac' && !isMobile && (
-      <div className="absolute top-[18px] right-64 z-40 flex gap-2">
-        {/* Exclude Area Button */}
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className={`h-10 px-4 border shadow-sm flex items-center gap-2 ${
-            excludeMode 
-              ? 'bg-gray-200 border-gray-400 text-gray-800' 
-              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-          }`}
-          onClick={handleExcludeArea}
-        >
-          <Scissors className="h-4 w-4" />
-          <span className="text-sm">Exclude Area</span>
-        </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="absolute top-[18px] right-64 z-40 flex gap-2">
+              {/* Exclude Area Button */}
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className={`h-10 px-4 border shadow-sm flex items-center gap-2 ${
+                  excludeMode 
+                    ? 'bg-gray-200 border-gray-400 text-gray-800' 
+                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+                onClick={handleExcludeArea}
+              >
+                <Scissors className="h-4 w-4" />
+                <span className="text-sm">Exclude Area</span>
+              </Button>
 
-        {/* Undo Button */}
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className="h-10 px-4 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-2"
-          onClick={handleUndo}
-        >
-          <Undo className="h-4 w-4" />
-          <span className="text-sm">Undo</span>
-        </Button>
+              {/* Undo Button */}
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="h-10 px-4 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-2"
+                onClick={handleUndo}
+              >
+                <Undo className="h-4 w-4" />
+                <span className="text-sm">Undo</span>
+              </Button>
 
-        {/* Delete Button */}
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className="h-10 px-4 border border-red-300 shadow-sm bg-white hover:bg-red-50 text-red-600 flex items-center gap-2"
-          onClick={handleDeleteAll}
-        >
-          <Trash2 className="h-4 w-4" />
-          <span className="text-sm">Delete</span>
-        </Button>
-      </div>
+              {/* Delete Button */}
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="h-10 px-4 border border-red-300 shadow-sm bg-white hover:bg-red-50 text-red-600 flex items-center gap-2"
+                onClick={handleDeleteAll}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="text-sm">Delete</span>
+              </Button>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-xs">
+            <p>These three buttons only appear in EVAC when digitising an area.</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     )}
 
     {/* Mode Toggle - Bottom Left */}
