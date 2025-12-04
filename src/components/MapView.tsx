@@ -32,7 +32,7 @@ const MapView = () => {
   const [activeLayer, setActiveLayer] = useState('Genasys Zones');
   const [layersPanelOpen, setLayersPanelOpen] = useState(false);
   const [zoneLayerVisible, setZoneLayerVisible] = useState(true);
-  const [parksLayerVisible, setParksLayerVisible] = useState(true);
+  const [parksLayerVisible, setParksLayerVisible] = useState(false);
   const [basemapToggleOpen, setBasemapToggleOpen] = useState(false);
   const [toolsPopupOpen, setToolsPopupOpen] = useState(false);
   const [measurementMode, setMeasurementMode] = useState(false);
@@ -1589,6 +1589,9 @@ const MapView = () => {
           id: 'public-parks-fill',
           type: 'fill',
           source: 'public-parks',
+          layout: {
+            'visibility': 'none'
+          },
           paint: {
             'fill-color': '#228B22',
             'fill-opacity': 0.4
@@ -1600,6 +1603,9 @@ const MapView = () => {
           id: 'public-parks-outline',
           type: 'line',
           source: 'public-parks',
+          layout: {
+            'visibility': 'none'
+          },
           paint: {
             'line-color': '#006400',
             'line-width': 2
