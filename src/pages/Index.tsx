@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import MapView from '@/components/MapView';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import WelcomeDialog from '@/components/WelcomeDialog';
 import { endSession } from '@/hooks/useActivityLogger';
 
 const Index = () => {
@@ -61,6 +62,7 @@ const Index = () => {
 
   return (
     <ErrorBoundary>
+      <WelcomeDialog />
       <main className="w-full h-screen overflow-hidden">
         <MapView />
       </main>
