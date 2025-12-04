@@ -2011,7 +2011,7 @@ const MapView = () => {
               </Button>
             </div>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-xs">
+          <TooltipContent side="bottom" className="max-w-xs bg-black text-white border-black">
             <p>These three buttons only appear in EVAC when digitising an area.</p>
           </TooltipContent>
         </Tooltip>
