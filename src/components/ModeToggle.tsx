@@ -44,8 +44,13 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
               </div>
             </div>
           </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs">
-            <p>Click here to switch modes. This button won't appear in the real implementation</p>
+          <TooltipContent 
+            side="top" 
+            className="max-w-xs bg-white text-gray-700 px-4 py-3 rounded-2xl shadow-lg border border-gray-200 relative"
+            sideOffset={12}
+          >
+            <p className="text-sm">Click here to switch modes. This button won't appear in the real implementation</p>
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-r border-b border-gray-200 rotate-45" />
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
