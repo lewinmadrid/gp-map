@@ -1970,7 +1970,7 @@ const MapView = () => {
     {/* Action Buttons Row - In line with Active Layer */}
     {currentMode === 'evac' && !isMobile && (
       <TooltipProvider>
-        <Tooltip>
+        <Tooltip defaultOpen>
           <TooltipTrigger asChild>
             <div className="absolute top-[18px] right-64 z-40 flex gap-2">
               {/* Exclude Area Button */}
