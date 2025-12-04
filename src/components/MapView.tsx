@@ -14,6 +14,7 @@ import Legend from './Legend';
 import LeftSidebar from './LeftSidebar';
 import TopToolbar from './TopToolbar';
 import ModeToggle from './ModeToggle';
+import AttributePanel from './AttributePanel';
 import * as shp from 'shpjs';
 import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler, Scissors, Undo, Trash2 } from 'lucide-react';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
@@ -58,6 +59,7 @@ const MapView = () => {
   const [drawingHistory, setDrawingHistory] = useState<any[]>([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [attributePanelFeature, setAttributePanelFeature] = useState<any>(null);
   const hasShownExcludeTooltipRef = useRef(false);
   const [showExcludeTooltip, setShowExcludeTooltip] = useState(false);
   const {
@@ -444,6 +446,9 @@ const MapView = () => {
             
             return newSelectedFeatures;
           });
+          
+          // Show attribute panel for the selected feature
+          setAttributePanelFeature({ ...feature, _layerName: activeLayer });
           return;
         }
 
@@ -910,6 +915,7 @@ const MapView = () => {
     setTempCircleCenter(null);
     setSelectMode(true); // Return to select mode
     setDrawingHistory([]); // Clear history
+    setAttributePanelFeature(null); // Close attribute panel
 
     toast({
       title: "All Cleared",
@@ -2216,8 +2222,41 @@ const MapView = () => {
         </div>
       </div>
 
-      {/* Selection Status Display */}
-      {(selectedPolygons.length > 0 || selectedFeatures.length > 0) && <div className="absolute top-20 right-4 z-20">
+      {/* ArcGIS-style Attribute Panel */}
+      {attributePanelFeature && (
+        <AttributePanel
+          feature={attributePanelFeature}
+          layerName={attributePanelFeature._layerName?.replace(/ /g, '_') || 'Feature'}
+          onClose={() => setAttributePanelFeature(null)}
+          onZoomTo={() => {
+            if (!map.current || !attributePanelFeature?.geometry) return;
+            const geometry = attributePanelFeature.geometry;
+            if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+              const coords = geometry.type === 'Polygon' 
+                ? geometry.coordinates[0] 
+                : geometry.coordinates[0][0];
+              if (coords && coords.length > 0) {
+                const bounds = coords.reduce(
+                  (acc: any, coord: [number, number]) => ({
+                    minLng: Math.min(acc.minLng, coord[0]),
+                    maxLng: Math.max(acc.maxLng, coord[0]),
+                    minLat: Math.min(acc.minLat, coord[1]),
+                    maxLat: Math.max(acc.maxLat, coord[1]),
+                  }),
+                  { minLng: Infinity, maxLng: -Infinity, minLat: Infinity, maxLat: -Infinity }
+                );
+                map.current.fitBounds(
+                  [[bounds.minLng, bounds.minLat], [bounds.maxLng, bounds.maxLat]],
+                  { padding: 50, maxZoom: 16 }
+                );
+              }
+            }
+          }}
+        />
+      )}
+
+      {/* Selection Status Display - shown when no attribute panel */}
+      {!attributePanelFeature && (selectedPolygons.length > 0 || selectedFeatures.length > 0) && <div className="absolute top-20 right-4 z-20">
           <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg px-3 py-2">
             <div className="text-xs text-gray-600 space-y-1">
               {selectedPolygons.length > 0 && <div>
