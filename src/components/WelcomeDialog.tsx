@@ -21,7 +21,7 @@ const WelcomeDialog = () => {
         <DialogHeader>
           <DialogTitle>Prototype Overview</DialogTitle>
           <DialogDescription className="text-base pt-2">
-            This prototype creates a common mapping component for EVAC and Alert. The EVAC functionality doesn't change, while the Alert functions move to a set of menus and buttons that appear over the map at the top of the map window.
+            This prototype creates a common mapping component for EVAC and ALERT. The EVAC functionality doesn't change, while the ALERT functions move to a set of menus and buttons that appear over the map at the top of the map window.
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end pt-4">
