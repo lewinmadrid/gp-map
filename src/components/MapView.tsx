@@ -2229,8 +2229,24 @@ const MapView = () => {
           layerName={attributePanelFeature._layerName?.replace(/ /g, '_') || 'Feature'}
           onClose={() => setAttributePanelFeature(null)}
           onZoomTo={() => {
-            if (!map.current || !attributePanelFeature?.geometry) return;
-            const geometry = attributePanelFeature.geometry;
+            if (!map.current || !attributePanelFeature) return;
+            
+            // Extract geometry - handle vector tile features
+            let geometry = attributePanelFeature.geometry;
+            if (!geometry || !geometry.coordinates) {
+              if (typeof attributePanelFeature.toGeoJSON === 'function') {
+                try {
+                  const geoJSON = attributePanelFeature.toGeoJSON();
+                  geometry = geoJSON.geometry;
+                } catch (e) {
+                  console.error('Error converting to GeoJSON:', e);
+                  return;
+                }
+              } else {
+                return;
+              }
+            }
+            
             if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
               const coords = geometry.type === 'Polygon' 
                 ? geometry.coordinates[0] 
@@ -2250,6 +2266,11 @@ const MapView = () => {
                   { padding: 50, maxZoom: 16 }
                 );
               }
+            } else if (geometry.type === 'Point') {
+              map.current.flyTo({
+                center: geometry.coordinates as [number, number],
+                zoom: 15
+              });
             }
           }}
         />
