@@ -2205,71 +2205,71 @@ const MapView = () => {
       {/* Active Layer Selector - Top Right Corner */}
       <div className={`absolute top-4 right-4 z-20 ${isMobile ? 'hidden' : ''}`}>
         <Select value={activeLayer} onValueChange={setActiveLayer}>
-          <SelectTrigger className="bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 min-w-[200px] h-auto flex flex-col items-start gap-0.5 [&>svg]:absolute [&>svg]:right-3 [&>svg]:top-1/2 [&>svg]:-translate-y-1/2">
-            <span className="text-xs text-gray-500 font-normal">Active Layer</span>
-            <div className="flex items-center gap-2 w-full pr-6">
+          <SelectTrigger className="bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 min-w-[180px] h-auto flex flex-col items-start gap-0 [&>svg]:absolute [&>svg]:right-2 [&>svg]:top-1/2 [&>svg]:-translate-y-1/2">
+            <span className="text-[10px] text-gray-500 font-normal">Active Layer</span>
+            <div className="flex items-center gap-2 w-full pr-5">
               {activeLayer === 'Genasys Zones' && (
-                <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3.5 h-3.5 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+                <div className="w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
                   </svg>
                 </div>
               )}
               {activeLayer === 'Custom Zone Areas' && (
-                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3.5 h-3.5 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
+                <div className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
                   </svg>
                 </div>
               )}
               {activeLayer === 'Public Parks' && (
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
                 </div>
               )}
               {activeLayer === 'Water District CWA' && (
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
                 </div>
               )}
-              <span className="text-sm font-medium text-gray-900">{activeLayer}</span>
+              <span className="text-xs font-normal text-gray-900">{activeLayer}</span>
             </div>
           </SelectTrigger>
           <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-lg z-50 p-1">
-            <SelectItem value="Genasys Zones" className="rounded-md px-3 py-2 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3.5 h-3.5 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+            <SelectItem value="Genasys Zones" className="rounded-md px-2 py-1.5 cursor-pointer">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
                   </svg>
                 </div>
-                <span className="text-sm text-gray-900">Genasys Zones</span>
+                <span className="text-xs font-normal text-gray-900">Genasys Zones</span>
               </div>
             </SelectItem>
-            <SelectItem value="Custom Zone Areas" className="rounded-md px-3 py-2 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3.5 h-3.5 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
+            <SelectItem value="Custom Zone Areas" className="rounded-md px-2 py-1.5 cursor-pointer">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
                   </svg>
                 </div>
-                <span className="text-sm text-gray-900">Custom Zone Areas</span>
+                <span className="text-xs font-normal text-gray-900">Custom Zone Areas</span>
               </div>
             </SelectItem>
-            <SelectItem value="Public Parks" className="rounded-md px-3 py-2 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+            <SelectItem value="Public Parks" className="rounded-md px-2 py-1.5 cursor-pointer">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
                 </div>
-                <span className="text-sm text-gray-900">Public Parks</span>
+                <span className="text-xs font-normal text-gray-900">Public Parks</span>
               </div>
             </SelectItem>
-            <SelectItem value="Water District CWA" className="rounded-md px-3 py-2 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+            <SelectItem value="Water District CWA" className="rounded-md px-2 py-1.5 cursor-pointer">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
                 </div>
-                <span className="text-sm text-gray-900">Water District CWA</span>
+                <span className="text-xs font-normal text-gray-900">Water District CWA</span>
               </div>
             </SelectItem>
           </SelectContent>
