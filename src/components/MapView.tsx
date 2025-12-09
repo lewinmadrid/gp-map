@@ -55,7 +55,7 @@ const MapView = () => {
   const [editMode, setEditMode] = useState(false);
   const [editingPolygonId, setEditingPolygonId] = useState<string | null>(null);
   const [selectedPolygons, setSelectedPolygons] = useState<any[]>([]);
-  const [currentMode, setCurrentMode] = useState<'alert' | 'evac'>('evac');
+  const [currentMode, setCurrentMode] = useState<'evac' | 'alert' | 'news'>('evac');
   const [drawingHistory, setDrawingHistory] = useState<any[]>([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -2029,8 +2029,8 @@ const MapView = () => {
       {/* Left Sidebar - only show in EVAC mode */}
       {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} isMobile={isMobile} />}
       
-      {/* Top Toolbar - only show in Alert mode */}
-      {currentMode === 'alert' && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
+      {/* Top Toolbar - only show in Alert and News modes */}
+      {(currentMode === 'alert' || currentMode === 'news') && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
       // Clear any existing drawings but KEEP selections
       clearDrawnShapes();
 
@@ -2389,8 +2389,8 @@ const MapView = () => {
         </Button>
       </div>
 
-      {/* Bottom Right Toolbar - Adjusted for Alert mode */}
-      <div className={`absolute right-4 z-20 flex flex-col gap-1 ${currentMode === 'alert' ? 'bottom-20' : 'bottom-4'}`}>
+      {/* Bottom Right Toolbar - Adjusted for Alert/News mode */}
+      <div className={`absolute right-4 z-20 flex flex-col gap-1 ${(currentMode === 'alert' || currentMode === 'news') ? 'bottom-20' : 'bottom-4'}`}>
         {/* Tools Popup Button */}
         <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setToolsPopupOpen(!toolsPopupOpen)}>
           {toolsPopupOpen ? <ChevronDown className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} /> : <ChevronUp className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />}
@@ -2412,8 +2412,8 @@ const MapView = () => {
         </Button>
       </div>
 
-      {/* Alert Mode Cancel/Save Buttons */}
-      {currentMode === 'alert' && (
+      {/* Alert/News Mode Cancel/Save Buttons */}
+      {(currentMode === 'alert' || currentMode === 'news') && (
         <div className="absolute bottom-4 right-4 z-30 flex gap-2">
           <Button variant="outline" size="sm" className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600" onClick={() => setCancelDialogOpen(true)}>
             Cancel
