@@ -13,6 +13,7 @@ import ToolsPopup from './ToolsPopup';
 import Legend from './Legend';
 import LeftSidebar from './LeftSidebar';
 import TopToolbar from './TopToolbar';
+import NewsToolbar from './NewsToolbar';
 import ModeToggle from './ModeToggle';
 import AttributePanel from './AttributePanel';
 import * as shp from 'shpjs';
@@ -2029,8 +2030,11 @@ const MapView = () => {
       {/* Left Sidebar - only show in EVAC mode */}
       {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} isMobile={isMobile} />}
       
-      {/* Top Toolbar - only show in Alert and News modes */}
-      {(currentMode === 'alert' || currentMode === 'news') && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
+      {/* News Toolbar - only show in News mode */}
+      {currentMode === 'news' && <NewsToolbar isMobile={isMobile} />}
+      
+      {/* Top Toolbar - only show in Alert mode */}
+      {currentMode === 'alert' && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
       // Clear any existing drawings but KEEP selections
       clearDrawnShapes();
 
@@ -2412,8 +2416,8 @@ const MapView = () => {
         </Button>
       </div>
 
-      {/* Alert/News Mode Cancel/Save Buttons */}
-      {(currentMode === 'alert' || currentMode === 'news') && (
+      {/* Alert Mode Cancel/Save Buttons - only in Alert mode, not News */}
+      {currentMode === 'alert' && (
         <div className="absolute bottom-4 right-4 z-30 flex gap-2">
           <Button variant="outline" size="sm" className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600" onClick={() => setCancelDialogOpen(true)}>
             Cancel
