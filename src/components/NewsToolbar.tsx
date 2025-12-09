@@ -20,10 +20,23 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
         <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Coverage Filters:</span>
         
         <Select>
+          <SelectTrigger className="w-28 h-7 text-xs">
+            <SelectValue placeholder="date" />
+          </SelectTrigger>
+          <SelectContent className="bg-white z-50">
+            <SelectItem value="09-12-2025">09-12-2025</SelectItem>
+            <SelectItem value="08-12-2025">08-12-2025</SelectItem>
+            <SelectItem value="07-12-2025">07-12-2025</SelectItem>
+            <SelectItem value="06-12-2025">06-12-2025</SelectItem>
+            <SelectItem value="05-12-2025">05-12-2025</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select>
           <SelectTrigger className="w-20 h-7 text-xs">
             <SelectValue placeholder="tech" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white z-50">
             <SelectItem value="lte">LTE</SelectItem>
             <SelectItem value="5g">5G</SelectItem>
             <SelectItem value="all">All</SelectItem>
@@ -34,7 +47,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
           <SelectTrigger className="w-20 h-7 text-xs">
             <SelectValue placeholder="band" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white z-50">
             <SelectItem value="700">700</SelectItem>
             <SelectItem value="850">850</SelectItem>
             <SelectItem value="1900">1900</SelectItem>
@@ -45,7 +58,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
           <SelectTrigger className="w-20 h-7 text-xs">
             <SelectValue placeholder="utm" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white z-50">
             <SelectItem value="10">10</SelectItem>
             <SelectItem value="11">11</SelectItem>
             <SelectItem value="12">12</SelectItem>
@@ -56,7 +69,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
           <SelectTrigger className="w-20 h-7 text-xs">
             <SelectValue placeholder="bs/mc" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white z-50">
             <SelectItem value="bs">BS</SelectItem>
             <SelectItem value="mc">MC</SelectItem>
           </SelectContent>
