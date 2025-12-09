@@ -1,22 +1,47 @@
 import React from 'react';
-import { Toggle } from '@/components/ui/toggle';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import evacIcon from '@/assets/evac-icon.svg';
 import alertIcon from '@/assets/alert-icon.svg';
+import { Newspaper } from 'lucide-react';
+
+export type AppMode = 'evac' | 'alert' | 'news';
 
 interface ModeToggleProps {
-  mode: 'alert' | 'evac';
-  onModeChange: (mode: 'alert' | 'evac') => void;
+  mode: AppMode;
+  onModeChange: (mode: AppMode) => void;
   sidebarExpanded?: boolean;
   isMobile?: boolean;
 }
 
 const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpanded = false, isMobile = false }) => {
+  const modes: AppMode[] = ['evac', 'alert', 'news'];
+  
   const getLeftPosition = () => {
     if (isMobile) return 'left-4';
-    if (mode === 'alert') return 'left-4';
+    if (mode === 'alert' || mode === 'news') return 'left-4';
     if (sidebarExpanded) return 'left-[336px]';
     return 'left-20';
+  };
+
+  const getModeLabel = (m: AppMode) => {
+    return m.toUpperCase();
+  };
+
+  const getModeIcon = (m: AppMode) => {
+    switch (m) {
+      case 'evac':
+        return <img src={evacIcon} alt="EVAC" className="h-6 w-6 rounded" />;
+      case 'alert':
+        return <img src={alertIcon} alt="Alert" className="h-6 w-6 rounded" />;
+      case 'news':
+        return <Newspaper className="h-6 w-6" />;
+    }
+  };
+
+  const cycleMode = () => {
+    const currentIndex = modes.indexOf(mode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    onModeChange(modes[nextIndex]);
   };
 
   return (
@@ -24,26 +49,15 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
       <TooltipProvider>
         <Tooltip defaultOpen>
           <TooltipTrigger asChild>
-            <div className="bg-background border border-border rounded-lg shadow-lg p-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-foreground">
-                  {mode === 'alert' ? 'ALERT' : 'EVAC'}
-                </span>
-                <Toggle
-                  pressed={mode === 'evac'}
-                  onPressedChange={(pressed) => onModeChange(pressed ? 'evac' : 'alert')}
-                  variant="outline"
-                  size="sm"
-                  className="h-10 w-10 p-0"
-                >
-                  {mode === 'alert' ? (
-                    <img src={alertIcon} alt="Alert" className="h-10 w-10 rounded" />
-                  ) : (
-                    <img src={evacIcon} alt="EVAC" className="h-10 w-10 rounded" />
-                  )}
-                </Toggle>
-              </div>
-            </div>
+            <button
+              onClick={cycleMode}
+              className="bg-background border border-border rounded-lg shadow-lg p-2 flex items-center gap-2 hover:bg-accent transition-colors"
+            >
+              {getModeIcon(mode)}
+              <span className="text-sm font-medium text-foreground">
+                {getModeLabel(mode)}
+              </span>
+            </button>
           </TooltipTrigger>
           <TooltipContent 
             side="top" 
@@ -51,7 +65,7 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onModeChange, sidebarExpa
             sideOffset={12}
           >
             <p className="text-sm">Click here to switch modes. This button won't appear in the real implementation</p>
-            <div className={`absolute -bottom-2 w-4 h-4 bg-black rotate-45 ${mode === 'alert' ? 'left-[5rem]' : 'left-[8.75rem]'}`} />
+            <div className="absolute -bottom-2 left-12 w-4 h-4 bg-black rotate-45" />
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
