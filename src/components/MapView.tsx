@@ -36,6 +36,7 @@ const MapView = () => {
   const [zoneLayerVisible, setZoneLayerVisible] = useState(true);
   const [parksLayerVisible, setParksLayerVisible] = useState(false);
   const [waterDistrictLayerVisible, setWaterDistrictLayerVisible] = useState(false);
+  const [cellTowerLayerVisible, setCellTowerLayerVisible] = useState(true);
   const [basemapToggleOpen, setBasemapToggleOpen] = useState(false);
   const [toolsPopupOpen, setToolsPopupOpen] = useState(false);
   const [measurementMode, setMeasurementMode] = useState(false);
@@ -84,20 +85,30 @@ const MapView = () => {
     }
   }, [currentMode]);
 
-  // Hide zone layer when in NEWS mode
+  // Hide zone layer when in NEWS mode, show cell tower layer
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
     
-    const layersToToggle = ['evacuation-zones-fill', 'evacuation-zones-outline', 'evacuation-labels'];
-    const shouldHide = currentMode === 'news';
+    const zoneLayers = ['evacuation-zones-fill', 'evacuation-zones-outline', 'evacuation-labels'];
+    const cellTowerLayers = ['cell-tower-coverage-fill', 'cell-tower-coverage-outline', 'cell-tower-points'];
+    const isNewsMode = currentMode === 'news';
     
-    layersToToggle.forEach(layerId => {
+    // Hide zone layers in NEWS mode
+    zoneLayers.forEach(layerId => {
       const layer = map.current?.getLayer(layerId);
       if (layer) {
-        map.current?.setLayoutProperty(layerId, 'visibility', shouldHide ? 'none' : (zoneLayerVisible ? 'visible' : 'none'));
+        map.current?.setLayoutProperty(layerId, 'visibility', isNewsMode ? 'none' : (zoneLayerVisible ? 'visible' : 'none'));
       }
     });
-  }, [currentMode, mapLoaded, zoneLayerVisible]);
+    
+    // Show cell tower layers in NEWS mode
+    cellTowerLayers.forEach(layerId => {
+      const layer = map.current?.getLayer(layerId);
+      if (layer) {
+        map.current?.setLayoutProperty(layerId, 'visibility', isNewsMode && cellTowerLayerVisible ? 'visible' : 'none');
+      }
+    });
+  }, [currentMode, mapLoaded, zoneLayerVisible, cellTowerLayerVisible]);
 
   // Preserve map center/zoom when sidebar expands/collapses
   useEffect(() => {
@@ -1689,6 +1700,156 @@ const MapView = () => {
         console.error('❌ Error adding Water District CWA layer:', waterDistrictError);
       }
       
+      // Add mock Cell Tower Coverage layer for NEWS mode
+      try {
+        console.log('📡 Adding Cell Tower Coverage layer...');
+        
+        // Mock cell tower coverage data - hexagonal cells around San Diego
+        const cellTowerData = {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', signal_strength: 'Strong' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.18, 32.74], [-117.16, 32.75], [-117.14, 32.74],
+                  [-117.14, 32.72], [-117.16, 32.71], [-117.18, 32.72], [-117.18, 32.74]
+                ]]
+              }
+            },
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-002', tech: '5G', band: '850', signal_strength: 'Medium' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.16, 32.75], [-117.14, 32.76], [-117.12, 32.75],
+                  [-117.12, 32.73], [-117.14, 32.72], [-117.16, 32.73], [-117.16, 32.75]
+                ]]
+              }
+            },
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', signal_strength: 'Strong' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.14, 32.74], [-117.12, 32.75], [-117.10, 32.74],
+                  [-117.10, 32.72], [-117.12, 32.71], [-117.14, 32.72], [-117.14, 32.74]
+                ]]
+              }
+            },
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-004', tech: '5G', band: '700', signal_strength: 'Weak' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.20, 32.72], [-117.18, 32.73], [-117.16, 32.72],
+                  [-117.16, 32.70], [-117.18, 32.69], [-117.20, 32.70], [-117.20, 32.72]
+                ]]
+              }
+            },
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-005', tech: 'LTE', band: '850', signal_strength: 'Strong' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.16, 32.72], [-117.14, 32.73], [-117.12, 32.72],
+                  [-117.12, 32.70], [-117.14, 32.69], [-117.16, 32.70], [-117.16, 32.72]
+                ]]
+              }
+            }
+          ]
+        };
+        
+        // Mock cell tower point locations
+        const cellTowerPoints = {
+          type: 'FeatureCollection',
+          features: [
+            { type: 'Feature', properties: { cell_id: 'SD-001', tech: 'LTE' }, geometry: { type: 'Point', coordinates: [-117.16, 32.73] } },
+            { type: 'Feature', properties: { cell_id: 'SD-002', tech: '5G' }, geometry: { type: 'Point', coordinates: [-117.14, 32.74] } },
+            { type: 'Feature', properties: { cell_id: 'SD-003', tech: 'LTE' }, geometry: { type: 'Point', coordinates: [-117.12, 32.73] } },
+            { type: 'Feature', properties: { cell_id: 'SD-004', tech: '5G' }, geometry: { type: 'Point', coordinates: [-117.18, 32.71] } },
+            { type: 'Feature', properties: { cell_id: 'SD-005', tech: 'LTE' }, geometry: { type: 'Point', coordinates: [-117.14, 32.71] } }
+          ]
+        };
+        
+        map.current.addSource('cell-tower-coverage', {
+          type: 'geojson',
+          data: cellTowerData as any
+        });
+        
+        map.current.addSource('cell-tower-points-source', {
+          type: 'geojson',
+          data: cellTowerPoints as any
+        });
+        
+        // Add fill layer for coverage areas
+        map.current.addLayer({
+          id: 'cell-tower-coverage-fill',
+          type: 'fill',
+          source: 'cell-tower-coverage',
+          layout: {
+            'visibility': 'none'
+          },
+          paint: {
+            'fill-color': ['match', ['get', 'signal_strength'],
+              'Strong', '#22c55e',
+              'Medium', '#eab308',
+              'Weak', '#ef4444',
+              '#9ca3af'
+            ],
+            'fill-opacity': 0.35
+          }
+        });
+        
+        // Add outline layer for coverage areas
+        map.current.addLayer({
+          id: 'cell-tower-coverage-outline',
+          type: 'line',
+          source: 'cell-tower-coverage',
+          layout: {
+            'visibility': 'none'
+          },
+          paint: {
+            'line-color': ['match', ['get', 'tech'],
+              'LTE', '#3b82f6',
+              '5G', '#8b5cf6',
+              '#6b7280'
+            ],
+            'line-width': 2
+          }
+        });
+        
+        // Add cell tower point markers
+        map.current.addLayer({
+          id: 'cell-tower-points',
+          type: 'circle',
+          source: 'cell-tower-points-source',
+          layout: {
+            'visibility': 'none'
+          },
+          paint: {
+            'circle-radius': 8,
+            'circle-color': ['match', ['get', 'tech'],
+              'LTE', '#3b82f6',
+              '5G', '#8b5cf6',
+              '#6b7280'
+            ],
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffffff'
+          }
+        });
+        
+        console.log('✅ Cell Tower Coverage layer added successfully');
+      } catch (cellTowerError) {
+        console.error('❌ Error adding Cell Tower Coverage layer:', cellTowerError);
+      }
+      
       setLayerStatus('success');
       setVectorLayerVisible(true);
     } catch (error) {
@@ -2031,6 +2192,23 @@ const MapView = () => {
     
     setWaterDistrictLayerVisible(visible);
   };
+
+  // Toggle cell tower layer visibility
+  const toggleCellTowerLayerVisibility = (visible: boolean) => {
+    if (!map.current) return;
+    
+    const layersToToggle = ['cell-tower-coverage-fill', 'cell-tower-coverage-outline', 'cell-tower-points'];
+    
+    layersToToggle.forEach(layerId => {
+      const layer = map.current?.getLayer(layerId);
+      if (layer) {
+        map.current?.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
+      }
+    });
+    
+    setCellTowerLayerVisible(visible);
+  };
+
   return <div className="relative w-full h-screen bg-background overflow-hidden">
       {/* Loading State */}
       {!mapLoaded && (
@@ -2295,6 +2473,33 @@ const MapView = () => {
         </Select>
       </div>
 
+      {/* NEWS Mode Active Layer Selector - Top Right Corner */}
+      <div className={`absolute top-4 right-4 z-20 ${currentMode !== 'news' || isMobile ? 'hidden' : ''}`}>
+        <Select value={activeLayer} onValueChange={setActiveLayer}>
+          <SelectTrigger className="bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-1 min-w-[200px] h-auto flex flex-col items-start gap-0 [&>svg]:absolute [&>svg]:right-2 [&>svg]:top-1/2 [&>svg]:-translate-y-1/2 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-70">
+            <span className="text-[10px] text-gray-500 font-normal leading-tight">Coverage Layer</span>
+            <div className="flex items-center gap-2 w-full pr-5">
+              {activeLayer === 'Cell Tower Coverage' && (
+                <div className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-2.5 h-2.5 bg-purple-500 rounded-full"></div>
+                </div>
+              )}
+              <span className="text-xs font-normal text-gray-900">{activeLayer === 'Cell Tower Coverage' ? 'Cell Tower Coverage' : 'Cell Tower Coverage'}</span>
+            </div>
+          </SelectTrigger>
+          <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-lg z-50 p-1">
+            <SelectItem value="Cell Tower Coverage" className="rounded-md px-2 py-1.5 cursor-pointer">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-2.5 h-2.5 bg-purple-500 rounded-full"></div>
+                </div>
+                <span className="text-xs font-normal text-gray-900">Cell Tower Coverage</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* ArcGIS-style Attribute Panel */}
       {attributePanelFeature && (
         <AttributePanel
@@ -2478,7 +2683,7 @@ const MapView = () => {
       </Dialog>
 
       {/* Popups */}
-      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} onToggleParksLayer={toggleParksLayerVisibility} parksLayerVisible={parksLayerVisible} onToggleWaterDistrictLayer={toggleWaterDistrictLayerVisibility} waterDistrictLayerVisible={waterDistrictLayerVisible} isMobile={isMobile} />
+      <LayersPanel isOpen={layersPanelOpen} onClose={() => setLayersPanelOpen(false)} onToggleZoneLayer={toggleZoneLayerVisibility} zoneLayerVisible={zoneLayerVisible} onToggleParksLayer={toggleParksLayerVisibility} parksLayerVisible={parksLayerVisible} onToggleWaterDistrictLayer={toggleWaterDistrictLayerVisibility} waterDistrictLayerVisible={waterDistrictLayerVisible} onToggleCellTowerLayer={toggleCellTowerLayerVisibility} cellTowerLayerVisible={cellTowerLayerVisible} currentMode={currentMode} isMobile={isMobile} />
       <BasemapToggle isOpen={basemapToggleOpen} currentBasemap={currentBasemap} onBasemapChange={changeBasemap} onClose={() => setBasemapToggleOpen(false)} isMobile={isMobile} />
       <ToolsPopup isOpen={toolsPopupOpen} onClose={() => setToolsPopupOpen(false)} onMeasure={toggleMeasurement} onGeolocation={triggerGeolocation} onLegend={() => setLegendOpen(true)} measurementMode={measurementMode} isMobile={isMobile} />
       <Legend isOpen={legendOpen} onClose={() => setLegendOpen(false)} />
