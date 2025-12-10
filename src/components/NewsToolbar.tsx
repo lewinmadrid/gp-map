@@ -126,7 +126,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
 
         <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10">
           <span className="text-sm text-gray-700 whitespace-nowrap">Cell-ID:</span>
-          <Input className="w-24 h-7 text-sm border-0 shadow-none focus-visible:ring-0" placeholder="" />
+          <Input className="w-24 h-7 text-sm border-0 shadow-none focus-visible:ring-0 bg-white" placeholder="" />
         </div>
 
         <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
