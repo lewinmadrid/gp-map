@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Info } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Info, ChevronDown, Calendar, Radio, Antenna, Map, Signal, Search, Square, Calculator, FileCode, Trash2 } from 'lucide-react';
 
 interface NewsToolbarProps {
   isMobile?: boolean;
@@ -12,137 +12,189 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
   const [showSecondRow, setShowSecondRow] = useState(false);
   const [eaPercent, setEaPercent] = useState('5');
   const [cellPercent, setCellPercent] = useState('5');
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTech, setSelectedTech] = useState('');
+  const [selectedBand, setSelectedBand] = useState('');
+  const [selectedUtm, setSelectedUtm] = useState('');
+  const [selectedBsMc, setSelectedBsMc] = useState('');
+
+  const dates = ['09-12-2025', '08-12-2025', '07-12-2025', '06-12-2025', '05-12-2025'];
+  const techs = ['LTE', '5G', 'All'];
+  const bands = ['700', '850', '1900'];
+  const utms = ['49', '50', '51', '52', '53', '54', '55', '56'];
+  const bsMcs = ['BS', 'MC'];
 
   return (
-    <div className="absolute top-2 left-2 right-2 z-30 flex flex-col gap-1">
+    <div className="absolute top-4 left-4 right-4 z-30 flex flex-col gap-2">
       {/* Row 1: Coverage Filters */}
-      <div className="bg-white border border-gray-200 rounded shadow-sm px-2 py-1.5 flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Coverage Filters:</span>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium text-gray-700 whitespace-nowrap bg-white px-2 py-1 rounded border border-gray-200 shadow-sm">Coverage Filters:</span>
         
-        <Select>
-          <SelectTrigger className="w-28 h-7 text-xs">
-            <SelectValue placeholder="date" />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-50">
-            <SelectItem value="09-12-2025">09-12-2025</SelectItem>
-            <SelectItem value="08-12-2025">08-12-2025</SelectItem>
-            <SelectItem value="07-12-2025">07-12-2025</SelectItem>
-            <SelectItem value="06-12-2025">06-12-2025</SelectItem>
-            <SelectItem value="05-12-2025">05-12-2025</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Date Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              <span className="text-sm">{selectedDate || 'Date'}</span>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg z-50">
+            {dates.map((date) => (
+              <DropdownMenuItem key={date} onClick={() => setSelectedDate(date)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+                {date}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <Select>
-          <SelectTrigger className="w-20 h-7 text-xs">
-            <SelectValue placeholder="tech" />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-50">
-            <SelectItem value="lte">LTE</SelectItem>
-            <SelectItem value="5g">5G</SelectItem>
-            <SelectItem value="all">All</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Tech Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+              <Radio className="h-4 w-4" />
+              <span className="text-sm">{selectedTech || 'Tech'}</span>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg z-50">
+            {techs.map((tech) => (
+              <DropdownMenuItem key={tech} onClick={() => setSelectedTech(tech)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+                {tech}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <Select>
-          <SelectTrigger className="w-20 h-7 text-xs">
-            <SelectValue placeholder="band" />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-50">
-            <SelectItem value="700">700</SelectItem>
-            <SelectItem value="850">850</SelectItem>
-            <SelectItem value="1900">1900</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Band Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+              <Antenna className="h-4 w-4" />
+              <span className="text-sm">{selectedBand || 'Band'}</span>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg z-50">
+            {bands.map((band) => (
+              <DropdownMenuItem key={band} onClick={() => setSelectedBand(band)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+                {band}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <Select>
-          <SelectTrigger className="w-20 h-7 text-xs">
-            <SelectValue placeholder="utm" />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-50">
-            <SelectItem value="49">49</SelectItem>
-            <SelectItem value="50">50</SelectItem>
-            <SelectItem value="51">51</SelectItem>
-            <SelectItem value="52">52</SelectItem>
-            <SelectItem value="53">53</SelectItem>
-            <SelectItem value="54">54</SelectItem>
-            <SelectItem value="55">55</SelectItem>
-            <SelectItem value="56">56</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* UTM Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+              <Map className="h-4 w-4" />
+              <span className="text-sm">{selectedUtm || 'UTM'}</span>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg z-50">
+            {utms.map((utm) => (
+              <DropdownMenuItem key={utm} onClick={() => setSelectedUtm(utm)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+                {utm}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <Select>
-          <SelectTrigger className="w-20 h-7 text-xs">
-            <SelectValue placeholder="bs/mc" />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-50">
-            <SelectItem value="bs">BS</SelectItem>
-            <SelectItem value="mc">MC</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* BS/MC Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+              <Signal className="h-4 w-4" />
+              <span className="text-sm">{selectedBsMc || 'BS/MC'}</span>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg z-50">
+            {bsMcs.map((item) => (
+              <DropdownMenuItem key={item} onClick={() => setSelectedBsMc(item)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+                {item}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+        <Button variant="secondary" size="sm" className="h-10 w-10 p-0 border border-gray-200 shadow-sm bg-white hover:bg-gray-50">
           <Info className="h-4 w-4 text-blue-500" />
         </Button>
 
-        <span className="text-sm text-gray-700 whitespace-nowrap">Cell-ID:</span>
-        <Input className="w-28 h-7 text-xs" placeholder="" />
+        <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10">
+          <span className="text-sm text-gray-700 whitespace-nowrap">Cell-ID:</span>
+          <Input className="w-24 h-7 text-sm border-0 shadow-none focus-visible:ring-0" placeholder="" />
+        </div>
 
-        <Button variant="outline" size="sm" className="h-7 text-xs px-3">
-          Search
+        <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+          <Search className="h-4 w-4" />
+          <span className="text-sm">Search</span>
         </Button>
 
-        <Button variant="outline" size="sm" className="h-7 text-xs px-3">
-          Cows
+        <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600">
+          <span className="text-sm">Cows</span>
         </Button>
 
         <Button 
-          variant={showSecondRow ? "default" : "outline"} 
+          variant="secondary" 
           size="sm" 
-          className={`h-7 text-xs px-3 ${showSecondRow ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}`}
+          className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${showSecondRow ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
           onClick={() => setShowSecondRow(!showSecondRow)}
         >
-          Test Tools
+          <span className="text-sm">Test Tools</span>
         </Button>
       </div>
 
       {/* Row 2: Action Buttons (toggleable) */}
       {showSecondRow && (
-        <div className="bg-white border border-gray-200 rounded shadow-sm px-2 py-1.5 flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" className="h-7 text-xs px-3">
-            Draw Polygon
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Square className="h-4 w-4" />
+            <span className="text-sm">Draw Polygon</span>
           </Button>
 
-          <Button variant="outline" size="sm" className="h-7 text-xs px-3">
-            Calculate Intersect
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Calculator className="h-4 w-4" />
+            <span className="text-sm">Calculate Intersect</span>
           </Button>
 
-          <Button variant="outline" size="sm" className="h-7 text-xs px-3">
-            Calculate MFE Polygon
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Calculator className="h-4 w-4" />
+            <span className="text-sm">Calculate MFE Polygon</span>
           </Button>
 
-          <Button variant="outline" size="sm" className="h-7 text-xs px-3">
-            Clear
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Trash2 className="h-4 w-4" />
+            <span className="text-sm">Clear</span>
           </Button>
 
-          <Button variant="outline" size="sm" className="h-7 text-xs px-3">
-            GML
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <FileCode className="h-4 w-4" />
+            <span className="text-sm">GML</span>
           </Button>
 
-          <span className="text-sm text-gray-700 whitespace-nowrap">EA %:</span>
-          <Input 
-            type="number" 
-            className="w-14 h-7 text-xs" 
-            value={eaPercent}
-            onChange={(e) => setEaPercent(e.target.value)}
-          />
+          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10">
+            <span className="text-sm text-gray-700 whitespace-nowrap">EA %:</span>
+            <Input 
+              type="number" 
+              className="w-14 h-7 text-sm border-0 shadow-none focus-visible:ring-0" 
+              value={eaPercent}
+              onChange={(e) => setEaPercent(e.target.value)}
+            />
+          </div>
 
-          <span className="text-sm text-gray-700 whitespace-nowrap">Cell %:</span>
-          <Input 
-            type="number" 
-            className="w-14 h-7 text-xs" 
-            value={cellPercent}
-            onChange={(e) => setCellPercent(e.target.value)}
-          />
+          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10">
+            <span className="text-sm text-gray-700 whitespace-nowrap">Cell %:</span>
+            <Input 
+              type="number" 
+              className="w-14 h-7 text-sm border-0 shadow-none focus-visible:ring-0" 
+              value={cellPercent}
+              onChange={(e) => setCellPercent(e.target.value)}
+            />
+          </div>
         </div>
       )}
     </div>
