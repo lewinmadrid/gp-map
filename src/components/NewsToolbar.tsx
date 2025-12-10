@@ -59,9 +59,14 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
             <SelectValue placeholder="utm" />
           </SelectTrigger>
           <SelectContent className="bg-white z-50">
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="11">11</SelectItem>
-            <SelectItem value="12">12</SelectItem>
+            <SelectItem value="49">49</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+            <SelectItem value="51">51</SelectItem>
+            <SelectItem value="52">52</SelectItem>
+            <SelectItem value="53">53</SelectItem>
+            <SelectItem value="54">54</SelectItem>
+            <SelectItem value="55">55</SelectItem>
+            <SelectItem value="56">56</SelectItem>
           </SelectContent>
         </Select>
 
