@@ -21,14 +21,31 @@ interface LayersPanelProps {
   parksLayerVisible: boolean;
   onToggleWaterDistrictLayer: (visible: boolean) => void;
   waterDistrictLayerVisible: boolean;
+  onToggleCellTowerLayer?: (visible: boolean) => void;
+  cellTowerLayerVisible?: boolean;
+  currentMode?: 'evac' | 'alert' | 'news';
   isMobile?: boolean;
 }
 
-const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose, onToggleZoneLayer, zoneLayerVisible, onToggleParksLayer, parksLayerVisible, onToggleWaterDistrictLayer, waterDistrictLayerVisible, isMobile = false }) => {
+const LayersPanel: React.FC<LayersPanelProps> = ({ 
+  isOpen, 
+  onClose, 
+  onToggleZoneLayer, 
+  zoneLayerVisible, 
+  onToggleParksLayer, 
+  parksLayerVisible, 
+  onToggleWaterDistrictLayer, 
+  waterDistrictLayerVisible, 
+  onToggleCellTowerLayer,
+  cellTowerLayerVisible = true,
+  currentMode = 'evac',
+  isMobile = false 
+}) => {
   const [trafficExpanded, setTrafficExpanded] = React.useState(false);
   const [evacuationExpanded, setEvacuationExpanded] = React.useState(true);
   const [fireExpanded, setFireExpanded] = React.useState(true);
   const [customExpanded, setCustomExpanded] = React.useState(true);
+  const [coverageExpanded, setCoverageExpanded] = React.useState(true);
   
 
   if (!isOpen) return null;
@@ -211,6 +228,45 @@ const LayersPanel: React.FC<LayersPanelProps> = ({ isOpen, onClose, onToggleZone
               </div>
             )}
           </div>
+
+          {/* Coverage Layers - NEWS Mode Only */}
+          {currentMode === 'news' && (
+            <div className="border border-gray-200 rounded-lg bg-white">
+              <div 
+                className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100"
+                onClick={() => setCoverageExpanded(!coverageExpanded)}
+              >
+                <div className="flex items-center gap-2">
+                  {coverageExpanded ? <ChevronDown className="h-4 w-4 text-black" /> : <ChevronUp className="h-4 w-4 text-black" />}
+                  <span className="font-medium text-black">Coverage Layers</span>
+                </div>
+                <MoreHorizontal className="h-4 w-4 text-gray-500" />
+              </div>
+              
+              {coverageExpanded && (
+                <div className="px-3 pb-3 space-y-2">
+                  <div className="flex items-center justify-between p-2 rounded border-l-4 border-l-purple-500">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                        <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                      </div>
+                      <span className="text-sm text-black">Cell Tower Coverage</span>
+                    </div>
+                    <button 
+                      onClick={() => onToggleCellTowerLayer?.(!cellTowerLayerVisible)}
+                      className="hover:bg-gray-100 rounded p-1"
+                    >
+                      {cellTowerLayerVisible ? (
+                        <Eye className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <EyeOff className="h-4 w-4 text-gray-500" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Reset Button */}
