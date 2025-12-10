@@ -84,6 +84,21 @@ const MapView = () => {
     }
   }, [currentMode]);
 
+  // Hide zone layer when in NEWS mode
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
+    
+    const layersToToggle = ['evacuation-zones-fill', 'evacuation-zones-outline', 'evacuation-labels'];
+    const shouldHide = currentMode === 'news';
+    
+    layersToToggle.forEach(layerId => {
+      const layer = map.current?.getLayer(layerId);
+      if (layer) {
+        map.current?.setLayoutProperty(layerId, 'visibility', shouldHide ? 'none' : (zoneLayerVisible ? 'visible' : 'none'));
+      }
+    });
+  }, [currentMode, mapLoaded, zoneLayerVisible]);
+
   // Preserve map center/zoom when sidebar expands/collapses
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
@@ -2207,7 +2222,7 @@ const MapView = () => {
     }} />
       
       {/* Active Layer Selector - Top Right Corner */}
-      <div className={`absolute top-4 right-4 z-20 ${isMobile ? 'hidden' : ''}`}>
+      <div className={`absolute top-4 right-4 z-20 ${isMobile || currentMode === 'news' ? 'hidden' : ''}`}>
         <Select value={activeLayer} onValueChange={setActiveLayer}>
           <SelectTrigger className="bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-1 min-w-[180px] h-auto flex flex-col items-start gap-0 [&>svg]:absolute [&>svg]:right-2 [&>svg]:top-1/2 [&>svg]:-translate-y-1/2 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-70">
             <span className="text-[10px] text-gray-500 font-normal leading-tight">Active Layer</span>
