@@ -16,6 +16,7 @@ import TopToolbar from './TopToolbar';
 import NewsToolbar from './NewsToolbar';
 import ModeToggle from './ModeToggle';
 import AttributePanel from './AttributePanel';
+import CoverageAttributePanel from './CoverageAttributePanel';
 import * as shp from 'shpjs';
 import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler, Scissors, Undo, Trash2 } from 'lucide-react';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
@@ -62,6 +63,7 @@ const MapView = () => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [attributePanelFeature, setAttributePanelFeature] = useState<any>(null);
+  const [coveragePanelCells, setCoveragePanelCells] = useState<any[]>([]);
   const hasShownExcludeTooltipRef = useRef(false);
   const [showExcludeTooltip, setShowExcludeTooltip] = useState(false);
   const {
@@ -393,6 +395,22 @@ const MapView = () => {
       }
       if (drawingMode === 'radius') {
         handleRadiusClick(clickPoint);
+        return;
+      }
+
+      // Handle NEWS mode coverage area selection
+      if (selectMode && !measurementMode && !drawingMode && currentMode === 'news') {
+        // Query cell tower coverage layer
+        const coverageFeatures = map.current.queryRenderedFeatures(e.point, {
+          layers: ['cell-tower-coverage-fill']
+        });
+
+        if (coverageFeatures && coverageFeatures.length > 0) {
+          // Generate mock cell data based on clicked features
+          const mockCellData = generateMockCellData(coverageFeatures);
+          setCoveragePanelCells(mockCellData);
+          return;
+        }
         return;
       }
 
@@ -772,6 +790,75 @@ const MapView = () => {
       title: "Edit Mode",
       description: "Click on vertices to move them, or double-click to finish editing."
     });
+  };
+
+  // Generate mock cell data for NEWS mode coverage panel
+  const generateMockCellData = (features: any[]) => {
+    // Get unique cell_ids from the clicked features
+    const uniqueCellIds = new Set<string>();
+    features.forEach(f => {
+      if (f.properties?.cell_id) {
+        uniqueCellIds.add(f.properties.cell_id);
+      }
+    });
+
+    // Generate mock cell data - simulate overlapping cells
+    const mockCells: any[] = [];
+    const techs = ['3G', '4G', 'LTE', '5G'];
+    const bands = ['700', '850', '999', '1900', '2100'];
+    const zones = ['30', '31', '49', '50', '51'];
+    const bsMcOptions = ['BS', 'MC'];
+    const rfRegions = ['R1', 'R2', 'R3'];
+
+    // For each unique cell_id, generate 3-8 overlapping cell entries
+    uniqueCellIds.forEach(cellId => {
+      const numCells = Math.floor(Math.random() * 6) + 3; // 3-8 cells
+      for (let i = 0; i < numCells; i++) {
+        const tech = techs[Math.floor(Math.random() * techs.length)];
+        const band = bands[Math.floor(Math.random() * bands.length)];
+        const zone = zones[Math.floor(Math.random() * zones.length)];
+        
+        // Generate cell ID format: 234-10-21090-XXXXX-XXXXX
+        const cellIdPart1 = 21090;
+        const cellIdPart2 = Math.floor(Math.random() * 50000) + 10000;
+        const cellIdPart3 = Math.floor(Math.random() * 50000) + 10000;
+        const fullCellId = `234-10-${cellIdPart1}-${cellIdPart2}-${cellIdPart3}`;
+
+        mockCells.push({
+          tech,
+          band,
+          cellId: fullCellId,
+          name: '',
+          zone,
+          bsMc: bsMcOptions[Math.floor(Math.random() * bsMcOptions.length)],
+          rfRegion: rfRegions[Math.floor(Math.random() * rfRegions.length)]
+        });
+      }
+    });
+
+    // If no cells found, still generate some mock data
+    if (mockCells.length === 0) {
+      for (let i = 0; i < 8; i++) {
+        const tech = '3G';
+        const band = '999';
+        const cellIdPart1 = 21090;
+        const cellIdPart2 = Math.floor(Math.random() * 50000) + 10000;
+        const cellIdPart3 = Math.floor(Math.random() * 50000) + 10000;
+        const fullCellId = `234-10-${cellIdPart1}-${cellIdPart2}-${cellIdPart3}`;
+
+        mockCells.push({
+          tech,
+          band,
+          cellId: fullCellId,
+          name: '',
+          zone: '30',
+          bsMc: '',
+          rfRegion: ''
+        });
+      }
+    }
+
+    return mockCells;
   };
 
   // Count vertices in a polygon
@@ -2644,6 +2731,18 @@ const MapView = () => {
                 zoom: 15
               });
             }
+          }}
+        />
+      )}
+
+      {/* NEWS Mode Coverage Attribute Panel */}
+      {currentMode === 'news' && coveragePanelCells.length > 0 && (
+        <CoverageAttributePanel
+          cells={coveragePanelCells}
+          onClose={() => setCoveragePanelCells([])}
+          onZoomToCell={(cellId) => {
+            // Optional: zoom to cell location
+            console.log('Zoom to cell:', cellId);
           }}
         />
       )}
