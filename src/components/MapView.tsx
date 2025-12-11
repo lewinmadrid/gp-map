@@ -90,7 +90,7 @@ const MapView = () => {
     if (!map.current || !mapLoaded) return;
     
     const zoneLayers = ['evacuation-zones-fill', 'evacuation-zones-outline', 'evacuation-labels'];
-    const cellTowerLayers = ['cell-tower-coverage-fill', 'cell-tower-coverage-outline', 'cell-tower-points'];
+    const cellTowerLayers = ['cell-tower-coverage-fill', 'cell-tower-coverage-outline', 'cell-tower-points', 'cell-tower-points-inner'];
     const isNewsMode = currentMode === 'news';
     
     // Hide zone layers in NEWS mode
@@ -1704,77 +1704,146 @@ const MapView = () => {
       try {
         console.log('📡 Adding Cell Tower Coverage layer...');
         
-        // Mock cell tower coverage data - hexagonal cells around San Diego
+        // RF propagation-style coverage data with irregular shapes and signal strength zones
         const cellTowerData = {
           type: 'FeatureCollection',
           features: [
+            // Tower 1 - Strong coverage zone (inner)
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', signal_strength: 'Strong' },
+              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', signal_strength: -65, rsrp_class: 'excellent' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
-                  [-117.18, 32.74], [-117.16, 32.75], [-117.14, 32.74],
-                  [-117.14, 32.72], [-117.16, 32.71], [-117.18, 32.72], [-117.18, 32.74]
+                  [-117.162, 32.732], [-117.158, 32.735], [-117.154, 32.734], [-117.152, 32.731],
+                  [-117.153, 32.727], [-117.157, 32.725], [-117.161, 32.727], [-117.163, 32.730], [-117.162, 32.732]
                 ]]
               }
             },
+            // Tower 1 - Good coverage zone (middle)
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-002', tech: '5G', band: '850', signal_strength: 'Medium' },
+              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', signal_strength: -85, rsrp_class: 'good' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
-                  [-117.16, 32.75], [-117.14, 32.76], [-117.12, 32.75],
-                  [-117.12, 32.73], [-117.14, 32.72], [-117.16, 32.73], [-117.16, 32.75]
+                  [-117.168, 32.738], [-117.160, 32.743], [-117.150, 32.742], [-117.144, 32.736],
+                  [-117.143, 32.728], [-117.146, 32.720], [-117.154, 32.716], [-117.164, 32.718],
+                  [-117.170, 32.724], [-117.171, 32.732], [-117.168, 32.738]
                 ]]
               }
             },
+            // Tower 1 - Fair coverage zone (outer)
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', signal_strength: 'Strong' },
+              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', signal_strength: -100, rsrp_class: 'fair' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
-                  [-117.14, 32.74], [-117.12, 32.75], [-117.10, 32.74],
-                  [-117.10, 32.72], [-117.12, 32.71], [-117.14, 32.72], [-117.14, 32.74]
+                  [-117.178, 32.748], [-117.165, 32.755], [-117.148, 32.753], [-117.136, 32.744],
+                  [-117.132, 32.730], [-117.135, 32.715], [-117.148, 32.705], [-117.165, 32.707],
+                  [-117.178, 32.716], [-117.183, 32.730], [-117.180, 32.744], [-117.178, 32.748]
                 ]]
               }
             },
+            // Tower 2 - Strong coverage zone
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-004', tech: '5G', band: '700', signal_strength: 'Weak' },
+              properties: { cell_id: 'SD-002', tech: '5G', band: '850', signal_strength: -60, rsrp_class: 'excellent' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
-                  [-117.20, 32.72], [-117.18, 32.73], [-117.16, 32.72],
-                  [-117.16, 32.70], [-117.18, 32.69], [-117.20, 32.70], [-117.20, 32.72]
+                  [-117.122, 32.728], [-117.118, 32.732], [-117.113, 32.730], [-117.112, 32.725],
+                  [-117.115, 32.721], [-117.120, 32.722], [-117.123, 32.725], [-117.122, 32.728]
                 ]]
               }
             },
+            // Tower 2 - Good coverage zone
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-005', tech: 'LTE', band: '850', signal_strength: 'Strong' },
+              properties: { cell_id: 'SD-002', tech: '5G', band: '850', signal_strength: -80, rsrp_class: 'good' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
-                  [-117.16, 32.72], [-117.14, 32.73], [-117.12, 32.72],
-                  [-117.12, 32.70], [-117.14, 32.69], [-117.16, 32.70], [-117.16, 32.72]
+                  [-117.130, 32.738], [-117.120, 32.742], [-117.108, 32.740], [-117.102, 32.732],
+                  [-117.104, 32.720], [-117.112, 32.714], [-117.124, 32.715], [-117.132, 32.722],
+                  [-117.134, 32.732], [-117.130, 32.738]
+                ]]
+              }
+            },
+            // Tower 2 - Fair coverage zone
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-002', tech: '5G', band: '850', signal_strength: -95, rsrp_class: 'fair' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.140, 32.750], [-117.125, 32.756], [-117.105, 32.752], [-117.094, 32.740],
+                  [-117.092, 32.724], [-117.098, 32.708], [-117.115, 32.700], [-117.133, 32.704],
+                  [-117.145, 32.716], [-117.148, 32.734], [-117.144, 32.746], [-117.140, 32.750]
+                ]]
+              }
+            },
+            // Tower 3 - Strong coverage zone
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', signal_strength: -62, rsrp_class: 'excellent' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.175, 32.708], [-117.170, 32.712], [-117.165, 32.710], [-117.164, 32.705],
+                  [-117.168, 32.701], [-117.174, 32.703], [-117.176, 32.706], [-117.175, 32.708]
+                ]]
+              }
+            },
+            // Tower 3 - Good coverage zone
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', signal_strength: -82, rsrp_class: 'good' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.184, 32.716], [-117.174, 32.722], [-117.162, 32.718], [-117.158, 32.708],
+                  [-117.162, 32.696], [-117.174, 32.692], [-117.184, 32.698], [-117.188, 32.708], [-117.184, 32.716]
+                ]]
+              }
+            },
+            // Tower 3 - Fair coverage zone
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', signal_strength: -98, rsrp_class: 'fair' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.195, 32.725], [-117.180, 32.734], [-117.162, 32.730], [-117.152, 32.718],
+                  [-117.150, 32.702], [-117.156, 32.688], [-117.172, 32.680], [-117.190, 32.684],
+                  [-117.200, 32.698], [-117.202, 32.714], [-117.195, 32.725]
+                ]]
+              }
+            },
+            // Tower 4 - Weak/Poor coverage only (edge of network)
+            {
+              type: 'Feature',
+              properties: { cell_id: 'SD-004', tech: '5G', band: '700', signal_strength: -105, rsrp_class: 'poor' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [[
+                  [-117.205, 32.745], [-117.195, 32.752], [-117.182, 32.750], [-117.178, 32.742],
+                  [-117.180, 32.732], [-117.190, 32.726], [-117.202, 32.728], [-117.210, 32.736], [-117.205, 32.745]
                 ]]
               }
             }
           ]
         };
         
-        // Mock cell tower point locations
+        // Cell tower point locations
         const cellTowerPoints = {
           type: 'FeatureCollection',
           features: [
-            { type: 'Feature', properties: { cell_id: 'SD-001', tech: 'LTE' }, geometry: { type: 'Point', coordinates: [-117.16, 32.73] } },
-            { type: 'Feature', properties: { cell_id: 'SD-002', tech: '5G' }, geometry: { type: 'Point', coordinates: [-117.14, 32.74] } },
-            { type: 'Feature', properties: { cell_id: 'SD-003', tech: 'LTE' }, geometry: { type: 'Point', coordinates: [-117.12, 32.73] } },
-            { type: 'Feature', properties: { cell_id: 'SD-004', tech: '5G' }, geometry: { type: 'Point', coordinates: [-117.18, 32.71] } },
-            { type: 'Feature', properties: { cell_id: 'SD-005', tech: 'LTE' }, geometry: { type: 'Point', coordinates: [-117.14, 32.71] } }
+            { type: 'Feature', properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', azimuth: 120 }, geometry: { type: 'Point', coordinates: [-117.157, 32.729] } },
+            { type: 'Feature', properties: { cell_id: 'SD-002', tech: '5G', band: '850', azimuth: 45 }, geometry: { type: 'Point', coordinates: [-117.117, 32.726] } },
+            { type: 'Feature', properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', azimuth: 270 }, geometry: { type: 'Point', coordinates: [-117.170, 32.705] } },
+            { type: 'Feature', properties: { cell_id: 'SD-004', tech: '5G', band: '700', azimuth: 0 }, geometry: { type: 'Point', coordinates: [-117.192, 32.738] } }
           ]
         };
         
@@ -1788,7 +1857,7 @@ const MapView = () => {
           data: cellTowerPoints as any
         });
         
-        // Add fill layer for coverage areas
+        // Add fill layer for coverage areas - RF propagation style colors
         map.current.addLayer({
           id: 'cell-tower-coverage-fill',
           type: 'fill',
@@ -1797,17 +1866,24 @@ const MapView = () => {
             'visibility': 'none'
           },
           paint: {
-            'fill-color': ['match', ['get', 'signal_strength'],
-              'Strong', '#22c55e',
-              'Medium', '#eab308',
-              'Weak', '#ef4444',
-              '#9ca3af'
+            'fill-color': ['match', ['get', 'rsrp_class'],
+              'excellent', '#00ff00',  // Bright green - excellent signal
+              'good', '#7fff00',       // Yellow-green - good signal
+              'fair', '#ffff00',       // Yellow - fair signal
+              'poor', '#ff6600',       // Orange - poor signal
+              '#ff0000'                // Red - no/weak signal
             ],
-            'fill-opacity': 0.35
+            'fill-opacity': ['match', ['get', 'rsrp_class'],
+              'excellent', 0.6,
+              'good', 0.45,
+              'fair', 0.35,
+              'poor', 0.25,
+              0.2
+            ]
           }
         });
         
-        // Add outline layer for coverage areas
+        // Add outline layer for coverage areas - subtle dashed lines
         map.current.addLayer({
           id: 'cell-tower-coverage-outline',
           type: 'line',
@@ -1816,16 +1892,20 @@ const MapView = () => {
             'visibility': 'none'
           },
           paint: {
-            'line-color': ['match', ['get', 'tech'],
-              'LTE', '#3b82f6',
-              '5G', '#8b5cf6',
-              '#6b7280'
+            'line-color': ['match', ['get', 'rsrp_class'],
+              'excellent', '#008800',
+              'good', '#558800',
+              'fair', '#888800',
+              'poor', '#885500',
+              '#880000'
             ],
-            'line-width': 2
+            'line-width': 1,
+            'line-opacity': 0.6,
+            'line-dasharray': [2, 2]
           }
         });
         
-        // Add cell tower point markers
+        // Add cell tower point markers - tower icons
         map.current.addLayer({
           id: 'cell-tower-points',
           type: 'circle',
@@ -1834,14 +1914,28 @@ const MapView = () => {
             'visibility': 'none'
           },
           paint: {
-            'circle-radius': 8,
+            'circle-radius': 10,
             'circle-color': ['match', ['get', 'tech'],
-              'LTE', '#3b82f6',
-              '5G', '#8b5cf6',
+              'LTE', '#2563eb',
+              '5G', '#7c3aed',
               '#6b7280'
             ],
-            'circle-stroke-width': 2,
+            'circle-stroke-width': 3,
             'circle-stroke-color': '#ffffff'
+          }
+        });
+        
+        // Add a second layer for tower symbol effect
+        map.current.addLayer({
+          id: 'cell-tower-points-inner',
+          type: 'circle',
+          source: 'cell-tower-points-source',
+          layout: {
+            'visibility': 'none'
+          },
+          paint: {
+            'circle-radius': 4,
+            'circle-color': '#ffffff'
           }
         });
         
