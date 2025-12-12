@@ -2684,8 +2684,22 @@ const MapView = () => {
           cells={coveragePanelCells}
           onClose={() => setCoveragePanelCells([])}
           onZoomToCell={(cellId) => {
-            // Optional: zoom to cell location
-            console.log('Zoom to cell:', cellId);
+            // Cell tower locations
+            const cellLocations: Record<string, [number, number]> = {
+              'SD-001': [-117.157, 32.729],
+              'SD-002': [-117.117, 32.726],
+              'SD-003': [-117.170, 32.705],
+              'SD-004': [-117.192, 32.738],
+            };
+            
+            const coords = cellLocations[cellId];
+            if (coords && map.current) {
+              map.current.flyTo({
+                center: coords,
+                zoom: 15,
+                duration: 1000
+              });
+            }
           }}
         />
       )}
