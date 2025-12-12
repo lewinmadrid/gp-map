@@ -197,11 +197,13 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
                 return (
                   <div
                     key={index}
-                    className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors opacity-20 hover:opacity-100"
+                    className="flex items-center gap-3 p-3 text-gray-400/20 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-all duration-200"
                     onClick={item.onClick}
                   >
-                    <IconComponent />
-                    <span className="text-xs">{item.label}</span>
+                    <div className="opacity-20 group-hover:opacity-100">
+                      <IconComponent />
+                    </div>
+                    <span className="text-xs opacity-20 hover:opacity-100">{item.label}</span>
                   </div>
                 );
               })}
@@ -294,11 +296,13 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
             return (
               <div
                 key={index}
-                className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors opacity-20 hover:opacity-100"
+                className="flex items-center gap-3 p-3 text-gray-400/20 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-all duration-200"
                 onClick={item.onClick}
               >
-                <IconComponent />
-                <span className="text-xs">{item.label}</span>
+                <div className="opacity-20 group-hover:opacity-100">
+                  <IconComponent />
+                </div>
+                <span className="text-xs opacity-20 hover:opacity-100">{item.label}</span>
               </div>
             );
           })}
@@ -378,7 +382,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
               key={index}
               variant="ghost"
               size="sm"
-              className={`w-10 h-10 p-0 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-slate-800 ${index === 0 ? '' : 'opacity-20 hover:opacity-100'}`}
+              className={`w-10 h-10 p-0 rounded-lg transition-all duration-200 hover:text-white hover:bg-slate-800 ${index === 0 ? 'text-gray-400' : 'text-gray-400/20 hover:text-white'}`}
               title={item.label}
               onClick={item.onClick}
             >
