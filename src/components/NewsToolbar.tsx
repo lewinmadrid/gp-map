@@ -6,9 +6,11 @@ import { Info, ChevronDown, Calendar, Radio, Antenna, Map, Signal, Search, Squar
 
 interface NewsToolbarProps {
   isMobile?: boolean;
+  infoMode?: boolean;
+  onInfoModeChange?: (enabled: boolean) => void;
 }
 
-const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
+const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = false, onInfoModeChange }) => {
   const [showSecondRow, setShowSecondRow] = useState(false);
   const [eaPercent, setEaPercent] = useState('5');
   const [cellPercent, setCellPercent] = useState('5');
@@ -120,8 +122,13 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="secondary" size="sm" className="h-10 w-10 p-0 border border-gray-200 shadow-sm bg-white hover:bg-gray-50">
-          <Info className="h-4 w-4 text-blue-500" />
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className={`h-10 w-10 p-0 border shadow-sm ${infoMode ? 'bg-blue-100 border-blue-300' : 'bg-white border-gray-200 hover:bg-gray-50'}`}
+          onClick={() => onInfoModeChange?.(!infoMode)}
+        >
+          <Info className={`h-4 w-4 ${infoMode ? 'text-blue-700' : 'text-blue-500'}`} />
         </Button>
 
         <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10">
