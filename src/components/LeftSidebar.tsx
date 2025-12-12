@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { User, Shield, LogOut } from 'lucide-react';
 import { endSession } from '@/hooks/useActivityLogger';
+import { useToast } from '@/hooks/use-toast';
 
 interface LeftSidebarProps {
   className?: string;
@@ -25,6 +26,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
   const [userEmail, setUserEmail] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [userInitials, setUserInitials] = useState("U");
+  const { toast } = useToast();
 
   useEffect(() => {
     loadUserData();
@@ -73,6 +75,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
     const newState = !isExpanded;
     setIsExpanded(newState);
     onExpandedChange?.(newState);
+  };
+
+  const showNotImplemented = () => {
+    toast({ description: "Functionality not implemented in the prototype" });
   };
 
   // Custom SVG icons matching the reference image style
@@ -145,20 +151,20 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
   );
 
   const expandedMenuItems = [
-    { icon: DrawShapeIcon, label: 'Draw Shape' },
-    { icon: HazardIcon, label: 'Hazard Library' },
-    { icon: FireIcon, label: 'Active Fires' },
-    { icon: WeatherIcon, label: 'Weather' },
-    { icon: ViewIcon, label: 'Current Operational View' }
+    { icon: DrawShapeIcon, label: 'Draw Shape', onClick: showNotImplemented },
+    { icon: HazardIcon, label: 'Hazard Library', onClick: showNotImplemented },
+    { icon: FireIcon, label: 'Active Fires', onClick: showNotImplemented },
+    { icon: WeatherIcon, label: 'Weather', onClick: showNotImplemented },
+    { icon: ViewIcon, label: 'Current Operational View', onClick: showNotImplemented }
   ];
 
   const compactMenuItems = [
     { icon: MenuIcon, label: 'Menu', onClick: toggleExpanded },
-    { icon: DrawShapeIcon, label: 'Draw Shape' },
-    { icon: HazardIcon, label: 'Hazard Library' },
-    { icon: FireIcon, label: 'Active Fires' },
-    { icon: WeatherIcon, label: 'Weather' },
-    { icon: ViewIcon, label: 'Current Operational View' }
+    { icon: DrawShapeIcon, label: 'Draw Shape', onClick: showNotImplemented },
+    { icon: HazardIcon, label: 'Hazard Library', onClick: showNotImplemented },
+    { icon: FireIcon, label: 'Active Fires', onClick: showNotImplemented },
+    { icon: WeatherIcon, label: 'Weather', onClick: showNotImplemented },
+    { icon: ViewIcon, label: 'Current Operational View', onClick: showNotImplemented }
   ];
 
   // Mobile sidebar (full-screen sheet)
@@ -192,6 +198,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
                   <div
                     key={index}
                     className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+                    onClick={item.onClick}
                   >
                     <IconComponent />
                     <span className="text-xs">{item.label}</span>
@@ -202,7 +209,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
 
             {/* Help Section */}
             <div className="border-t border-slate-700 p-4">
-              <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+              <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors" onClick={showNotImplemented}>
                 <HelpIcon />
                 <div>
                   <div className="text-xs">Help and Support</div>
@@ -288,6 +295,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
               <div
                 key={index}
                 className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+                onClick={item.onClick}
               >
                 <IconComponent />
                 <span className="text-xs">{item.label}</span>
@@ -298,7 +306,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
 
         {/* Help Section */}
         <div className="border-t border-slate-700 p-4">
-          <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+          <div className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors" onClick={showNotImplemented}>
             <HelpIcon />
             <div>
               <div className="text-xs">Help and Support</div>
