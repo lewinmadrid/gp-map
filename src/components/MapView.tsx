@@ -1949,7 +1949,7 @@ const MapView = () => {
           type: 'fill',
           source: 'cell-tower-coverage',
           layout: {
-            'visibility': 'none'
+            'visibility': currentMode === 'news' ? 'visible' : 'none'
           },
           paint: {
             'fill-color': ['match', ['get', 'rsrp_class'],
@@ -1975,7 +1975,7 @@ const MapView = () => {
           type: 'line',
           source: 'cell-tower-coverage',
           layout: {
-            'visibility': 'none'
+            'visibility': currentMode === 'news' ? 'visible' : 'none'
           },
           paint: {
             'line-color': ['match', ['get', 'rsrp_class'],
@@ -1997,7 +1997,7 @@ const MapView = () => {
           type: 'circle',
           source: 'cell-tower-points-source',
           layout: {
-            'visibility': 'none'
+            'visibility': currentMode === 'news' ? 'visible' : 'none'
           },
           paint: {
             'circle-radius': 10,
@@ -2017,7 +2017,7 @@ const MapView = () => {
           type: 'circle',
           source: 'cell-tower-points-source',
           layout: {
-            'visibility': 'none'
+            'visibility': currentMode === 'news' ? 'visible' : 'none'
           },
           paint: {
             'circle-radius': 4,
