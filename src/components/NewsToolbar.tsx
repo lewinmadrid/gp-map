@@ -4,13 +4,21 @@ import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Info, ChevronDown, Calendar, Radio, Antenna, Map, Signal, Search, Square, Calculator, FileCode, Trash2 } from 'lucide-react';
 
+export interface CoverageFilters {
+  tech: string;
+  band: string;
+  utm: string;
+  bsMc: string;
+}
+
 interface NewsToolbarProps {
   isMobile?: boolean;
   infoMode?: boolean;
   onInfoModeChange?: (enabled: boolean) => void;
+  onFiltersChange?: (filters: CoverageFilters) => void;
 }
 
-const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = false, onInfoModeChange }) => {
+const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = false, onInfoModeChange, onFiltersChange }) => {
   const [showSecondRow, setShowSecondRow] = useState(false);
   const [eaPercent, setEaPercent] = useState('5');
   const [cellPercent, setCellPercent] = useState('5');
@@ -19,6 +27,22 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
   const [selectedBand, setSelectedBand] = useState('');
   const [selectedUtm, setSelectedUtm] = useState('');
   const [selectedBsMc, setSelectedBsMc] = useState('');
+
+  const updateFilter = (key: keyof CoverageFilters, value: string) => {
+    const newFilters = {
+      tech: key === 'tech' ? value : selectedTech,
+      band: key === 'band' ? value : selectedBand,
+      utm: key === 'utm' ? value : selectedUtm,
+      bsMc: key === 'bsMc' ? value : selectedBsMc,
+    };
+    
+    if (key === 'tech') setSelectedTech(value);
+    if (key === 'band') setSelectedBand(value);
+    if (key === 'utm') setSelectedUtm(value);
+    if (key === 'bsMc') setSelectedBsMc(value);
+    
+    onFiltersChange?.(newFilters);
+  };
 
   const dates = ['09-12-2025', '08-12-2025', '07-12-2025', '06-12-2025', '05-12-2025'];
   const techs = ['LTE', '5G', 'All'];
@@ -61,7 +85,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg z-50">
             {techs.map((tech) => (
-              <DropdownMenuItem key={tech} onClick={() => setSelectedTech(tech)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+              <DropdownMenuItem key={tech} onClick={() => updateFilter('tech', tech)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
                 {tech}
               </DropdownMenuItem>
             ))}
@@ -79,7 +103,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg z-50">
             {bands.map((band) => (
-              <DropdownMenuItem key={band} onClick={() => setSelectedBand(band)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+              <DropdownMenuItem key={band} onClick={() => updateFilter('band', band)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
                 {band}
               </DropdownMenuItem>
             ))}
@@ -97,7 +121,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg z-50">
             {utms.map((utm) => (
-              <DropdownMenuItem key={utm} onClick={() => setSelectedUtm(utm)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+              <DropdownMenuItem key={utm} onClick={() => updateFilter('utm', utm)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
                 {utm}
               </DropdownMenuItem>
             ))}
@@ -115,7 +139,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-32 bg-white border border-gray-200 shadow-lg z-50">
             {bsMcs.map((item) => (
-              <DropdownMenuItem key={item} onClick={() => setSelectedBsMc(item)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+              <DropdownMenuItem key={item} onClick={() => updateFilter('bsMc', item)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
                 {item}
               </DropdownMenuItem>
             ))}
