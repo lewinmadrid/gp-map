@@ -104,11 +104,11 @@ const MapView = () => {
       }
     });
     
-    // Show cell tower layers in NEWS mode
+    // Show cell tower layers in NEWS mode (always visible in NEWS mode)
     cellTowerLayers.forEach(layerId => {
       const layer = map.current?.getLayer(layerId);
       if (layer) {
-        map.current?.setLayoutProperty(layerId, 'visibility', isNewsMode && cellTowerLayerVisible ? 'visible' : 'none');
+        map.current?.setLayoutProperty(layerId, 'visibility', isNewsMode ? 'visible' : 'none');
       }
     });
   }, [currentMode, mapLoaded, zoneLayerVisible, cellTowerLayerVisible]);
