@@ -48,7 +48,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
   const techs = ['LTE', '5G', 'All'];
   const bands = ['700', '850', '1900', 'All'];
   const utms = ['49', '50', '51', '52', '53', '54', '55', '56', 'All'];
-  const bsMcs = ['BS', 'MC'];
+  const bsMcs = ['BS', 'MC', 'All'];
 
   return (
     <div className="absolute top-4 left-4 right-4 z-30 flex flex-col gap-2">
