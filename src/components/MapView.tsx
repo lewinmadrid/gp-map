@@ -13,7 +13,7 @@ import ToolsPopup from './ToolsPopup';
 import Legend from './Legend';
 import LeftSidebar from './LeftSidebar';
 import TopToolbar from './TopToolbar';
-import NewsToolbar from './NewsToolbar';
+import NewsToolbar, { CoverageFilters } from './NewsToolbar';
 import ModeToggle from './ModeToggle';
 import AttributePanel from './AttributePanel';
 import CoverageAttributePanel from './CoverageAttributePanel';
@@ -65,6 +65,7 @@ const MapView = () => {
   const [attributePanelFeature, setAttributePanelFeature] = useState<any>(null);
   const [coveragePanelCells, setCoveragePanelCells] = useState<any[]>([]);
   const [newsInfoMode, setNewsInfoMode] = useState(false);
+  const [coverageFilters, setCoverageFilters] = useState<CoverageFilters>({ tech: '', band: '', utm: '', bsMc: '' });
   const hasShownExcludeTooltipRef = useRef(false);
   const [showExcludeTooltip, setShowExcludeTooltip] = useState(false);
   const {
@@ -112,6 +113,36 @@ const MapView = () => {
       }
     });
   }, [currentMode, mapLoaded, zoneLayerVisible, cellTowerLayerVisible]);
+
+  // Apply coverage filters to cell tower layer
+  useEffect(() => {
+    if (!map.current || !mapLoaded || currentMode !== 'news') return;
+    
+    const layer = map.current.getLayer('cell-tower-coverage-fill');
+    if (!layer) return;
+    
+    // Build filter expression
+    const filterConditions: (string | string[])[] = ['all'];
+    
+    if (coverageFilters.tech && coverageFilters.tech !== 'All') {
+      filterConditions.push(['==', ['get', 'tech'], coverageFilters.tech] as any);
+    }
+    if (coverageFilters.band) {
+      filterConditions.push(['==', ['get', 'band'], coverageFilters.band] as any);
+    }
+    
+    // Apply filter to coverage layers
+    const layersToFilter = ['cell-tower-coverage-fill', 'cell-tower-coverage-outline'];
+    layersToFilter.forEach(layerId => {
+      if (map.current?.getLayer(layerId)) {
+        if (filterConditions.length > 1) {
+          map.current.setFilter(layerId, filterConditions as any);
+        } else {
+          map.current.setFilter(layerId, null);
+        }
+      }
+    });
+  }, [coverageFilters, mapLoaded, currentMode]);
 
   // Preserve map center/zoom when sidebar expands/collapses
   useEffect(() => {
@@ -2373,7 +2404,7 @@ const MapView = () => {
       {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} isMobile={isMobile} />}
       
       {/* News Toolbar - only show in News mode */}
-      {currentMode === 'news' && <NewsToolbar isMobile={isMobile} infoMode={newsInfoMode} onInfoModeChange={setNewsInfoMode} />}
+      {currentMode === 'news' && <NewsToolbar isMobile={isMobile} infoMode={newsInfoMode} onInfoModeChange={setNewsInfoMode} onFiltersChange={setCoverageFilters} />}
       
       {/* Top Toolbar - only show in Alert mode */}
       {currentMode === 'alert' && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
