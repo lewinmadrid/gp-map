@@ -180,7 +180,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
             <span className="text-sm text-gray-700 whitespace-nowrap">EA %:</span>
             <Input 
               type="number" 
-              className="w-14 h-7 text-sm border-0 shadow-none focus-visible:ring-0 bg-white" 
+              className="w-14 h-7 text-sm border-0 shadow-none focus-visible:ring-0 bg-white text-black" 
               value={eaPercent}
               onChange={(e) => setEaPercent(e.target.value)}
             />
@@ -190,7 +190,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false }) => {
             <span className="text-sm text-gray-700 whitespace-nowrap">Cell %:</span>
             <Input 
               type="number" 
-              className="w-14 h-7 text-sm border-0 shadow-none focus-visible:ring-0 bg-white" 
+              className="w-14 h-7 text-sm border-0 shadow-none focus-visible:ring-0 bg-white text-black" 
               value={cellPercent}
               onChange={(e) => setCellPercent(e.target.value)}
             />
