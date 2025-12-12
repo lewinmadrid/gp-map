@@ -228,15 +228,20 @@ const MapView = () => {
     };
   };
 
-  // Update coverage data when date changes
+  // Update coverage data when date changes or switching to NEWS mode
   useEffect(() => {
     if (!map.current || !mapLoaded || currentMode !== 'news') return;
     
-    const source = map.current.getSource('cell-tower-coverage') as any;
-    if (source) {
-      const newData = getCoverageDataForDate(selectedCoverageDate);
-      source.setData(newData);
-    }
+    // Small delay to ensure layers are visible first
+    const timeoutId = setTimeout(() => {
+      const source = map.current?.getSource('cell-tower-coverage') as any;
+      if (source) {
+        const newData = getCoverageDataForDate(selectedCoverageDate);
+        source.setData(newData);
+      }
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
   }, [selectedCoverageDate, mapLoaded, currentMode]);
 
   // Preserve map center/zoom when sidebar expands/collapses
