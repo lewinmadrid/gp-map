@@ -19,12 +19,14 @@ interface CoverageAttributePanelProps {
   cells: CellData[];
   onClose: () => void;
   onZoomToCell?: (cellId: string) => void;
+  onHighlightCell?: (cellId: string) => void;
 }
 
 const CoverageAttributePanel: React.FC<CoverageAttributePanelProps> = ({
   cells,
   onClose,
-  onZoomToCell
+  onZoomToCell,
+  onHighlightCell
 }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -74,6 +76,11 @@ const CoverageAttributePanel: React.FC<CoverageAttributePanelProps> = ({
 
   const handleRowClick = (index: number, cellId: string) => {
     setSelectedRow(index);
+    // Always highlight the cell
+    if (onHighlightCell) {
+      onHighlightCell(cellId);
+    }
+    // Only zoom if zoomToCell is enabled
     if (zoomToCell && onZoomToCell) {
       onZoomToCell(cellId);
     }

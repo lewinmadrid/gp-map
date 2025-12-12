@@ -2823,37 +2823,15 @@ const MapView = () => {
               map.current.removeSource('cell-highlight');
             }
           }}
-          onZoomToCell={(cellId) => {
+          onHighlightCell={(cellId) => {
             if (!map.current) return;
             
-            // Query all features for this cell to get bounds
+            // Query all features for this cell
             const allFeatures = map.current.querySourceFeatures('cell-tower-coverage', {
               filter: ['==', ['get', 'cell_id'], cellId]
             });
             
             if (allFeatures.length > 0) {
-              // Calculate bounds from all polygons of this cell
-              let minLng = Infinity, maxLng = -Infinity;
-              let minLat = Infinity, maxLat = -Infinity;
-              
-              allFeatures.forEach(feature => {
-                if (feature.geometry.type === 'Polygon') {
-                  const coords = (feature.geometry as any).coordinates[0];
-                  coords.forEach((coord: number[]) => {
-                    minLng = Math.min(minLng, coord[0]);
-                    maxLng = Math.max(maxLng, coord[0]);
-                    minLat = Math.min(minLat, coord[1]);
-                    maxLat = Math.max(maxLat, coord[1]);
-                  });
-                }
-              });
-              
-              // Fit map to cell bounds
-              map.current.fitBounds(
-                [[minLng, minLat], [maxLng, maxLat]],
-                { padding: 50, duration: 1000 }
-              );
-              
               // Remove existing highlight layer if present
               if (map.current.getLayer('cell-highlight-outline')) {
                 map.current.removeLayer('cell-highlight-outline');
@@ -2887,6 +2865,38 @@ const MapView = () => {
                   'line-opacity': 1
                 }
               });
+            }
+          }}
+          onZoomToCell={(cellId) => {
+            if (!map.current) return;
+            
+            // Query all features for this cell to get bounds
+            const allFeatures = map.current.querySourceFeatures('cell-tower-coverage', {
+              filter: ['==', ['get', 'cell_id'], cellId]
+            });
+            
+            if (allFeatures.length > 0) {
+              // Calculate bounds from all polygons of this cell
+              let minLng = Infinity, maxLng = -Infinity;
+              let minLat = Infinity, maxLat = -Infinity;
+              
+              allFeatures.forEach(feature => {
+                if (feature.geometry.type === 'Polygon') {
+                  const coords = (feature.geometry as any).coordinates[0];
+                  coords.forEach((coord: number[]) => {
+                    minLng = Math.min(minLng, coord[0]);
+                    maxLng = Math.max(maxLng, coord[0]);
+                    minLat = Math.min(minLat, coord[1]);
+                    maxLat = Math.max(maxLat, coord[1]);
+                  });
+                }
+              });
+              
+              // Fit map to cell bounds
+              map.current.fitBounds(
+                [[minLng, minLat], [maxLng, maxLat]],
+                { padding: 50, duration: 1000 }
+              );
             }
           }}
         />
