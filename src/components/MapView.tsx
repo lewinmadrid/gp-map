@@ -127,7 +127,7 @@ const MapView = () => {
     if (coverageFilters.tech && coverageFilters.tech !== 'All') {
       filterConditions.push(['==', ['get', 'tech'], coverageFilters.tech] as any);
     }
-    if (coverageFilters.band) {
+    if (coverageFilters.band && coverageFilters.band !== 'All') {
       filterConditions.push(['==', ['get', 'band'], coverageFilters.band] as any);
     }
     
