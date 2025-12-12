@@ -16,9 +16,10 @@ interface NewsToolbarProps {
   infoMode?: boolean;
   onInfoModeChange?: (enabled: boolean) => void;
   onFiltersChange?: (filters: CoverageFilters) => void;
+  onDateChange?: (date: string) => void;
 }
 
-const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = false, onInfoModeChange, onFiltersChange }) => {
+const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = false, onInfoModeChange, onFiltersChange, onDateChange }) => {
   const [showSecondRow, setShowSecondRow] = useState(false);
   const [eaPercent, setEaPercent] = useState('5');
   const [cellPercent, setCellPercent] = useState('5');
@@ -67,7 +68,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg z-50">
             {dates.map((date) => (
-              <DropdownMenuItem key={date} onClick={() => setSelectedDate(date)} className="flex items-center gap-2 hover:bg-gray-100 text-black">
+              <DropdownMenuItem key={date} onClick={() => { setSelectedDate(date); onDateChange?.(date); }} className="flex items-center gap-2 hover:bg-gray-100 text-black">
                 {date}
               </DropdownMenuItem>
             ))}

@@ -66,6 +66,7 @@ const MapView = () => {
   const [coveragePanelCells, setCoveragePanelCells] = useState<any[]>([]);
   const [newsInfoMode, setNewsInfoMode] = useState(false);
   const [coverageFilters, setCoverageFilters] = useState<CoverageFilters>({ tech: '', band: '', utm: '', bsMc: '' });
+  const [selectedCoverageDate, setSelectedCoverageDate] = useState('09-12-2025');
   const hasShownExcludeTooltipRef = useRef(false);
   const [showExcludeTooltip, setShowExcludeTooltip] = useState(false);
   const {
@@ -149,6 +150,72 @@ const MapView = () => {
       }
     });
   }, [coverageFilters, mapLoaded, currentMode]);
+
+  // Generate coverage data based on selected date
+  const getCoverageDataForDate = (date: string) => {
+    const baseFeatures = [
+      { cell_id: 'SD-001', tech: 'LTE', band: '700', utm: '50', bsMc: 'BS', coords: [[-117.162, 32.732], [-117.158, 32.735], [-117.154, 32.734], [-117.152, 32.731], [-117.153, 32.727], [-117.157, 32.725], [-117.161, 32.727], [-117.163, 32.730], [-117.162, 32.732]], rsrp_class: 'excellent' },
+      { cell_id: 'SD-002', tech: '5G', band: '850', utm: '51', bsMc: 'MC', coords: [[-117.122, 32.728], [-117.118, 32.732], [-117.113, 32.730], [-117.112, 32.725], [-117.115, 32.721], [-117.120, 32.722], [-117.123, 32.725], [-117.122, 32.728]], rsrp_class: 'excellent' },
+      { cell_id: 'SD-003', tech: 'LTE', band: '1900', utm: '50', bsMc: 'BS', coords: [[-117.175, 32.708], [-117.170, 32.712], [-117.165, 32.710], [-117.164, 32.705], [-117.168, 32.701], [-117.174, 32.703], [-117.176, 32.706], [-117.175, 32.708]], rsrp_class: 'excellent' },
+      { cell_id: 'SD-004', tech: '5G', band: '700', utm: '51', bsMc: 'MC', coords: [[-117.205, 32.745], [-117.195, 32.752], [-117.182, 32.750], [-117.178, 32.742], [-117.180, 32.732], [-117.190, 32.726], [-117.202, 32.728], [-117.210, 32.736], [-117.205, 32.745]], rsrp_class: 'poor' },
+    ];
+
+    const additionalCells: Record<string, any[]> = {
+      '08-12-2025': [
+        { cell_id: 'SD-005', tech: 'LTE', band: '850', utm: '50', bsMc: 'BS', coords: [[-117.140, 32.715], [-117.135, 32.720], [-117.128, 32.718], [-117.126, 32.712], [-117.130, 32.707], [-117.138, 32.708], [-117.142, 32.712], [-117.140, 32.715]], rsrp_class: 'excellent' },
+        { cell_id: 'SD-006', tech: '5G', band: '1900', utm: '51', bsMc: 'MC', coords: [[-117.195, 32.715], [-117.188, 32.722], [-117.178, 32.720], [-117.175, 32.712], [-117.180, 32.705], [-117.190, 32.706], [-117.197, 32.710], [-117.195, 32.715]], rsrp_class: 'good' },
+      ],
+      '07-12-2025': [
+        { cell_id: 'SD-005', tech: 'LTE', band: '850', utm: '50', bsMc: 'BS', coords: [[-117.140, 32.715], [-117.135, 32.720], [-117.128, 32.718], [-117.126, 32.712], [-117.130, 32.707], [-117.138, 32.708], [-117.142, 32.712], [-117.140, 32.715]], rsrp_class: 'excellent' },
+        { cell_id: 'SD-006', tech: '5G', band: '1900', utm: '51', bsMc: 'MC', coords: [[-117.195, 32.715], [-117.188, 32.722], [-117.178, 32.720], [-117.175, 32.712], [-117.180, 32.705], [-117.190, 32.706], [-117.197, 32.710], [-117.195, 32.715]], rsrp_class: 'good' },
+        { cell_id: 'SD-007', tech: 'LTE', band: '700', utm: '50', bsMc: 'BS', coords: [[-117.148, 32.740], [-117.142, 32.746], [-117.133, 32.744], [-117.130, 32.738], [-117.134, 32.732], [-117.143, 32.732], [-117.150, 32.736], [-117.148, 32.740]], rsrp_class: 'good' },
+        { cell_id: 'SD-008', tech: '5G', band: '850', utm: '51', bsMc: 'MC', coords: [[-117.108, 32.712], [-117.102, 32.718], [-117.094, 32.715], [-117.092, 32.708], [-117.096, 32.702], [-117.105, 32.703], [-117.110, 32.708], [-117.108, 32.712]], rsrp_class: 'excellent' },
+      ],
+      '06-12-2025': [
+        { cell_id: 'SD-005', tech: 'LTE', band: '850', utm: '50', bsMc: 'BS', coords: [[-117.140, 32.715], [-117.135, 32.720], [-117.128, 32.718], [-117.126, 32.712], [-117.130, 32.707], [-117.138, 32.708], [-117.142, 32.712], [-117.140, 32.715]], rsrp_class: 'excellent' },
+        { cell_id: 'SD-006', tech: '5G', band: '1900', utm: '51', bsMc: 'MC', coords: [[-117.195, 32.715], [-117.188, 32.722], [-117.178, 32.720], [-117.175, 32.712], [-117.180, 32.705], [-117.190, 32.706], [-117.197, 32.710], [-117.195, 32.715]], rsrp_class: 'good' },
+        { cell_id: 'SD-007', tech: 'LTE', band: '700', utm: '50', bsMc: 'BS', coords: [[-117.148, 32.740], [-117.142, 32.746], [-117.133, 32.744], [-117.130, 32.738], [-117.134, 32.732], [-117.143, 32.732], [-117.150, 32.736], [-117.148, 32.740]], rsrp_class: 'good' },
+        { cell_id: 'SD-008', tech: '5G', band: '850', utm: '51', bsMc: 'MC', coords: [[-117.108, 32.712], [-117.102, 32.718], [-117.094, 32.715], [-117.092, 32.708], [-117.096, 32.702], [-117.105, 32.703], [-117.110, 32.708], [-117.108, 32.712]], rsrp_class: 'excellent' },
+        { cell_id: 'SD-009', tech: 'LTE', band: '1900', utm: '50', bsMc: 'BS', coords: [[-117.165, 32.752], [-117.158, 32.758], [-117.148, 32.755], [-117.145, 32.748], [-117.150, 32.742], [-117.160, 32.743], [-117.167, 32.747], [-117.165, 32.752]], rsrp_class: 'fair' },
+        { cell_id: 'SD-010', tech: '5G', band: '700', utm: '51', bsMc: 'MC', coords: [[-117.220, 32.730], [-117.212, 32.738], [-117.202, 32.735], [-117.198, 32.727], [-117.204, 32.720], [-117.215, 32.722], [-117.222, 32.726], [-117.220, 32.730]], rsrp_class: 'good' },
+      ],
+      '05-12-2025': [
+        { cell_id: 'SD-005', tech: 'LTE', band: '850', utm: '50', bsMc: 'BS', coords: [[-117.140, 32.715], [-117.135, 32.720], [-117.128, 32.718], [-117.126, 32.712], [-117.130, 32.707], [-117.138, 32.708], [-117.142, 32.712], [-117.140, 32.715]], rsrp_class: 'excellent' },
+        { cell_id: 'SD-006', tech: '5G', band: '1900', utm: '51', bsMc: 'MC', coords: [[-117.195, 32.715], [-117.188, 32.722], [-117.178, 32.720], [-117.175, 32.712], [-117.180, 32.705], [-117.190, 32.706], [-117.197, 32.710], [-117.195, 32.715]], rsrp_class: 'good' },
+        { cell_id: 'SD-007', tech: 'LTE', band: '700', utm: '50', bsMc: 'BS', coords: [[-117.148, 32.740], [-117.142, 32.746], [-117.133, 32.744], [-117.130, 32.738], [-117.134, 32.732], [-117.143, 32.732], [-117.150, 32.736], [-117.148, 32.740]], rsrp_class: 'good' },
+        { cell_id: 'SD-008', tech: '5G', band: '850', utm: '51', bsMc: 'MC', coords: [[-117.108, 32.712], [-117.102, 32.718], [-117.094, 32.715], [-117.092, 32.708], [-117.096, 32.702], [-117.105, 32.703], [-117.110, 32.708], [-117.108, 32.712]], rsrp_class: 'excellent' },
+        { cell_id: 'SD-009', tech: 'LTE', band: '1900', utm: '50', bsMc: 'BS', coords: [[-117.165, 32.752], [-117.158, 32.758], [-117.148, 32.755], [-117.145, 32.748], [-117.150, 32.742], [-117.160, 32.743], [-117.167, 32.747], [-117.165, 32.752]], rsrp_class: 'fair' },
+        { cell_id: 'SD-010', tech: '5G', band: '700', utm: '51', bsMc: 'MC', coords: [[-117.220, 32.730], [-117.212, 32.738], [-117.202, 32.735], [-117.198, 32.727], [-117.204, 32.720], [-117.215, 32.722], [-117.222, 32.726], [-117.220, 32.730]], rsrp_class: 'good' },
+        { cell_id: 'SD-011', tech: 'LTE', band: '850', utm: '50', bsMc: 'BS', coords: [[-117.185, 32.690], [-117.178, 32.696], [-117.168, 32.693], [-117.165, 32.686], [-117.170, 32.680], [-117.180, 32.681], [-117.187, 32.685], [-117.185, 32.690]], rsrp_class: 'excellent' },
+        { cell_id: 'SD-012', tech: '5G', band: '1900', utm: '51', bsMc: 'MC', coords: [[-117.095, 32.738], [-117.088, 32.744], [-117.078, 32.741], [-117.075, 32.734], [-117.080, 32.728], [-117.090, 32.729], [-117.097, 32.733], [-117.095, 32.738]], rsrp_class: 'good' },
+      ],
+    };
+
+    let cells = [...baseFeatures];
+    if (additionalCells[date]) {
+      cells = [...cells, ...additionalCells[date]];
+    }
+
+    return {
+      type: 'FeatureCollection',
+      features: cells.map(cell => ({
+        type: 'Feature',
+        properties: { cell_id: cell.cell_id, tech: cell.tech, band: cell.band, utm: cell.utm, bsMc: cell.bsMc, rsrp_class: cell.rsrp_class, signal_strength: cell.rsrp_class === 'excellent' ? -65 : cell.rsrp_class === 'good' ? -85 : cell.rsrp_class === 'fair' ? -100 : -110 },
+        geometry: { type: 'Polygon', coordinates: [cell.coords] }
+      }))
+    };
+  };
+
+  // Update coverage data when date changes
+  useEffect(() => {
+    if (!map.current || !mapLoaded || currentMode !== 'news') return;
+    
+    const source = map.current.getSource('cell-tower-coverage') as any;
+    if (source) {
+      const newData = getCoverageDataForDate(selectedCoverageDate);
+      source.setData(newData);
+    }
+  }, [selectedCoverageDate, mapLoaded, currentMode]);
 
   // Preserve map center/zoom when sidebar expands/collapses
   useEffect(() => {
@@ -2410,7 +2477,7 @@ const MapView = () => {
       {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} isMobile={isMobile} />}
       
       {/* News Toolbar - only show in News mode */}
-      {currentMode === 'news' && <NewsToolbar isMobile={isMobile} infoMode={newsInfoMode} onInfoModeChange={setNewsInfoMode} onFiltersChange={setCoverageFilters} />}
+      {currentMode === 'news' && <NewsToolbar isMobile={isMobile} infoMode={newsInfoMode} onInfoModeChange={setNewsInfoMode} onFiltersChange={setCoverageFilters} onDateChange={setSelectedCoverageDate} />}
       
       {/* Top Toolbar - only show in Alert mode */}
       {currentMode === 'alert' && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
