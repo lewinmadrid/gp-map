@@ -90,7 +90,7 @@ const MapView = () => {
     }
   }, [currentMode]);
 
-  // Hide zone layer when in NEWS mode, show cell tower layer
+  // Hide zone layer when in NEWS mode, show cell tower layer and update coverage data
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
     
@@ -113,7 +113,16 @@ const MapView = () => {
         map.current?.setLayoutProperty(layerId, 'visibility', isNewsMode ? 'visible' : 'none');
       }
     });
-  }, [currentMode, mapLoaded, zoneLayerVisible, cellTowerLayerVisible]);
+    
+    // When switching to NEWS mode, update the coverage data
+    if (isNewsMode) {
+      const source = map.current?.getSource('cell-tower-coverage') as any;
+      if (source) {
+        const newData = getCoverageDataForDate(selectedCoverageDate);
+        source.setData(newData);
+      }
+    }
+  }, [currentMode, mapLoaded, zoneLayerVisible, cellTowerLayerVisible, selectedCoverageDate]);
 
   // Apply coverage filters to cell tower layer
   useEffect(() => {
@@ -228,21 +237,16 @@ const MapView = () => {
     };
   };
 
-  // Update coverage data when date changes or switching to NEWS mode
+  // Update coverage data when date changes (mode switch is handled above)
   useEffect(() => {
     if (!map.current || !mapLoaded || currentMode !== 'news') return;
     
-    // Small delay to ensure layers are visible first
-    const timeoutId = setTimeout(() => {
-      const source = map.current?.getSource('cell-tower-coverage') as any;
-      if (source) {
-        const newData = getCoverageDataForDate(selectedCoverageDate);
-        source.setData(newData);
-      }
-    }, 100);
-    
-    return () => clearTimeout(timeoutId);
-  }, [selectedCoverageDate, mapLoaded, currentMode]);
+    const source = map.current?.getSource('cell-tower-coverage') as any;
+    if (source) {
+      const newData = getCoverageDataForDate(selectedCoverageDate);
+      source.setData(newData);
+    }
+  }, [selectedCoverageDate]);
 
   // Preserve map center/zoom when sidebar expands/collapses
   useEffect(() => {
