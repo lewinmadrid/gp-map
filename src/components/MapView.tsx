@@ -2508,7 +2508,33 @@ const MapView = () => {
       {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} isMobile={isMobile} />}
       
       {/* News Toolbar - only show in News mode */}
-      {currentMode === 'news' && <NewsToolbar isMobile={isMobile} infoMode={newsInfoMode} onInfoModeChange={setNewsInfoMode} onFiltersChange={setCoverageFilters} onDateChange={setSelectedCoverageDate} />}
+      {currentMode === 'news' && <NewsToolbar 
+        isMobile={isMobile} 
+        infoMode={newsInfoMode} 
+        onInfoModeChange={setNewsInfoMode} 
+        onFiltersChange={setCoverageFilters} 
+        onDateChange={setSelectedCoverageDate}
+        onCellIdSearch={(searchTerm) => {
+          if (!map.current) return;
+          
+          // Query all cell tower coverage features
+          const allFeatures = map.current.querySourceFeatures('cell-tower-coverage');
+          
+          // Filter by cell_id (case-insensitive partial match)
+          const matchingFeatures = allFeatures.filter(f => {
+            const cellId = f.properties?.cell_id?.toLowerCase() || '';
+            return cellId.includes(searchTerm.toLowerCase());
+          });
+          
+          if (matchingFeatures.length > 0) {
+            // Generate cell data from matching features
+            const cellData = generateMockCellData(matchingFeatures);
+            setCoveragePanelCells(cellData);
+          } else {
+            setCoveragePanelCells([]);
+          }
+        }}
+      />}
       
       {/* Top Toolbar - only show in Alert mode */}
       {currentMode === 'alert' && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {

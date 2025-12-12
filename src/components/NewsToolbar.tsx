@@ -17,9 +17,10 @@ interface NewsToolbarProps {
   onInfoModeChange?: (enabled: boolean) => void;
   onFiltersChange?: (filters: CoverageFilters) => void;
   onDateChange?: (date: string) => void;
+  onCellIdSearch?: (cellId: string) => void;
 }
 
-const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = false, onInfoModeChange, onFiltersChange, onDateChange }) => {
+const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = false, onInfoModeChange, onFiltersChange, onDateChange, onCellIdSearch }) => {
   const [showSecondRow, setShowSecondRow] = useState(false);
   const [eaPercent, setEaPercent] = useState('5');
   const [cellPercent, setCellPercent] = useState('5');
@@ -28,6 +29,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
   const [selectedBand, setSelectedBand] = useState('');
   const [selectedUtm, setSelectedUtm] = useState('');
   const [selectedBsMc, setSelectedBsMc] = useState('');
+  const [cellIdSearch, setCellIdSearch] = useState('');
 
   const updateFilter = (key: keyof CoverageFilters, value: string) => {
     const newFilters = {
@@ -158,10 +160,29 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
 
         <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10">
           <span className="text-sm text-gray-700 whitespace-nowrap">Cell-ID:</span>
-          <Input className="w-24 h-7 text-sm border-0 shadow-none focus-visible:ring-0 bg-white" placeholder="" />
+          <Input 
+            className="w-24 h-7 text-sm border-0 shadow-none focus-visible:ring-0 bg-white" 
+            placeholder="" 
+            value={cellIdSearch}
+            onChange={(e) => setCellIdSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && cellIdSearch.trim()) {
+                onCellIdSearch?.(cellIdSearch.trim());
+              }
+            }}
+          />
         </div>
 
-        <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1"
+          onClick={() => {
+            if (cellIdSearch.trim()) {
+              onCellIdSearch?.(cellIdSearch.trim());
+            }
+          }}
+        >
           <Search className="h-4 w-4" />
           <span className="text-sm">Search</span>
         </Button>
