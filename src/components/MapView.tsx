@@ -401,15 +401,18 @@ const MapView = () => {
 
       // Handle NEWS mode coverage area selection (only when info mode is active)
       if (selectMode && !measurementMode && !drawingMode && currentMode === 'news') {
+        console.log('NEWS mode click - newsInfoMode:', newsInfoMode);
         if (newsInfoMode) {
           // Query cell tower coverage layer
           const coverageFeatures = map.current.queryRenderedFeatures(e.point, {
             layers: ['cell-tower-coverage-fill']
           });
+          console.log('Coverage features found:', coverageFeatures?.length);
 
           if (coverageFeatures && coverageFeatures.length > 0) {
             // Generate mock cell data based on clicked features
             const mockCellData = generateMockCellData(coverageFeatures);
+            console.log('Mock cell data:', mockCellData);
             setCoveragePanelCells(mockCellData);
             return;
           }
@@ -713,7 +716,7 @@ const MapView = () => {
         map.current.off('click', handleMapClick);
       }
     };
-  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, selectMode, excludeMode, activeLayer, toast]);
+  }, [measurementMode, measurementPoints, drawingMode, drawingPoints, isDrawing, tempCircleCenter, selectMode, excludeMode, activeLayer, toast, newsInfoMode, currentMode]);
 
   // Show exclude tooltip only on initial page load
   useEffect(() => {
