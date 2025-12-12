@@ -197,7 +197,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
                 return (
                   <div
                     key={index}
-                    className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors opacity-20 hover:opacity-100"
                     onClick={item.onClick}
                   >
                     <IconComponent />
@@ -294,7 +294,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
             return (
               <div
                 key={index}
-                className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+                className="flex items-center gap-3 p-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-colors opacity-20 hover:opacity-100"
                 onClick={item.onClick}
               >
                 <IconComponent />
@@ -378,7 +378,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
               key={index}
               variant="ghost"
               size="sm"
-              className="w-10 h-10 p-0 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-slate-800"
+              className={`w-10 h-10 p-0 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-slate-800 ${index === 0 ? '' : 'opacity-20 hover:opacity-100'}`}
               title={item.label}
               onClick={item.onClick}
             >
