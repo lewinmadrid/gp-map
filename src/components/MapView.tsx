@@ -403,19 +403,10 @@ const MapView = () => {
       if (selectMode && !measurementMode && !drawingMode && currentMode === 'news') {
         console.log('NEWS mode click - newsInfoMode:', newsInfoMode);
         if (newsInfoMode) {
-          // Query cell tower coverage layer
-          const coverageFeatures = map.current.queryRenderedFeatures(e.point, {
-            layers: ['cell-tower-coverage-fill']
-          });
-          console.log('Coverage features found:', coverageFeatures?.length);
-
-          if (coverageFeatures && coverageFeatures.length > 0) {
-            // Generate mock cell data based on clicked features
-            const mockCellData = generateMockCellData(coverageFeatures);
-            console.log('Mock cell data:', mockCellData);
-            setCoveragePanelCells(mockCellData);
-            return;
-          }
+          // Generate mock cell data for clicked location
+          const mockCellData = generateMockCellData([]);
+          console.log('Mock cell data:', mockCellData);
+          setCoveragePanelCells(mockCellData);
         }
         return;
       }
@@ -803,68 +794,38 @@ const MapView = () => {
 
   // Generate mock cell data for NEWS mode coverage panel
   const generateMockCellData = (features: any[]) => {
-    // Get unique cell_ids from the clicked features
-    const uniqueCellIds = new Set<string>();
-    features.forEach(f => {
-      if (f.properties?.cell_id) {
-        uniqueCellIds.add(f.properties.cell_id);
-      }
-    });
-
     // Generate mock cell data - simulate overlapping cells
     const mockCells: any[] = [];
     const techs = ['3G', '4G', 'LTE', '5G'];
     const bands = ['700', '850', '999', '1900', '2100'];
-    const zones = ['30', '31', '49', '50', '51'];
+    const zones = ['49', '50', '51', '52', '53'];
     const bsMcOptions = ['BS', 'MC'];
-    const rfRegions = ['R1', 'R2', 'R3'];
+    const rfRegions = ['Sydney-North', 'Sydney-CBD', 'Sydney-South', 'Melbourne-East', 'Brisbane-Central'];
+    const siteNames = ['SDGCNTRL01', 'MLBEAST02', 'BRISBAN03', 'SYDNORTH04', 'SYDWEST05'];
 
-    // For each unique cell_id, generate 3-8 overlapping cell entries
-    uniqueCellIds.forEach(cellId => {
-      const numCells = Math.floor(Math.random() * 6) + 3; // 3-8 cells
-      for (let i = 0; i < numCells; i++) {
-        const tech = techs[Math.floor(Math.random() * techs.length)];
-        const band = bands[Math.floor(Math.random() * bands.length)];
-        const zone = zones[Math.floor(Math.random() * zones.length)];
-        
-        // Generate cell ID format: 234-10-21090-XXXXX-XXXXX
-        const cellIdPart1 = 21090;
-        const cellIdPart2 = Math.floor(Math.random() * 50000) + 10000;
-        const cellIdPart3 = Math.floor(Math.random() * 50000) + 10000;
-        const fullCellId = `234-10-${cellIdPart1}-${cellIdPart2}-${cellIdPart3}`;
+    // Generate 5-10 overlapping cell entries for clicked area
+    const numCells = Math.floor(Math.random() * 6) + 5;
+    for (let i = 0; i < numCells; i++) {
+      const tech = techs[Math.floor(Math.random() * techs.length)];
+      const band = bands[Math.floor(Math.random() * bands.length)];
+      const zone = zones[Math.floor(Math.random() * zones.length)];
+      const siteName = siteNames[Math.floor(Math.random() * siteNames.length)];
+      
+      // Generate cell ID format: 234-10-21090-XXXXX-XXXXX
+      const cellIdPart1 = 21090;
+      const cellIdPart2 = Math.floor(Math.random() * 50000) + 10000;
+      const cellIdPart3 = Math.floor(Math.random() * 50000) + 10000;
+      const fullCellId = `234-10-${cellIdPart1}-${cellIdPart2}-${cellIdPart3}`;
 
-        mockCells.push({
-          tech,
-          band,
-          cellId: fullCellId,
-          name: '',
-          zone,
-          bsMc: bsMcOptions[Math.floor(Math.random() * bsMcOptions.length)],
-          rfRegion: rfRegions[Math.floor(Math.random() * rfRegions.length)]
-        });
-      }
-    });
-
-    // If no cells found, still generate some mock data
-    if (mockCells.length === 0) {
-      for (let i = 0; i < 8; i++) {
-        const tech = '3G';
-        const band = '999';
-        const cellIdPart1 = 21090;
-        const cellIdPart2 = Math.floor(Math.random() * 50000) + 10000;
-        const cellIdPart3 = Math.floor(Math.random() * 50000) + 10000;
-        const fullCellId = `234-10-${cellIdPart1}-${cellIdPart2}-${cellIdPart3}`;
-
-        mockCells.push({
-          tech,
-          band,
-          cellId: fullCellId,
-          name: '',
-          zone: '30',
-          bsMc: '',
-          rfRegion: ''
-        });
-      }
+      mockCells.push({
+        tech,
+        band,
+        cellId: fullCellId,
+        name: siteName,
+        zone,
+        bsMc: bsMcOptions[Math.floor(Math.random() * bsMcOptions.length)],
+        rfRegion: rfRegions[Math.floor(Math.random() * rfRegions.length)]
+      });
     }
 
     return mockCells;
