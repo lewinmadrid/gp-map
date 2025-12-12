@@ -792,43 +792,21 @@ const MapView = () => {
     });
   };
 
-  // Generate mock cell data for NEWS mode coverage panel
+  // Generate mock cell data for NEWS mode coverage panel - matches cell plot data
   const generateMockCellData = (features: any[]) => {
-    // Generate mock cell data - simulate overlapping cells
-    const mockCells: any[] = [];
-    const techs = ['3G', '4G', 'LTE', '5G'];
-    const bands = ['700', '850', '999', '1900', '2100'];
-    const zones = ['49', '50', '51', '52', '53'];
-    const bsMcOptions = ['BS', 'MC'];
-    const rfRegions = ['Sydney-North', 'Sydney-CBD', 'Sydney-South', 'Melbourne-East', 'Brisbane-Central'];
-    const siteNames = ['SDGCNTRL01', 'MLBEAST02', 'BRISBAN03', 'SYDNORTH04', 'SYDWEST05'];
+    // Cell data that matches the coverage plot
+    const cellPlotData = [
+      { cellId: 'SD-001', tech: 'LTE', band: '700', zone: '50', bsMc: 'BS', rfRegion: 'San Diego Central', name: 'Downtown Tower' },
+      { cellId: 'SD-001', tech: 'LTE', band: '700', zone: '50', bsMc: 'MC', rfRegion: 'San Diego Central', name: 'Downtown Tower' },
+      { cellId: 'SD-002', tech: '5G', band: '850', zone: '50', bsMc: 'BS', rfRegion: 'San Diego East', name: 'Mission Valley' },
+      { cellId: 'SD-002', tech: '5G', band: '850', zone: '50', bsMc: 'MC', rfRegion: 'San Diego East', name: 'Mission Valley' },
+      { cellId: 'SD-003', tech: 'LTE', band: '1900', zone: '51', bsMc: 'BS', rfRegion: 'San Diego South', name: 'Balboa Park' },
+      { cellId: 'SD-003', tech: 'LTE', band: '1900', zone: '51', bsMc: 'MC', rfRegion: 'San Diego South', name: 'Balboa Park' },
+      { cellId: 'SD-004', tech: '5G', band: '700', zone: '51', bsMc: 'BS', rfRegion: 'San Diego North', name: 'Hillcrest Tower' },
+      { cellId: 'SD-004', tech: '5G', band: '700', zone: '51', bsMc: 'MC', rfRegion: 'San Diego North', name: 'Hillcrest Tower' },
+    ];
 
-    // Generate 5-10 overlapping cell entries for clicked area
-    const numCells = Math.floor(Math.random() * 6) + 5;
-    for (let i = 0; i < numCells; i++) {
-      const tech = techs[Math.floor(Math.random() * techs.length)];
-      const band = bands[Math.floor(Math.random() * bands.length)];
-      const zone = zones[Math.floor(Math.random() * zones.length)];
-      const siteName = siteNames[Math.floor(Math.random() * siteNames.length)];
-      
-      // Generate cell ID format: 234-10-21090-XXXXX-XXXXX
-      const cellIdPart1 = 21090;
-      const cellIdPart2 = Math.floor(Math.random() * 50000) + 10000;
-      const cellIdPart3 = Math.floor(Math.random() * 50000) + 10000;
-      const fullCellId = `234-10-${cellIdPart1}-${cellIdPart2}-${cellIdPart3}`;
-
-      mockCells.push({
-        tech,
-        band,
-        cellId: fullCellId,
-        name: siteName,
-        zone,
-        bsMc: bsMcOptions[Math.floor(Math.random() * bsMcOptions.length)],
-        rfRegion: rfRegions[Math.floor(Math.random() * rfRegions.length)]
-      });
-    }
-
-    return mockCells;
+    return cellPlotData;
   };
 
   // Count vertices in a polygon
