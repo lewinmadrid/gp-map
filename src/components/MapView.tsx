@@ -401,12 +401,17 @@ const MapView = () => {
 
       // Handle NEWS mode coverage area selection (only when info mode is active)
       if (selectMode && !measurementMode && !drawingMode && currentMode === 'news') {
-        console.log('NEWS mode click - newsInfoMode:', newsInfoMode);
         if (newsInfoMode) {
-          // Generate mock cell data for clicked location
-          const mockCellData = generateMockCellData([]);
-          console.log('Mock cell data:', mockCellData);
-          setCoveragePanelCells(mockCellData);
+          // Query cell tower coverage layers at click point
+          const coverageFeatures = map.current.queryRenderedFeatures(e.point, {
+            layers: ['cell-tower-coverage-fill']
+          });
+          
+          if (coverageFeatures && coverageFeatures.length > 0) {
+            // Extract cell data from actual clicked features
+            const cellData = generateMockCellData(coverageFeatures);
+            setCoveragePanelCells(cellData);
+          }
         }
         return;
       }
@@ -792,21 +797,36 @@ const MapView = () => {
     });
   };
 
-  // Generate mock cell data for NEWS mode coverage panel - matches cell plot data
+  // Generate cell data from clicked coverage features
   const generateMockCellData = (features: any[]) => {
-    // Cell data that matches the coverage plot
-    const cellPlotData = [
-      { cellId: 'SD-001', tech: 'LTE', band: '700', zone: '50', bsMc: 'BS', rfRegion: 'San Diego Central', name: 'Downtown Tower' },
-      { cellId: 'SD-001', tech: 'LTE', band: '700', zone: '50', bsMc: 'MC', rfRegion: 'San Diego Central', name: 'Downtown Tower' },
-      { cellId: 'SD-002', tech: '5G', band: '850', zone: '50', bsMc: 'BS', rfRegion: 'San Diego East', name: 'Mission Valley' },
-      { cellId: 'SD-002', tech: '5G', band: '850', zone: '50', bsMc: 'MC', rfRegion: 'San Diego East', name: 'Mission Valley' },
-      { cellId: 'SD-003', tech: 'LTE', band: '1900', zone: '51', bsMc: 'BS', rfRegion: 'San Diego South', name: 'Balboa Park' },
-      { cellId: 'SD-003', tech: 'LTE', band: '1900', zone: '51', bsMc: 'MC', rfRegion: 'San Diego South', name: 'Balboa Park' },
-      { cellId: 'SD-004', tech: '5G', band: '700', zone: '51', bsMc: 'BS', rfRegion: 'San Diego North', name: 'Hillcrest Tower' },
-      { cellId: 'SD-004', tech: '5G', band: '700', zone: '51', bsMc: 'MC', rfRegion: 'San Diego North', name: 'Hillcrest Tower' },
-    ];
+    // Map of cell data that matches the coverage plot
+    const cellDataMap: Record<string, { tech: string; band: string; zone: string; rfRegion: string; name: string }> = {
+      'SD-001': { tech: 'LTE', band: '700', zone: '50', rfRegion: 'San Diego Central', name: 'Downtown Tower' },
+      'SD-002': { tech: '5G', band: '850', zone: '50', rfRegion: 'San Diego East', name: 'Mission Valley' },
+      'SD-003': { tech: 'LTE', band: '1900', zone: '51', rfRegion: 'San Diego South', name: 'Balboa Park' },
+      'SD-004': { tech: '5G', band: '700', zone: '51', rfRegion: 'San Diego North', name: 'Hillcrest Tower' },
+    };
 
-    return cellPlotData;
+    // Get unique cell_ids from clicked features
+    const uniqueCellIds = new Set<string>();
+    features.forEach(f => {
+      if (f.properties?.cell_id) {
+        uniqueCellIds.add(f.properties.cell_id);
+      }
+    });
+
+    // Build cell data from clicked features only
+    const cellData: any[] = [];
+    uniqueCellIds.forEach(cellId => {
+      const baseData = cellDataMap[cellId];
+      if (baseData) {
+        // Add BS and MC entries for each cell
+        cellData.push({ cellId, ...baseData, bsMc: 'BS' });
+        cellData.push({ cellId, ...baseData, bsMc: 'MC' });
+      }
+    });
+
+    return cellData;
   };
 
   // Count vertices in a polygon
