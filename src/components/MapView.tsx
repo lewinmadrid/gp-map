@@ -130,6 +130,9 @@ const MapView = () => {
     if (coverageFilters.band && coverageFilters.band !== 'All') {
       filterConditions.push(['==', ['get', 'band'], coverageFilters.band] as any);
     }
+    if (coverageFilters.utm && coverageFilters.utm !== 'All') {
+      filterConditions.push(['==', ['get', 'utm'], coverageFilters.utm] as any);
+    }
     
     // Apply filter to coverage layers
     const layersToFilter = ['cell-tower-coverage-fill', 'cell-tower-coverage-outline'];
@@ -1797,7 +1800,7 @@ const MapView = () => {
             // Tower 1 - Strong coverage zone (inner)
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', signal_strength: -65, rsrp_class: 'excellent' },
+              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', utm: '50', signal_strength: -65, rsrp_class: 'excellent' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1809,7 +1812,7 @@ const MapView = () => {
             // Tower 1 - Good coverage zone (middle)
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', signal_strength: -85, rsrp_class: 'good' },
+              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', utm: '50', signal_strength: -85, rsrp_class: 'good' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1822,7 +1825,7 @@ const MapView = () => {
             // Tower 1 - Fair coverage zone (outer)
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', signal_strength: -100, rsrp_class: 'fair' },
+              properties: { cell_id: 'SD-001', tech: 'LTE', band: '700', utm: '50', signal_strength: -100, rsrp_class: 'fair' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1835,7 +1838,7 @@ const MapView = () => {
             // Tower 2 - Strong coverage zone
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-002', tech: '5G', band: '850', signal_strength: -60, rsrp_class: 'excellent' },
+              properties: { cell_id: 'SD-002', tech: '5G', band: '850', utm: '51', signal_strength: -60, rsrp_class: 'excellent' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1847,7 +1850,7 @@ const MapView = () => {
             // Tower 2 - Good coverage zone
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-002', tech: '5G', band: '850', signal_strength: -80, rsrp_class: 'good' },
+              properties: { cell_id: 'SD-002', tech: '5G', band: '850', utm: '51', signal_strength: -80, rsrp_class: 'good' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1860,7 +1863,7 @@ const MapView = () => {
             // Tower 2 - Fair coverage zone
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-002', tech: '5G', band: '850', signal_strength: -95, rsrp_class: 'fair' },
+              properties: { cell_id: 'SD-002', tech: '5G', band: '850', utm: '51', signal_strength: -95, rsrp_class: 'fair' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1873,7 +1876,7 @@ const MapView = () => {
             // Tower 3 - Strong coverage zone
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', signal_strength: -62, rsrp_class: 'excellent' },
+              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', utm: '50', signal_strength: -62, rsrp_class: 'excellent' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1885,7 +1888,7 @@ const MapView = () => {
             // Tower 3 - Good coverage zone
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', signal_strength: -82, rsrp_class: 'good' },
+              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', utm: '50', signal_strength: -82, rsrp_class: 'good' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1897,7 +1900,7 @@ const MapView = () => {
             // Tower 3 - Fair coverage zone
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', signal_strength: -98, rsrp_class: 'fair' },
+              properties: { cell_id: 'SD-003', tech: 'LTE', band: '1900', utm: '50', signal_strength: -98, rsrp_class: 'fair' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
@@ -1910,7 +1913,7 @@ const MapView = () => {
             // Tower 4 - Weak/Poor coverage only (edge of network)
             {
               type: 'Feature',
-              properties: { cell_id: 'SD-004', tech: '5G', band: '700', signal_strength: -105, rsrp_class: 'poor' },
+              properties: { cell_id: 'SD-004', tech: '5G', band: '700', utm: '51', signal_strength: -105, rsrp_class: 'poor' },
               geometry: {
                 type: 'Polygon',
                 coordinates: [[
