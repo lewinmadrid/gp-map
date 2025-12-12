@@ -466,6 +466,9 @@ const MapView = () => {
             // Remove highlight
             clearSingleFeatureHighlight(feature);
 
+            // Close attribute panel when deselecting
+            setAttributePanelFeature(null);
+
             // Calculate remaining total vertices using functional update
             setSelectedFeatures(prev => prev);
             return;
