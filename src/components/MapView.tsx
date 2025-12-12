@@ -2682,22 +2682,79 @@ const MapView = () => {
       {currentMode === 'news' && coveragePanelCells.length > 0 && (
         <CoverageAttributePanel
           cells={coveragePanelCells}
-          onClose={() => setCoveragePanelCells([])}
+          onClose={() => {
+            setCoveragePanelCells([]);
+            // Remove highlight when closing panel
+            if (map.current?.getLayer('cell-highlight-outline')) {
+              map.current.removeLayer('cell-highlight-outline');
+            }
+            if (map.current?.getSource('cell-highlight')) {
+              map.current.removeSource('cell-highlight');
+            }
+          }}
           onZoomToCell={(cellId) => {
-            // Cell tower locations
-            const cellLocations: Record<string, [number, number]> = {
-              'SD-001': [-117.157, 32.729],
-              'SD-002': [-117.117, 32.726],
-              'SD-003': [-117.170, 32.705],
-              'SD-004': [-117.192, 32.738],
-            };
+            if (!map.current) return;
             
-            const coords = cellLocations[cellId];
-            if (coords && map.current) {
-              map.current.flyTo({
-                center: coords,
-                zoom: 15,
-                duration: 1000
+            // Query all features for this cell to get bounds
+            const allFeatures = map.current.querySourceFeatures('cell-tower-coverage', {
+              filter: ['==', ['get', 'cell_id'], cellId]
+            });
+            
+            if (allFeatures.length > 0) {
+              // Calculate bounds from all polygons of this cell
+              let minLng = Infinity, maxLng = -Infinity;
+              let minLat = Infinity, maxLat = -Infinity;
+              
+              allFeatures.forEach(feature => {
+                if (feature.geometry.type === 'Polygon') {
+                  const coords = (feature.geometry as any).coordinates[0];
+                  coords.forEach((coord: number[]) => {
+                    minLng = Math.min(minLng, coord[0]);
+                    maxLng = Math.max(maxLng, coord[0]);
+                    minLat = Math.min(minLat, coord[1]);
+                    maxLat = Math.max(maxLat, coord[1]);
+                  });
+                }
+              });
+              
+              // Fit map to cell bounds
+              map.current.fitBounds(
+                [[minLng, minLat], [maxLng, maxLat]],
+                { padding: 50, duration: 1000 }
+              );
+              
+              // Remove existing highlight layer if present
+              if (map.current.getLayer('cell-highlight-outline')) {
+                map.current.removeLayer('cell-highlight-outline');
+              }
+              if (map.current.getSource('cell-highlight')) {
+                map.current.removeSource('cell-highlight');
+              }
+              
+              // Find the outermost polygon (fair/poor coverage) for this cell
+              const outerFeature = allFeatures.reduce((outer, f) => {
+                const rsrp = f.properties?.rsrp_class;
+                const priority: Record<string, number> = { 'poor': 4, 'fair': 3, 'good': 2, 'excellent': 1 };
+                const currentPriority = priority[rsrp] || 0;
+                const outerPriority = priority[outer?.properties?.rsrp_class] || 0;
+                return currentPriority > outerPriority ? f : outer;
+              }, allFeatures[0]);
+              
+              // Add highlight source and layer
+              map.current.addSource('cell-highlight', {
+                type: 'geojson',
+                data: outerFeature as any
+              });
+              
+              map.current.addLayer({
+                id: 'cell-highlight-outline',
+                type: 'line',
+                source: 'cell-highlight',
+                paint: {
+                  'line-color': '#0066ff',
+                  'line-width': 4,
+                  'line-opacity': 1
+                }
               });
             }
           }}
