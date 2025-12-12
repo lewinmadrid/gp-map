@@ -2652,10 +2652,10 @@ const MapView = () => {
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className={`h-10 px-4 border shadow-sm flex items-center gap-2 ${
+                className={`h-10 px-4 border shadow-sm flex items-center gap-2 transition-colors ${
                   excludeMode 
                     ? 'bg-gray-200 border-gray-400 text-gray-800' 
-                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                    : 'bg-white/80 hover:bg-white border-gray-200 text-gray-600'
                 }`}
                 onClick={handleExcludeArea}
               >
@@ -2667,7 +2667,7 @@ const MapView = () => {
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className="h-10 px-4 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-2"
+                className="h-10 px-4 border border-gray-200 shadow-sm bg-white/80 hover:bg-white text-gray-600 flex items-center gap-2 transition-colors"
                 onClick={handleUndo}
               >
                 <Undo className="h-4 w-4" />
@@ -2678,7 +2678,7 @@ const MapView = () => {
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className="h-10 px-4 border border-red-300 shadow-sm bg-white hover:bg-red-50 text-red-600 flex items-center gap-2"
+                className="h-10 px-4 border border-red-300 shadow-sm bg-white/80 hover:bg-white text-red-600 flex items-center gap-2 transition-colors"
                 onClick={handleDeleteAll}
               >
                 <Trash2 className="h-4 w-4" />
