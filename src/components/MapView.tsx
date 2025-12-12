@@ -2657,32 +2657,7 @@ const MapView = () => {
         </Select>
       </div>
 
-      {/* NEWS Mode Active Layer Selector - Top Right Corner */}
-      <div className={`absolute top-4 right-4 z-20 ${currentMode !== 'news' || isMobile ? 'hidden' : ''}`}>
-        <Select value={activeLayer} onValueChange={setActiveLayer}>
-          <SelectTrigger className="bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-1 min-w-[200px] h-auto flex flex-col items-start gap-0 [&>svg]:absolute [&>svg]:right-2 [&>svg]:top-1/2 [&>svg]:-translate-y-1/2 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-70">
-            <span className="text-[10px] text-gray-500 font-normal leading-tight">Coverage Layer</span>
-            <div className="flex items-center gap-2 w-full pr-5">
-              {activeLayer === 'Cell Tower Coverage' && (
-                <div className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <div className="w-2.5 h-2.5 bg-purple-500 rounded-full"></div>
-                </div>
-              )}
-              <span className="text-xs font-normal text-gray-900">{activeLayer === 'Cell Tower Coverage' ? 'Cell Tower Coverage' : 'Cell Tower Coverage'}</span>
-            </div>
-          </SelectTrigger>
-          <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-lg z-50 p-1">
-            <SelectItem value="Cell Tower Coverage" className="rounded-md px-2 py-1.5 cursor-pointer">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <div className="w-2.5 h-2.5 bg-purple-500 rounded-full"></div>
-                </div>
-                <span className="text-xs font-normal text-gray-900">Cell Tower Coverage</span>
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* NEWS Mode Active Layer Selector - Hidden as per user request */}
 
       {/* ArcGIS-style Attribute Panel */}
       {attributePanelFeature && (
