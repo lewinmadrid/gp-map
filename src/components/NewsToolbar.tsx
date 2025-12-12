@@ -14,7 +14,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
   const [showSecondRow, setShowSecondRow] = useState(false);
   const [eaPercent, setEaPercent] = useState('5');
   const [cellPercent, setCellPercent] = useState('5');
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState('09-12-2025');
   const [selectedTech, setSelectedTech] = useState('');
   const [selectedBand, setSelectedBand] = useState('');
   const [selectedUtm, setSelectedUtm] = useState('');
