@@ -91,7 +91,7 @@ const CoverageAttributePanel: React.FC<CoverageAttributePanelProps> = ({
   return (
     <div 
       ref={panelRef}
-      className="absolute z-30 bg-white shadow-lg border border-gray-300 min-w-[700px]"
+      className="absolute z-30 bg-white shadow-lg border border-gray-300 min-w-[560px]"
       style={{ 
         top: `calc(5rem + ${position.y}px)`, 
         right: `calc(1rem - ${position.x}px)`,
