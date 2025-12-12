@@ -147,7 +147,7 @@ const CoverageAttributePanel: React.FC<CoverageAttributePanelProps> = ({
 
       {/* Table Header */}
       <div className="border-b border-gray-300 bg-blue-100">
-        <div className="grid grid-cols-7 text-sm font-medium text-gray-800">
+        <div className="grid grid-cols-7 text-sm font-medium text-black">
           <div className="px-3 py-2 border-r border-gray-300">Tech</div>
           <div className="px-3 py-2 border-r border-gray-300">Band</div>
           <div className="px-3 py-2 border-r border-gray-300 col-span-2">Cell Id</div>
@@ -162,7 +162,7 @@ const CoverageAttributePanel: React.FC<CoverageAttributePanelProps> = ({
         {cells.map((cell, index) => (
           <div 
             key={index}
-            className={`grid grid-cols-7 text-sm border-b border-gray-200 cursor-pointer transition-colors ${
+            className={`grid grid-cols-7 text-sm text-black border-b border-gray-200 cursor-pointer transition-colors ${
               selectedRow === index 
                 ? 'bg-blue-100' 
                 : index % 2 === 0 
