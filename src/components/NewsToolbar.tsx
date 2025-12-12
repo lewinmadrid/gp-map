@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Info, ChevronDown, Calendar, Radio, Antenna, Map, Signal, Search, Square, Calculator, FileCode, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export interface CoverageFilters {
   tech: string;
@@ -30,6 +31,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
   const [selectedUtm, setSelectedUtm] = useState('');
   const [selectedBsMc, setSelectedBsMc] = useState('');
   const [cellIdSearch, setCellIdSearch] = useState('');
+  const { toast } = useToast();
 
   const updateFilter = (key: keyof CoverageFilters, value: string) => {
     const newFilters = {
@@ -187,7 +189,14 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
           <span className="text-sm">Search</span>
         </Button>
 
-        <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600"
+          onClick={() => {
+            toast({ description: "Functionality not implemented in the prototype" });
+          }}
+        >
           <span className="text-sm">Cows</span>
         </Button>
 
@@ -195,7 +204,12 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
           variant="secondary" 
           size="sm" 
           className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${showSecondRow ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-          onClick={() => setShowSecondRow(!showSecondRow)}
+          onClick={() => {
+            setShowSecondRow(!showSecondRow);
+            if (!showSecondRow) {
+              toast({ description: "Functionality not implemented in the prototype" });
+            }
+          }}
         >
           <span className="text-sm">Test Tools</span>
         </Button>
