@@ -59,12 +59,12 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
     <div className="absolute top-4 left-4 right-4 z-30 flex flex-col gap-2">
       {/* Row 1: Coverage Filters */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-gray-700 whitespace-nowrap bg-white px-2 py-1 rounded border border-gray-200 shadow-sm opacity-20">Coverage Filters:</span>
+        <span className="text-sm font-medium text-gray-700 whitespace-nowrap bg-white px-2 py-1 rounded border border-gray-200 shadow-sm opacity-80">Coverage Filters:</span>
         
         {/* Date Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
               <Calendar className="h-4 w-4" />
               <span className="text-sm">{selectedDate || 'Date'}</span>
               <ChevronDown className="h-3 w-3" />
@@ -82,7 +82,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
         {/* Tech Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
               <Radio className="h-4 w-4" />
               <span className="text-sm">{selectedTech || 'Tech'}</span>
               <ChevronDown className="h-3 w-3" />
@@ -100,7 +100,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
         {/* Band Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
               <Antenna className="h-4 w-4" />
               <span className="text-sm">{selectedBand || 'Band'}</span>
               <ChevronDown className="h-3 w-3" />
@@ -118,7 +118,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
         {/* UTM Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
               <Map className="h-4 w-4" />
               <span className="text-sm">{selectedUtm || 'UTM'}</span>
               <ChevronDown className="h-3 w-3" />
@@ -136,7 +136,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
         {/* BS/MC Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
               <Signal className="h-4 w-4" />
               <span className="text-sm">{selectedBsMc || 'BS/MC'}</span>
               <ChevronDown className="h-3 w-3" />
@@ -154,13 +154,13 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
         <Button 
           variant="secondary" 
           size="sm" 
-          className={`h-10 w-10 p-0 border shadow-sm opacity-20 hover:opacity-100 transition-opacity ${infoMode ? 'bg-blue-100 border-blue-300 opacity-100' : 'bg-white border-gray-200 hover:bg-gray-50'}`}
+          className={`h-10 w-10 p-0 border shadow-sm opacity-80 hover:opacity-100 transition-opacity ${infoMode ? 'bg-blue-100 border-blue-300 opacity-100' : 'bg-white border-gray-200 hover:bg-gray-50'}`}
           onClick={() => onInfoModeChange?.(!infoMode)}
         >
           <Info className={`h-4 w-4 ${infoMode ? 'text-blue-700' : 'text-blue-500'}`} />
         </Button>
 
-        <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10 opacity-20 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10 opacity-80 hover:opacity-100 transition-opacity">
           <span className="text-sm text-gray-700 whitespace-nowrap">Cell-ID:</span>
           <Input 
             className="w-24 h-7 text-sm border-0 shadow-none focus-visible:ring-0 bg-white text-black" 
@@ -178,7 +178,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
         <Button 
           variant="secondary" 
           size="sm" 
-          className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity"
+          className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity"
           onClick={() => {
             if (cellIdSearch.trim()) {
               onCellIdSearch?.(cellIdSearch.trim());
@@ -192,7 +192,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
         <Button 
           variant="secondary" 
           size="sm" 
-          className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 opacity-20 hover:opacity-100 transition-opacity"
+          className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 opacity-80 hover:opacity-100 transition-opacity"
           onClick={() => {
             toast({ description: "Functionality not implemented in the prototype" });
           }}
@@ -203,7 +203,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
         <Button 
           variant="secondary" 
           size="sm" 
-          className={`h-10 px-3 border shadow-sm flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity ${showSecondRow ? 'bg-blue-100 border-blue-300 text-blue-700 opacity-100' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+          className={`h-10 px-3 border shadow-sm flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity ${showSecondRow ? 'bg-blue-100 border-blue-300 text-blue-700 opacity-100' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
           onClick={() => {
             setShowSecondRow(!showSecondRow);
             if (!showSecondRow) {
@@ -218,32 +218,32 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
       {/* Row 2: Action Buttons (toggleable) */}
       {showSecondRow && (
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
             <Square className="h-4 w-4" />
             <span className="text-sm">Draw Polygon</span>
           </Button>
 
-          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
             <Calculator className="h-4 w-4" />
             <span className="text-sm">Calculate Intersect</span>
           </Button>
 
-          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
             <Calculator className="h-4 w-4" />
             <span className="text-sm">Calculate MFE Polygon</span>
           </Button>
 
-          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
             <Trash2 className="h-4 w-4" />
             <span className="text-sm">Clear</span>
           </Button>
 
-          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-20 hover:opacity-100 transition-opacity">
+          <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
             <FileCode className="h-4 w-4" />
             <span className="text-sm">GML</span>
           </Button>
 
-          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10 opacity-20 hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10 opacity-80 hover:opacity-100 transition-opacity">
             <span className="text-sm text-gray-700 whitespace-nowrap">EA %:</span>
             <Input 
               type="number" 
@@ -253,7 +253,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10 opacity-20 hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-md shadow-sm px-2 h-10 opacity-80 hover:opacity-100 transition-opacity">
             <span className="text-sm text-gray-700 whitespace-nowrap">Cell %:</span>
             <Input 
               type="number" 
