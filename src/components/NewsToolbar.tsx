@@ -47,7 +47,7 @@ const NewsToolbar: React.FC<NewsToolbarProps> = ({ isMobile = false, infoMode = 
   const dates = ['09-12-2025', '08-12-2025', '07-12-2025', '06-12-2025', '05-12-2025'];
   const techs = ['LTE', '5G', 'All'];
   const bands = ['700', '850', '1900', 'All'];
-  const utms = ['49', '50', '51', '52', '53', '54', '55', '56'];
+  const utms = ['49', '50', '51', '52', '53', '54', '55', '56', 'All'];
   const bsMcs = ['BS', 'MC'];
 
   return (
