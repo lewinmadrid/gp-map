@@ -60,10 +60,10 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className={`h-10 px-3 border shadow-sm ${
+                className={`h-10 px-3 border shadow-sm transition-colors ${
                   ['polygon', 'circle', 'radius'].includes(currentMode) 
                     ? 'bg-blue-100 border-blue-300 text-blue-700' 
-                    : 'bg-white border-gray-200 text-gray-600'
+                    : 'bg-white/80 hover:bg-white border-gray-200 text-gray-600'
                 }`}
               >
                 <Square className="h-4 w-4" />
@@ -88,10 +88,10 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
           <Button 
             variant="secondary" 
             size="sm" 
-            className={`h-10 px-3 border shadow-sm ${
+            className={`h-10 px-3 border shadow-sm transition-colors ${
               currentMode === 'select' 
                 ? 'bg-blue-100 border-blue-300 text-blue-700' 
-                : 'bg-white border-gray-200 text-gray-600'
+                : 'bg-white/80 hover:bg-white border-gray-200 text-gray-600'
             }`}
             onClick={() => { onSelectArea(); logActivity('select_area_activated'); }}
           >
@@ -101,7 +101,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
           {/* More menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white text-gray-600">
+              <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white/80 hover:bg-white text-gray-600 transition-colors">
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
@@ -185,7 +185,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         {/* Draw Tool Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${['polygon', 'circle', 'radius'].includes(currentMode) ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+            <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 transition-colors ${['polygon', 'circle', 'radius'].includes(currentMode) ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white/80 hover:bg-white border-gray-200 text-gray-600'}`}>
               <Square className="h-4 w-4" />
               <span className="text-sm">Draw</span>
               <ChevronDown className="h-3 w-3" />
@@ -210,7 +210,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         {/* Edit Options Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white/80 hover:bg-white text-gray-600 flex items-center gap-1 transition-colors">
               <Edit className="h-4 w-4" />
               <span className="text-sm">Edit</span>
               <ChevronDown className="h-3 w-3" />
@@ -237,7 +237,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         </DropdownMenu>
 
         {/* Select Area */}
-        <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 ${currentMode === 'select' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`} onClick={() => { onSelectArea(); logActivity('select_area_activated'); }}>
+        <Button variant="secondary" size="sm" className={`h-10 px-3 border shadow-sm flex items-center gap-1 transition-colors ${currentMode === 'select' ? 'bg-blue-100 border-blue-300 text-blue-700' : 'bg-white/80 hover:bg-white border-gray-200 text-gray-600'}`} onClick={() => { onSelectArea(); logActivity('select_area_activated'); }}>
           <MapPin className="h-4 w-4" />
           <span className="text-sm">Select Area</span>
         </Button>
@@ -245,7 +245,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         {/* Tools Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white/80 hover:bg-white text-gray-600 flex items-center gap-1 transition-colors">
               <Settings className="h-4 w-4" />
               <span className="text-sm">Tools</span>
               <ChevronDown className="h-3 w-3" />
@@ -267,7 +267,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({
         {/* Locations Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white hover:bg-gray-50 text-gray-600 flex items-center gap-1">
+            <Button variant="secondary" size="sm" className="h-10 px-3 border border-gray-200 shadow-sm bg-white/80 hover:bg-white text-gray-600 flex items-center gap-1 transition-colors">
               <Navigation className="h-4 w-4" />
               <span className="text-sm">Locations</span>
               <ChevronDown className="h-3 w-3" />
