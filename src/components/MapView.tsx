@@ -64,6 +64,7 @@ const MapView = () => {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [attributePanelFeature, setAttributePanelFeature] = useState<any>(null);
   const [coveragePanelCells, setCoveragePanelCells] = useState<any[]>([]);
+  const [newsInfoMode, setNewsInfoMode] = useState(false);
   const hasShownExcludeTooltipRef = useRef(false);
   const [showExcludeTooltip, setShowExcludeTooltip] = useState(false);
   const {
@@ -398,18 +399,20 @@ const MapView = () => {
         return;
       }
 
-      // Handle NEWS mode coverage area selection
+      // Handle NEWS mode coverage area selection (only when info mode is active)
       if (selectMode && !measurementMode && !drawingMode && currentMode === 'news') {
-        // Query cell tower coverage layer
-        const coverageFeatures = map.current.queryRenderedFeatures(e.point, {
-          layers: ['cell-tower-coverage-fill']
-        });
+        if (newsInfoMode) {
+          // Query cell tower coverage layer
+          const coverageFeatures = map.current.queryRenderedFeatures(e.point, {
+            layers: ['cell-tower-coverage-fill']
+          });
 
-        if (coverageFeatures && coverageFeatures.length > 0) {
-          // Generate mock cell data based on clicked features
-          const mockCellData = generateMockCellData(coverageFeatures);
-          setCoveragePanelCells(mockCellData);
-          return;
+          if (coverageFeatures && coverageFeatures.length > 0) {
+            // Generate mock cell data based on clicked features
+            const mockCellData = generateMockCellData(coverageFeatures);
+            setCoveragePanelCells(mockCellData);
+            return;
+          }
         }
         return;
       }
@@ -2408,7 +2411,7 @@ const MapView = () => {
       {currentMode === 'evac' && <LeftSidebar onExpandedChange={setSidebarExpanded} isMobile={isMobile} />}
       
       {/* News Toolbar - only show in News mode */}
-      {currentMode === 'news' && <NewsToolbar isMobile={isMobile} />}
+      {currentMode === 'news' && <NewsToolbar isMobile={isMobile} infoMode={newsInfoMode} onInfoModeChange={setNewsInfoMode} />}
       
       {/* Top Toolbar - only show in Alert mode */}
       {currentMode === 'alert' && <TopToolbar isMobile={isMobile} currentMode={selectMode ? 'select' : drawingMode || 'select'} onDrawTool={tool => {
