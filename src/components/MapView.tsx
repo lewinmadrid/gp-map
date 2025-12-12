@@ -2976,17 +2976,17 @@ const MapView = () => {
       {/* Right Side Toolbar - Top buttons moved down */}
       <div className={`absolute top-36 right-4 z-20 flex flex-col gap-1 ${isMobile ? 'hidden' : ''}`}>
         {/* Search Button */}
-        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setSearchOpen(!searchOpen)}>
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white/80 hover:bg-white border border-gray-200 shadow-sm transition-colors`} onClick={() => setSearchOpen(!searchOpen)}>
           <Search className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
 
         {/* Layers Button */}
-        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setLayersPanelOpen(!layersPanelOpen)}>
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white/80 hover:bg-white border border-gray-200 shadow-sm transition-colors`} onClick={() => setLayersPanelOpen(!layersPanelOpen)}>
           <Layers className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
 
         {/* Basemap Toggle Button */}
-        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setBasemapToggleOpen(!basemapToggleOpen)}>
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white/80 hover:bg-white border border-gray-200 shadow-sm transition-colors`} onClick={() => setBasemapToggleOpen(!basemapToggleOpen)}>
           <MapIcon className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
       </div>
@@ -2994,22 +2994,22 @@ const MapView = () => {
       {/* Bottom Right Toolbar - Adjusted for Alert/News mode */}
       <div className={`absolute right-4 z-20 flex flex-col gap-1 ${(currentMode === 'alert' || currentMode === 'news') ? 'bottom-20' : 'bottom-4'}`}>
         {/* Tools Popup Button */}
-        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => setToolsPopupOpen(!toolsPopupOpen)}>
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white/80 hover:bg-white border border-gray-200 shadow-sm transition-colors`} onClick={() => setToolsPopupOpen(!toolsPopupOpen)}>
           {toolsPopupOpen ? <ChevronDown className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} /> : <ChevronUp className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />}
         </Button>
 
         {/* Reset Map Button */}
-        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={resetMapView}>
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white/80 hover:bg-white border border-gray-200 shadow-sm transition-colors`} onClick={resetMapView}>
           <Home className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
 
         {/* Zoom In */}
-        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => map.current?.zoomIn()}>
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white/80 hover:bg-white border border-gray-200 shadow-sm transition-colors`} onClick={() => map.current?.zoomIn()}>
           <ZoomIn className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
 
         {/* Zoom Out */}
-        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white hover:bg-gray-50 border border-gray-200 shadow-sm`} onClick={() => map.current?.zoomOut()}>
+        <Button variant="secondary" size="sm" className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} p-0 bg-white/80 hover:bg-white border border-gray-200 shadow-sm transition-colors`} onClick={() => map.current?.zoomOut()}>
           <ZoomOut className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} text-gray-600`} />
         </Button>
       </div>
@@ -3017,7 +3017,7 @@ const MapView = () => {
       {/* Alert Mode Cancel/Save Buttons - only in Alert mode, not News */}
       {currentMode === 'alert' && (
         <div className="absolute bottom-4 right-4 z-30 flex gap-2">
-          <Button variant="outline" size="sm" className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-600" onClick={() => setCancelDialogOpen(true)}>
+          <Button variant="outline" size="sm" className="bg-white/80 hover:bg-white border border-gray-200 text-gray-600 transition-colors" onClick={() => setCancelDialogOpen(true)}>
             Cancel
           </Button>
           <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setSaveDialogOpen(true)}>
