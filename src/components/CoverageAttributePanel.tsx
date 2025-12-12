@@ -154,13 +154,13 @@ const CoverageAttributePanel: React.FC<CoverageAttributePanelProps> = ({
 
       {/* Table Header */}
       <div className="border-b border-gray-300 bg-blue-100">
-        <div className="grid grid-cols-7 text-sm font-medium text-black">
-          <div className="px-3 py-2 border-r border-gray-300">Tech</div>
-          <div className="px-3 py-2 border-r border-gray-300">Band</div>
-          <div className="px-3 py-2 border-r border-gray-300 col-span-2">Cell Id</div>
-          <div className="px-3 py-2 border-r border-gray-300">Zone</div>
-          <div className="px-3 py-2 border-r border-gray-300">bs/mc</div>
-          <div className="px-3 py-2">Rf Region</div>
+        <div className="grid text-sm font-medium text-black" style={{ gridTemplateColumns: '50px 55px 70px 45px 50px 1fr' }}>
+          <div className="px-2 py-2 border-r border-gray-300">Tech</div>
+          <div className="px-2 py-2 border-r border-gray-300">Band</div>
+          <div className="px-2 py-2 border-r border-gray-300">Cell Id</div>
+          <div className="px-2 py-2 border-r border-gray-300">Zone</div>
+          <div className="px-2 py-2 border-r border-gray-300">bs/mc</div>
+          <div className="px-2 py-2">Rf Region</div>
         </div>
       </div>
 
@@ -169,21 +169,22 @@ const CoverageAttributePanel: React.FC<CoverageAttributePanelProps> = ({
         {cells.map((cell, index) => (
           <div 
             key={index}
-            className={`grid grid-cols-7 text-sm text-black border-b border-gray-200 cursor-pointer transition-colors ${
+            className={`grid text-sm text-black border-b border-gray-200 cursor-pointer transition-colors ${
               selectedRow === index 
                 ? 'bg-blue-100' 
                 : index % 2 === 0 
                   ? 'bg-white hover:bg-gray-50' 
                   : 'bg-gray-50 hover:bg-gray-100'
             }`}
+            style={{ gridTemplateColumns: '50px 55px 70px 45px 50px 1fr' }}
             onClick={() => handleRowClick(index, cell.cellId)}
           >
-            <div className="px-3 py-2 border-r border-gray-200">{cell.tech}</div>
-            <div className="px-3 py-2 border-r border-gray-200">{cell.band}</div>
-            <div className="px-3 py-2 border-r border-gray-200 col-span-2 font-mono text-xs">{cell.cellId}</div>
-            <div className="px-3 py-2 border-r border-gray-200">{cell.zone}</div>
-            <div className="px-3 py-2 border-r border-gray-200">{cell.bsMc}</div>
-            <div className="px-3 py-2">{cell.rfRegion}</div>
+            <div className="px-2 py-2 border-r border-gray-200">{cell.tech}</div>
+            <div className="px-2 py-2 border-r border-gray-200">{cell.band}</div>
+            <div className="px-2 py-2 border-r border-gray-200 font-mono text-xs">{cell.cellId}</div>
+            <div className="px-2 py-2 border-r border-gray-200">{cell.zone}</div>
+            <div className="px-2 py-2 border-r border-gray-200">{cell.bsMc}</div>
+            <div className="px-2 py-2">{cell.rfRegion}</div>
           </div>
         ))}
       </div>
