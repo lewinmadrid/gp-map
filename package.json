@@ -1,8 +1,18 @@
 {
-  "name": "vite_react_shadcn_ts",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@pge/gp-map-component",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
+  "description": "A configurable React map component with WMTS tile support, evacuation zones, drawing tools, and multiple map modes",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pge/gp-map-component.git"
+  },
+  "keywords": ["react", "map", "maplibre", "wmts", "gis"]
+
   "scripts": {
     "dev": "vite",
     "build": "vite build",
