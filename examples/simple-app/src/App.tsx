@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapView } from '@pge/lovable-map-component';
+import { MapView } from '@pge/gp-map-component';
 
 function App() {
   const [coordinates, setCoordinates] = useState<[number, number]>([-117.1611, 32.7157]);

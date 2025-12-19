@@ -1,11 +1,11 @@
-# @your-org/lovable-map-component
+# @your-org/gp-map-component
 
 A configurable React map component with WMTS tile support, evacuation zones, drawing tools, and multiple map modes.
 
 ## Installation
 
 ```bash
-npm install @your-org/lovable-map-component
+npm install @your-org/gp-map-component
 ```
 
 ### Peer Dependencies
@@ -17,8 +17,8 @@ npm install react react-dom maplibre-gl shpjs lucide-react
 ## Quick Start
 
 ```tsx
-import MapView from '@your-org/lovable-map-component';
-import '@your-org/lovable-map-component/styles.css';
+import MapView from '@your-org/gp-map-component';
+import '@your-org/gp-map-component/styles.css';
 
 function App() {
   return (

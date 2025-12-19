@@ -22,7 +22,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/lib/index.ts'),
-      name: 'LovableMapComponent',
+      name: 'GpMapComponent',
       formats: ['es', 'cjs'],
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
