@@ -79,6 +79,12 @@ export interface MapViewProps {
   onModeChange?: (mode: AppMode) => void;
   
   /**
+   * Callback when map moves (pan, zoom)
+   * Returns center coordinates and zoom level
+   */
+  onMapMove?: (center: [number, number], zoom: number) => void;
+  
+  /**
    * UI options to show/hide various map controls
    */
   uiOptions?: MapUIOptions;

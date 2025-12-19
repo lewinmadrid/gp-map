@@ -56,6 +56,7 @@ const MapView: React.FC<MapViewProps> = ({
   onActivityLog,
   onFeatureSelect,
   onModeChange,
+  onMapMove,
   uiOptions = DEFAULT_UI_OPTIONS,
   className,
 }) => {
@@ -374,6 +375,17 @@ const MapView: React.FC<MapViewProps> = ({
         addVectorLayers();
         setMapLoaded(true);
         logActivity('map_loaded', { center: initialCenter, zoom: initialZoom });
+        // Emit initial position
+        if (onMapMove) {
+          onMapMove(initialCenter, initialZoom);
+        }
+      });
+
+      map.current.on('moveend', () => {
+        if (!map.current || !onMapMove) return;
+        const center = map.current.getCenter();
+        const zoom = map.current.getZoom();
+        onMapMove([center.lng, center.lat], zoom);
       });
 
       map.current.on('error', (e) => {
