@@ -1,6 +1,6 @@
 # Simple Map App
 
-A minimal example demonstrating how to use the `@pge/lovable-map-component` package.
+A minimal example demonstrating how to use the `@pge/gp-map-component` package.
 
 ## Setup
 

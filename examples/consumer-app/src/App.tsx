@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
-import MapView from '@pge/lovable-map-component';
+import MapView from '@pge/gp-map-component';
 // Import styles from the package
-// import '@pge/lovable-map-component/styles.css';
+// import '@pge/gp-map-component/styles.css';
 
 // Types from the package
-import type { AppMode, MapUIOptions } from '@pge/lovable-map-component';
+import type { AppMode, MapUIOptions } from '@pge/gp-map-component';
 
 function App() {
   const [activityLogs, setActivityLogs] = useState<Array<{ action: string; data?: any; timestamp: Date }>>([]);

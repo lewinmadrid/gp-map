@@ -1,6 +1,6 @@
 # Example Consumer App
 
-This example demonstrates how to use the `@pge/lovable-map-component` package in a React application.
+This example demonstrates how to use the `@pge/gp-map-component` package in a React application.
 
 ## Prerequisites
 
@@ -29,8 +29,8 @@ npm run dev
 ## Usage Example
 
 ```tsx
-import MapView from '@pge/lovable-map-component';
-import '@pge/lovable-map-component/styles.css';
+import MapView from '@pge/gp-map-component';
+import '@pge/gp-map-component/styles.css';
 
 function App() {
   return (
