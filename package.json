@@ -11,8 +11,7 @@
     "type": "git",
     "url": "https://github.com/pge/gp-map-component.git"
   },
-  "keywords": ["react", "map", "maplibre", "wmts", "gis"]
-
+  "keywords": ["react", "map", "maplibre", "wmts", "gis"],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
