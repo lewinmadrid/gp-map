@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     react(),
     dts({
-      include: ['src/lib/**/*'],
+      include: ['src/lib/**/*', 'src/components/**/*'],
       outDir: 'dist',
       insertTypesEntry: true,
     }),
@@ -31,12 +31,14 @@ export default defineConfig({
         'react',
         'react-dom',
         'react/jsx-runtime',
+        'maplibre-gl',
       ],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           'react/jsx-runtime': 'jsxRuntime',
+          'maplibre-gl': 'maplibregl',
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'style.css') return 'styles.css';
