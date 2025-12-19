@@ -1,0 +1,8 @@
+# Supabase Edge Functions Configuration
+# Copy this to your project's supabase/config.toml
+
+[functions.wmts-proxy]
+verify_jwt = false
+
+[functions.wmts-labels-proxy]
+verify_jwt = false
