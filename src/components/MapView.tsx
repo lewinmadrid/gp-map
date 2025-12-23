@@ -4195,7 +4195,7 @@ const MapView = () => {
 
       {/* Cancel Dialog */}
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <DialogContent className="sm:max-w-md" hideOverlay>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Cancel</DialogTitle>
             <DialogDescription>This button will cancel the polygon edits and close the map window</DialogDescription>
@@ -4210,7 +4210,7 @@ const MapView = () => {
 
       {/* Save Dialog */}
       <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
-        <DialogContent className="sm:max-w-md" hideOverlay>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Save</DialogTitle>
             <DialogDescription>
