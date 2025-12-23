@@ -31,12 +31,20 @@ export interface CoverageFilters {
   bsMc: string;
 }
 
+/**
+ * Default Supabase project URL for the zonehaven-map edge functions.
+ * Consumers can use this or provide their own Supabase project URL.
+ */
+export const DEFAULT_SUPABASE_PROJECT_URL = 'https://lwkcovcbhdotptzphevc.supabase.co/functions/v1';
+
 export interface MapViewProps {
   /**
    * Base URL for Supabase edge functions (e.g., "https://xxx.supabase.co/functions/v1")
-   * Required for WMTS tile loading. If not provided, WMTS layers will be disabled.
+   * If not provided, defaults to the zonehaven-map project's edge functions.
+   * Set to null/undefined to explicitly disable WMTS layers.
+   * @default 'https://lwkcovcbhdotptzphevc.supabase.co/functions/v1'
    */
-  supabaseProjectUrl?: string;
+  supabaseProjectUrl?: string | null;
   
   /**
    * Initial map center [longitude, latitude]
