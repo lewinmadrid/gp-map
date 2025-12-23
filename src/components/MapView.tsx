@@ -3351,7 +3351,6 @@ const MapView = () => {
     const source = map.current.getSource("esri-source") as any;
     if (source) {
       source.tiles = [basemap.url];
-      // map.current.style.sourceCaches['esri-source'].reload();
       (map.current.style as any).sourceCaches["esri-source"].reload();
     }
     setCurrentBasemap(basemapKey);
