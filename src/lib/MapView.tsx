@@ -20,6 +20,7 @@ import CoverageAttributePanel from '@/components/CoverageAttributePanel';
 import * as shp from 'shpjs';
 import { Search, Layers, Map as MapIcon, ChevronUp, Home, ZoomIn, ZoomOut, ChevronDown, AlertTriangle, Ruler, Scissors, Undo, Trash2 } from 'lucide-react';
 import type { MapViewProps, BasemapOption, AppMode, CoverageFilters } from './types';
+import { DEFAULT_SUPABASE_PROJECT_URL } from './types';
 
 // Default values
 const DEFAULT_CENTER: [number, number] = [-117.1611, 32.7157]; // San Diego, CA
@@ -48,7 +49,7 @@ const DEFAULT_UI_OPTIONS = {
  * drawing tools, and multiple map modes.
  */
 const MapView: React.FC<MapViewProps> = ({
-  supabaseProjectUrl,
+  supabaseProjectUrl = DEFAULT_SUPABASE_PROJECT_URL,
   initialCenter = DEFAULT_CENTER,
   initialZoom = DEFAULT_ZOOM,
   initialBasemap = DEFAULT_BASEMAP,
@@ -223,8 +224,9 @@ const MapView: React.FC<MapViewProps> = ({
   };
 
   // Build tile URLs using supabaseProjectUrl if provided
+  // Explicitly pass null to disable WMTS layers
   const getProxyTileUrl = (functionName: string): string | null => {
-    if (!supabaseProjectUrl) return null;
+    if (supabaseProjectUrl === null || supabaseProjectUrl === undefined) return null;
     return `${supabaseProjectUrl}/${functionName}/{z}/{x}/{y}`;
   };
 

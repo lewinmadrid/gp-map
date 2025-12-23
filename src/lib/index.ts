@@ -10,6 +10,9 @@ export type {
   CoverageFilters 
 } from './types';
 
+// Constants
+export { DEFAULT_SUPABASE_PROJECT_URL } from './types';
+
 // Re-export supporting components for advanced customization
 export { default as LayersPanel } from '../components/LayersPanel';
 export { default as BasemapToggle } from '../components/BasemapToggle';
