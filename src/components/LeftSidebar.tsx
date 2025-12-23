@@ -10,9 +10,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { User, Shield, LogOut } from 'lucide-react';
 import { endSession } from '@/hooks/useActivityLogger';
 import { useToast } from '@/hooks/use-toast';
+
+export const APP_VERSION = 'v1.0.0';
 
 interface LeftSidebarProps {
   className?: string;
@@ -184,9 +191,19 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
           <div className="flex flex-col h-full">
             {/* Header */}
             <div className="flex items-center gap-3 p-4 border-b border-slate-700">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center">
-                <LogoIcon />
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors cursor-pointer">
+                    <LogoIcon />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent side="right" className="w-48 bg-slate-800 border-slate-700 text-white p-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Genasys EVAC</p>
+                    <p className="text-xs text-gray-400">Version: {APP_VERSION}</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
               <h1 className="text-base font-medium text-gray-300">Genasys EVAC</h1>
             </div>
 
@@ -272,9 +289,19 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center">
-              <LogoIcon />
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors cursor-pointer">
+                  <LogoIcon />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="right" className="w-48 bg-slate-800 border-slate-700 text-white p-3">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Genasys EVAC</p>
+                  <p className="text-xs text-gray-400">Version: {APP_VERSION}</p>
+                </div>
+              </PopoverContent>
+            </Popover>
             <h1 className="text-base font-medium text-gray-300">Genasys EVAC</h1>
           </div>
           <Button
@@ -364,9 +391,19 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
     <div className={`fixed left-0 top-0 bottom-0 w-16 bg-slate-900 flex flex-col items-center py-4 z-40 ${className}`}>
       {/* Logo */}
       <div className="mb-6">
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-          <LogoIcon />
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-slate-800 transition-colors cursor-pointer">
+              <LogoIcon />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side="right" className="w-48 bg-slate-800 border-slate-700 text-white p-3">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Genasys EVAC</p>
+              <p className="text-xs text-gray-400">Version: {APP_VERSION}</p>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Menu items */}
