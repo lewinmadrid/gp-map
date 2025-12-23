@@ -199,12 +199,12 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
                 </PopoverTrigger>
                 <PopoverContent side="right" className="w-48 bg-slate-800 border-slate-700 text-white p-3">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">Genasys EVAC</p>
+                    <p className="text-sm font-medium">GP Map</p>
                     <p className="text-xs text-gray-400">Version: {APP_VERSION}</p>
                   </div>
                 </PopoverContent>
               </Popover>
-              <h1 className="text-base font-medium text-gray-300">Genasys EVAC</h1>
+              <h1 className="text-base font-medium text-gray-300">GP Map</h1>
             </div>
 
             {/* Menu Items */}
@@ -297,12 +297,12 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
               </PopoverTrigger>
               <PopoverContent side="right" className="w-48 bg-slate-800 border-slate-700 text-white p-3">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">Genasys EVAC</p>
+                  <p className="text-sm font-medium">GP Map</p>
                   <p className="text-xs text-gray-400">Version: {APP_VERSION}</p>
                 </div>
               </PopoverContent>
             </Popover>
-            <h1 className="text-base font-medium text-gray-300">Genasys EVAC</h1>
+            <h1 className="text-base font-medium text-gray-300">GP Map</h1>
           </div>
           <Button
             variant="ghost"
@@ -399,7 +399,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ className = '', onExpandedCha
           </PopoverTrigger>
           <PopoverContent side="right" className="w-48 bg-slate-800 border-slate-700 text-white p-3">
             <div className="space-y-1">
-              <p className="text-sm font-medium">Genasys EVAC</p>
+              <p className="text-sm font-medium">GP Map</p>
               <p className="text-xs text-gray-400">Version: {APP_VERSION}</p>
             </div>
           </PopoverContent>
